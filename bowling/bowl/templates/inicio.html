@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Centro de Bowling</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <header class="bg-blue-700 text-white p-4">
+    <h1 class="text-3xl font-bold">Centro de Bowling</h1>
+    <nav class="mt-2 space-x-4">
+      <a href="#clientes" class="hover:underline">Clientes</a>
+      <a href="#pistas" class="hover:underline">Pistas</a>
+      <a href="#reservas" class="hover:underline">Reservas</a>
+      <a href="#cafeteria" class="hover:underline">Cafetería</a>
+      <a href="#partidas" class="hover:underline">Partidas</a>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6 space-y-10">
+
+    <!-- Registro Clientes -->
+    <section id="clientes" class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">Registro de Clientes</h2>
+      <form class="space-y-4 max-w-md" action="#" method="POST">
+        <div>
+          <label class="block font-medium" for="cliente-nombre">Nombre</label>
+          <input id="cliente-nombre" name="nombre" type="text" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <div>
+          <label class="block font-medium" for="cliente-direccion">Dirección</label>
+          <input id="cliente-direccion" name="direccion" type="text" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <div>
+          <label class="block font-medium" for="cliente-telefono">Teléfono</label>
+          <input id="cliente-telefono" name="telefono" type="tel" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <div>
+          <label class="block font-medium" for="cliente-email">Correo electrónico</label>
+          <input id="cliente-email" name="email" type="email" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+          Registrar Cliente
+        </button>
+      </form>
+    </section>
+
+    <!-- Pistas -->
+    <section id="pistas" class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">Pistas de Bowling</h2>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border px-4 py-2">ID Pista</th>
+            <th class="border px-4 py-2">Capacidad Máxima</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="border px-4 py-2">1</td>
+            <td class="border px-4 py-2">6 jugadores</td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="border px-4 py-2">2</td>
+            <td class="border px-4 py-2">4 jugadores</td>
+          </tr>
+          <!-- Más pistas se agregarían dinámicamente -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Reservas -->
+    <section id="reservas" class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">Reservas</h2>
+      <form class="space-y-4 max-w-md" action="#" method="POST">
+        <div>
+          <label class="block font-medium" for="res-cliente">Cliente</label>
+          <select id="res-cliente" name="cliente" required
+            class="w-full border border-gray-300 rounded p-2">
+            <option value="">Seleccione cliente</option>
+            <option value="1">Juan Pérez</option>
+            <option value="2">María López</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium" for="res-pista">Pista</label>
+          <select id="res-pista" name="pista" required
+            class="w-full border border-gray-300 rounded p-2">
+            <option value="">Seleccione pista</option>
+            <option value="1">Pista 1 (6 jugadores)</option>
+            <option value="2">Pista 2 (4 jugadores)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium" for="res-fecha">Fecha</label>
+          <input id="res-fecha" name="fecha" type="date" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <div>
+          <label class="block font-medium" for="res-hora">Hora</label>
+          <input id="res-hora" name="hora" type="time" required
+            class="w-full border border-gray-300 rounded p-2" />
+        </div>
+        <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+          Hacer Reserva
+        </button>
+      </form>
+    </section>
+
+    <!-- Cafetería -->
+    <section id="cafeteria" class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">Menú de Cafetería</h2>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border px-4 py-2">Nombre</th>
+            <th class="border px-4 py-2">Descripción</th>
+            <th class="border px-4 py-2">Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="border px-4 py-2">Hamburguesa</td>
+            <td class="border px-4 py-2">Hamburguesa con queso, lechuga y tomate</td>
+            <td class="border px-4 py-2">$500</td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="border px-4 py-2">Refresco</td>
+            <td class="border px-4 py-2">Bebida gaseosa 500ml</td>
+            <td class="border px-4 py-2">$200</td>
+          </tr>
+          <!-- Más platos y bebidas -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Partidas -->
+    <section id="partidas" class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-semibold mb-4">Partidas</h2>
+      <form class="space-y-4 max-w-lg" action="#" method="POST">
+        <div>
+          <label class="block font-medium" for="partida-reserva">Reserva</label>
+          <select id="partida-reserva" name="reserva" required
+            class="w-full border border-gray-300 rounded p-2">
+            <option value="">Seleccione reserva</option>
+            <option value="1">Reserva #1 - Pista 1</option>
+            <option value="2">Reserva #2 - Pista 2</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium" for="partida-jugadores">Jugadores (nombre y puntaje)</label>
+          <textarea id="partida-jugadores" name="jugadores" rows="4" placeholder="Ej: Juan: 100, María: 80" required
+            class="w-full border border-gray-300 rounded p-2"></textarea>
+        </div>
+        <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+          Registrar Partida
+        </button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+    <p>© 2025 Centro de Bowling - Todos los derechos reservados</p>
+  </footer>
+
+</body>
+</html>

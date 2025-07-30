@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from bowl.views import inicio, reserva
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', inicio, name="inicio"),
+    path('reserva/', reserva, name="reserva")
 ]
