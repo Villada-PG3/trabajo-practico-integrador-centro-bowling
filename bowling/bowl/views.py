@@ -4,6 +4,6 @@ from django.shortcuts import render
 from django.shortcuts import render
 
 def inicio(request):
-    return render(request, 'inicio.html')
+    return render(request, 'bowl/inicio.html')
 def reserva(request):
-    return render(request, 'reserva.html')
+    return render(request, 'bowl/reserva.html')
