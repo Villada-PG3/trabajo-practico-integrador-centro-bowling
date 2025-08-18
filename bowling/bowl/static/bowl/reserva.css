@@ -31,10 +31,9 @@ header h1 {
 /* MAIN */
 main {
   flex-grow: 1;
-  padding: 7rem 1rem 2rem;
+  padding: 7rem 1rem 2rem;  /* espacio desde el header fijo */
   max-width: 1000px;
-  margin-bottom: 50%;
-  margin-top: 50%;
+  margin: 0 auto;           /* centra el contenido */
 }
 
 .reservas {
@@ -42,6 +41,8 @@ main {
   border-radius: 10px;
   padding: 2rem;
   box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  max-width: 900px;         /* limita el ancho */
+  margin: 0 auto;           /* centra horizontalmente */
 }
 
 .reservas h2 {
@@ -50,11 +51,13 @@ main {
   border-bottom: 3px solid #444;
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .reservas p {
   color: #aaa;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 /* TABLA */
@@ -62,6 +65,8 @@ main {
   overflow-x: auto;
   border: 1px solid #333;
   border-radius: 8px;
+  max-width: 800px;     /* ancho máximo de la tabla */
+  margin: 0 auto;       /* centra la tabla */
 }
 
 table {
