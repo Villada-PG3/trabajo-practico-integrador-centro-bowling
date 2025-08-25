@@ -1,3 +1,14 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(to bottom, #011835, rgb(26, 4, 54));
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+
 .login-button {
   
   position: relative;
@@ -6,9 +17,9 @@
   align-items: center;
   gap: 10px;
   padding: 10px 25px;
-  margin-top: 10px;
+
   border-radius: 50px;
-  background: black;      /* fondo inicial */
+  background: #000;      /* fondo inicial */
   color: #ccc;            /* texto gris inicial */
   border: none;
   cursor: pointer;
@@ -61,8 +72,14 @@
   height: 24px;
   fill: currentColor;
 }
-.separator{
-  width: 100px;
-  height: 10px;
+navbar {
+  background-color: #287fb8;
+}
+
+
+.container-fluid {
+  
+  position: fixed;
+  margin-top: 1.8%;
   background-color: black;
 }
