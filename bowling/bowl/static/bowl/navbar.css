@@ -1,85 +1,26 @@
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(to bottom, #011835, rgb(26, 4, 54));
-  color: #eee;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.navbar {
+  margin-top: 10px;
 }
 
-
-.login-button {
-  
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 25px;
-
-  border-radius: 50px;
-  background: #000;      /* fondo inicial */
-  color: #ccc;            /* texto gris inicial */
-  border: none;
-  cursor: pointer;
-  z-index: 0;
-}
-
-/* contenido por encima del pseudo-elemento */
-.login-button > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* pseudo-elemento que hará el "wipe" */
-.login-button::before {
-  content: "";
+/* El svg abajo a la derecha */
+.outline {
   position: absolute;
-  /* lo hacemos un poco más grande y desplazado para cubrir bordes */
-  top: -10%;
-  left: -20%;
-  width: 140%;
-  height: 120%;
-  background: rgba(156, 163, 175, 1);                /* color final gris */
-  transform: translate3d(-110%,0,0) skewX(30deg); /* empezamos fuera */
-  transform-origin: left center;
-  transition: transform 0.45s cubic-bezier(0.3,1,0.8,1);
-  border-radius: 60px;              /* > que el border-radius del botón */
-  will-change: transform;
-  backface-visibility: hidden;
-  z-index: 1;                        /* debajo del contenido, encima del fondo */
-}
-.login-button span {
-    font-weight:700;
-    position: relative;
-    z-index: 10;
-    
+  bottom: 0;
+  right: 0;
+  width: 400px; /* ancho fijo de la barra */
+  height: 60px;
+  pointer-events: none;
 }
 
-/* al pasar el mouse: trae la franja a su lugar */
-.login-button:hover::before {
-  transform: translate3d(0,0,0) skewX(30deg);
+.rect {
+  stroke-dashoffset: 5;
+  stroke-dasharray: 0 0 10 40 10 40;
+  transition: 0.5s;
+  stroke: #fff;
 }
 
-/* texto y icono cambian a negro sobre el gris */
-.login-button:hover {
-  color: black;
-}
-
-.login-button .icon {
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
-}
-navbar {
-  background-color: #287fb8;
-}
-
-
-.container-fluid {
-  
-  position: fixed;
-  margin-top: 1.8%;
-  background-color: black;
+.btn:hover ~ .outline .rect {
+  stroke-dashoffset: 0;
+  stroke-dasharray: 0 0 10 40 10 400;
+  transition: 0.5s !important;
 }

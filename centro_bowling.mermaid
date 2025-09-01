@@ -1,62 +1,63 @@
 erDiagram
-    centro ||--|{ pista : tiene
+    jugador ||--|| estadisticas_jugador : tiene
+    pista }o--|| tipo_pista : tiene
     pista ||--o{ reserva : tiene
+    usuario ||--o{ reserva : hace
     reserva ||--o{ partida : incluye
-    partida ||--o{ participacion : tiene
-    jugador ||--o{ participacion : participa
-    reserva ||--o{ pedido : tiene
-    pedido }o--|| menu : incluye
-    centro ||--|{ cafeteria : tiene
-    cafeteria ||--|{ menu : ofrece
-    cliente ||--o{ reserva : realiza
+    partida ||--o{ turno : tiene
+    turno ||--o{ jugador : tiene
+    reserva ||--o{ cafeteria : accede
+    cafeteria }o--o{ menu : ofrece
+    cafeteria ||--o{ pedido : recibe
+    jugador ||--o{ jugador_partida : participa
+    partida ||--o{ jugador_partida : incluye
+    pedido ||--o{ detalle_pedido : contiene
+    menu ||--o{ detalle_pedido : pertenece
+    cliente ||--|| usuario : tiene
 
+    estadisticas_jugador {
+        string id_estadistica PK
+        string id_jugador FK
+        int partidas_jugadas
+        float promedio_puntaje
+        int total_strikes
+        int total_spares
+    }
 
-    centro {
-        string id_centro PK
+    usuario {
+        string id_usuario PK
+        string id_cliente FK
+        string nombre_usuario
+        string email
+        datetime fecha_creacion
+        boolean activo
     }
 
     pista {
         string id_pista PK
         int capacidad_maxima
-        string id_centro FK
+        string estado
+        string id_tipo_pista FK
     }
 
-    cliente {
-        string id_cliente PK
-        string nombre
-        string direccion
-        int telefono
-        string email
-    }
-
-    reserva {
-        string id_reserva PK
-        date fecha
-        time hora
-        string id_cliente FK
-        string id_pista FK
-    }
-
-    partida {
-        string id_partida PK
-        string id_reserva FK
-        string id_pista FK
-    }
-
-    jugador {
-        string id_jugador PK
-        string nombre
-    }
-
-    participacion {
-        string id_partida FK
-        string id_jugador FK
-        int puntaje
+    tipo_pista {
+        string id_tipo_pista PK
+        string tipo
+        string zona
+        float precio
+        float descuento
+        string descripcion
     }
 
     cafeteria {
         string id_cafeteria PK
-        string id_centro FK
+        string nombre
+        string ubicacion
+        time horario_apertura
+        time horario_cierre
+        int capacidad_maxima
+        string email
+        string telefono
     }
 
     menu {
@@ -64,7 +65,6 @@ erDiagram
         string nombre
         string descripcion
         float precio
-        string id_cafeteria FK
     }
 
     pedido {
@@ -72,5 +72,65 @@ erDiagram
         date horario
         float precio_total
         string id_reserva FK
+        string id_cafeteria FK
+    }
+
+    detalle_pedido {
+        string id_detalle_pedido PK
+        string id_pedido FK
         string id_menu FK
+        int cantidad
+        float subtotal
+    }
+
+    cliente {
+        string id_cliente PK
+        string nombre
+        string direccion
+        string telefono
+        string email
+    }
+
+    reserva {
+        string id_reserva PK
+        date fecha
+        time hora
+        string id_usuario FK
+        string id_pista FK
+        string estado
+        float precio_total
+    }
+
+    partida {
+        string id_partida PK
+        string id_pista FK
+        string id_reserva FK
+        time duracion
+    }
+
+    jugador {
+        string id_jugador PK
+        string nombre
+        int edad
+        string email
+    }
+
+    jugador_partida {
+        string id_jugador_partida PK
+        string id_jugador FK
+        string id_partida FK
+        int puntaje_final
+        int posicion
+    }
+
+    turno {
+        string id_turno PK
+        int numero_turno
+        int lanzamiento1
+        int lanzamiento2
+        int puntaje_turno
+        boolean strike
+        boolean spare
+        string id_partida FK
+        string id_jugador FK
     }

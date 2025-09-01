@@ -13,3 +13,4 @@ class ReservaView(ListView):
     model = Reserva
     template_name = "bowl/reservas.html"
     context_object_name = "reservas"
+
