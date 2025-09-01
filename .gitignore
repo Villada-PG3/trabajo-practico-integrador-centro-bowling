@@ -2,3 +2,14 @@
 /.venv
 /env
 /.env
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+*.log
+/static/
+media/
