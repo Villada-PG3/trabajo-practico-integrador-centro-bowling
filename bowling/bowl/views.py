@@ -33,7 +33,10 @@ def toggle_theme_mode(request):
 def reserva(request):
     return render(request, 'bowl/reserva.html')
 
-class ReservaView(ListView):
+class ReservaView(LoginRequiredMixin, ListView):
     model = Reserva
-    template_name = "bowl/reservas.html"
+    template_name = "bowl/reserva.html"
     context_object_name = "reservas"
+
+    def get_queryset(self):
+        return Reserva.objects.filter(usuario=self.request.user).order_by('-fecha', 'hora')

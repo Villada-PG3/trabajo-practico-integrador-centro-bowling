@@ -9,14 +9,12 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header>
     <div class="container">
       <h1>🎳 Centro de Bowling</h1>
     </div>
   </header>
 
-  <!-- MAIN -->
   <main>
     <section class="reservas">
       <h2>Reservas</h2>
@@ -28,17 +26,25 @@
         <table>
           <thead>
             <tr>
-
+              <th>ID Reserva</th>
+              <th>Cliente</th>
+              <th>Usuario</th>
               <th>Pista</th>
               <th>Fecha</th>
               <th>Hora</th>
               <th>Estado</th>
+              <th>Precio Total</th>
+              <th>Partida</th>
+              <th>Cafetería</th>
             </tr>
           </thead>
           <tbody>
             {% for reserva in reservas %}
               <tr>
-                <td>{{ reserva.pista }}</td>
+                <td>{{ reserva.id_reserva }}</td>
+                <td>{{ reserva.usuario.cliente.nombre }}</td>
+                <td>{{ reserva.usuario.nombre_usuario }}</td>
+                <td>{{ reserva.pista.id_pista }}</td>
                 <td>{{ reserva.fecha }}</td>
                 <td>{{ reserva.hora }}</td>
                 <td>
@@ -46,10 +52,25 @@
                     {{ reserva.estado }}
                   </span>
                 </td>
+                <td>${{ reserva.precio_total }}</td>
+                <td>
+                  {% if reserva.partida %}
+                    Partida #{{ reserva.partida.id_partida }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if reserva.cafeteria %}
+                    {{ reserva.cafeteria.nombre }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="6" style="text-align: center; color: #aaa;">
+                <td colspan="10" style="text-align: center; color: #aaa;">
                   No hay reservas registradas.
                 </td>
               </tr>
@@ -60,7 +81,6 @@
     </section>
   </main>
 
-  <!-- FOOTER -->
   <footer>
     <p>&copy; 2025 Centro de Bowling. Todos los derechos reservados.</p>
   </footer>

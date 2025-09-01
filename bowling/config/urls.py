@@ -23,5 +23,5 @@ urlpatterns = [
     path('', inicio, name="inicio"),
     path('toggle-theme/', toggle_theme_mode, name='toggle_theme'),
     path('reserva/', ReservaView.as_view(), name="reserva")
-    
+
 ]
