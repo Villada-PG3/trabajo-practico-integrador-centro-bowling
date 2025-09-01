@@ -1,43 +1,134 @@
+
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Inventario Lab{% endblock %}</title>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'bowl/navbar.css' %}">
-  <link rel="stylesheet" href="{% static 'bowl/normalize.css' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bowl/navbar.css' %}">
+
+    
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    
+    <title>Dashboard Top Menu</title>
 </head>
 <body>
-  <!-- Navbar Bootstrap -->
-  <nav class="navbar navbar-expand-lg bg-dark position-relative" style="height:60px;">
-    <div class="container-fluid justify-content-around position-relative">
-      <a class="btn text-white">Home</a>
-      <a class="btn text-white">Contact</a>
-      <a class="btn text-white">About</a>
-      <a class="btn text-white">FAQ</a>
+    
+    <nav class="navbar">
+        <div class="image-text">
+            <span class="image">
+                </span>
+            <div class="logo-text">
+                <span class="name">Codinglab</span>
+                <span class="profession">Web developer</span>
+            </div>
+        </div>
+        <div class="menu">
+            <div class="search-box">
+                <i class='bx bx-search icon'></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <ul class="menu-links">
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-home-alt icon'></i>
+                        <span class="text nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-bar-chart-alt-2 icon'></i>
+                        <span class="text nav-text">Revenue</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-bell icon'></i>
+                        <span class="text nav-text">Notifications</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-pie-chart-alt icon'></i>
+                        <span class="text nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-heart icon'></i>
+                        <span class="text nav-text">Likes</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-wallet icon'></i>
+                        <span class="text nav-text">Wallets</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="bottom-content">
+            <div class="profile">
+                <i class='bx bx-user icon'></i>
+                <span class="text nav-text">Profile</span>
+                <div class="profile-dropdown">
+                    <div class="mode-switch">
+                        <i class='bx bx-moon icon' id="mode-icon"></i>
+                        <span class="mode-text">Dark mode</span>
+                        <div class="toggle-switch"></div>
+                    </div>
+                    
+                    <a href="#">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        {% block content %}
+        <div class="text">Dashboard Top Menu</div>
+        {% endblock %}
+    </section>
 
-      <!-- Barra animada abajo a la derecha -->
-      <svg
-        class="outline"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 60"
-      >
-        <rect
-          class="rect"
-          pathLength="100"
-          x="0"
-          y="0"
-          width="400"
-          height="60"
-          fill="transparent"
-          stroke-width="5"
-        ></rect>
-      </svg>
-    </div>
-  </nav>
+    <script>
+        const body = document.querySelector('body'),
+              modeSwitch = document.querySelector('.mode-switch'),
+              modeText = document.querySelector('.mode-text'),
+              modeIcon = document.getElementById('mode-icon');
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        // Function to set the theme based on a parameter
+        const setTheme = (theme) => {
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                modeText.innerText = "Light mode";
+                modeIcon.classList.remove('bx-moon');
+                modeIcon.classList.add('bx-sun');
+            } else {
+                body.classList.remove('dark');
+                modeText.innerText = "Dark mode";
+                modeIcon.classList.remove('bx-sun');
+                modeIcon.classList.add('bx-moon');
+            }
+        };
+
+        // On page load, apply the saved theme from local storage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // Default to light mode if no theme is saved
+            setTheme('light');
+        }
+
+        // Handle the click event on the toggle switch
+        modeSwitch.addEventListener('click', () => {
+            const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            setTheme(newTheme);
+        });
+    </script>
 </body>
 </html>

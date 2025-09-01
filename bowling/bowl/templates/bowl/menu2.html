@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ===== CSS ===== -->
+    <style>
+        /* Google Font Import - Poppins */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        :root{
+            /* ===== Colors ===== */
+            --body-color: #E4E9F7;
+            --navbar-color: #FFF;
+            --primary-color: #695CFE;
+            --primary-color-light: #F6F5FF;
+            --toggle-color: #DDD;
+            --text-color: #707070;
+            /* ====== Transition ====== */
+            --tran-02: all 0.2s ease;
+            --tran-03: all 0.3s ease;
+            --tran-04: all 0.4s ease;
+            --tran-05: all 0.5s ease;
+        }
+        body{
+            min-height: 100vh;
+            background-color: var(--body-color);
+            transition: var(--tran-05);
+        }
+        ::selection{
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        body.dark{
+            --body-color: #18191a;
+            --navbar-color: #242526;
+            --primary-color: #3a3b3c;
+            --primary-color-light: #3a3b3c;
+            --toggle-color: #fff;
+            --text-color: #ccc;
+        }
+        /* ===== Navbar ===== */
+        .navbar{
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 60px;
+            width: 100%;
+            padding: 0 20px;
+            background: var(--navbar-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            transition: var(--tran-05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .navbar .image-text{
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo-text{
+            display: flex;
+            flex-direction: column;
+            margin-left: 10px;
+        }
+        .image-text .name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .image-text .profession{
+            font-size: 14px;
+            margin-top: -2px;
+        }
+        .navbar .image{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .navbar .image img{
+            width: 40px;
+            border-radius: 6px;
+        }
+        .navbar .menu{
+            display: flex;
+            align-items: center;
+        }
+        .navbar .search-box{
+            background-color: var(--primary-color-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            margin-right: 20px;
+            transition: var(--tran-05);
+        }
+        .search-box input{
+            height: 40px;
+            width: 200px;
+            outline: none;
+            border: none;
+            background-color: transparent;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--tran-05);
+        }
+        .navbar .menu-links{
+            display: flex;
+            list-style: none;
+        }
+        .menu-links li{
+            margin: 0 10px;
+        }
+        .menu-links a{
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: var(--tran-03);
+        }
+        .menu-links a:hover{
+            background-color: var(--primary-color);
+            color: var(--navbar-color);
+        }
+        .menu-links a .icon{
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        .menu-links a .text{
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .navbar .bottom-content{
+            display: flex;
+            align-items: center;
+        }
+        .bottom-content a{
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: var(--tran-03);
+            margin-right: 20px;
+        }
+        .bottom-content a:hover{
+            background-color: var(--primary-color);
+            color: var(--navbar-color);
+        }
+        .bottom-content a .icon{
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        .bottom-content a .text{
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .bottom-content .mode{
+            background-color: var(--primary-color-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            transition: var(--tran-05);
+        }
+        .mode .sun-moon{
+            height: 40px;
+            width: 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mode .sun-moon i{
+            position: absolute;
+            font-size: 20px;
+        }
+        .mode .sun-moon i.sun{
+            opacity: 0;
+        }
+        body.dark .mode .sun-moon i.sun{
+            opacity: 1;
+        }
+        body.dark .mode .sun-moon i.moon{
+            opacity: 0;
+        }
+        .mode .mode-text{
+            font-size: 16px;
+            margin: 0 10px;
+            color: var(--text-color);
+        }
+        .mode .toggle-switch{
+            height: 22px;
+            width: 40px;
+            background-color: var(--toggle-color);
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--tran-05);
+        }
+        .toggle-switch .switch{
+            position: absolute;
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            top: 50%;
+            left: 5px;
+            transform: translateY(-50%);
+            background-color: var(--navbar-color);
+            transition: var(--tran-04);
+        }
+        body.dark .toggle-switch .switch{
+            left: 20px;
+        }
+        .home{
+            position: relative;
+            top: 60px;
+            left: 0;
+            height: calc(100vh - 60px);
+            width: 100%;
+            background-color: var(--body-color);
+            transition: var(--tran-05);
+            padding: 20px;
+        }
+        .home .text{
+            font-size: 30px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        body.dark .home .text{
+            color: var(--text-color);
+        }
+    </style>
+    
+    <!-- ===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    
+    <title>Dashboard Top Menu</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="image-text">
+            <span class="image">
+                <!-- <img src="{% static 'logo.png' %}" alt=""> -->
+            </span>
+            <div class="logo-text">
+                <span class="name">Codinglab</span>
+                <span class="profession">Web developer</span>
+            </div>
+        </div>
+        <div class="menu">
+            <div class="search-box">
+                <i class='bx bx-search icon'></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <ul class="menu-links">
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-home-alt icon' ></i>
+                        <span class="text nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-bar-chart-alt-2 icon' ></i>
+                        <span class="text nav-text">Revenue</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-bell icon'></i>
+                        <span class="text nav-text">Notifications</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-pie-chart-alt icon' ></i>
+                        <span class="text nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-heart icon' ></i>
+                        <span class="text nav-text">Likes</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-wallet icon' ></i>
+                        <span class="text nav-text">Wallets</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="bottom-content">
+            <a href="#">
+                <i class='bx bx-log-out icon' ></i>
+                <span class="text nav-text">Logout</span>
+            </a>
+            <div class="mode">
+                <div class="sun-moon">
+                    <i class='bx bx-moon icon moon'></i>
+                    <i class='bx bx-sun icon sun'></i>
+                </div>
+                <span class="mode-text text">Dark mode</span>
+                <div class="toggle-switch">
+                    <span class="switch"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        {% block content %}
+        <div class="text">Dashboard Top Menu</div>
+        {% endblock %}
+    </section>
+    <script>
+        // JavaScript for dark mode toggle
+        const body = document.querySelector('body');
+        const modeSwitch = body.querySelector('.toggle-switch');
+        const modeText = body.querySelector('.mode-text');
+
+        modeSwitch.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            
+            if (body.classList.contains('dark')) {
+                modeText.innerText = 'Light mode';
+            } else {
+                modeText.innerText = 'Dark mode';
+            }
+        });
+    </script>
+</body>
+</html>

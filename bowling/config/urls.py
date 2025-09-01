@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from bowl.views import inicio, ReservaView
+from bowl.views import inicio, ReservaView, toggle_theme_mode
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio, name="inicio"),
+    path('toggle-theme/', toggle_theme_mode, name='toggle_theme'),
     path('reserva/', ReservaView.as_view(), name="reserva")
     
 ]
