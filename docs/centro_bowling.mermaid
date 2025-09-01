@@ -1,0 +1,76 @@
+erDiagram
+    centro ||--|{ pista : tiene
+    pista ||--o{ reserva : tiene
+    reserva ||--o{ partida : incluye
+    partida ||--o{ participacion : tiene
+    jugador ||--o{ participacion : participa
+    reserva ||--o{ pedido : tiene
+    pedido }o--|| menu : incluye
+    centro ||--|{ cafeteria : tiene
+    cafeteria ||--|{ menu : ofrece
+    cliente ||--o{ reserva : realiza
+
+
+    centro {
+        string id_centro PK
+    }
+
+    pista {
+        string id_pista PK
+        int capacidad_maxima
+        string id_centro FK
+    }
+
+    cliente {
+        string id_cliente PK
+        string nombre
+        string direccion
+        int telefono
+        string email
+    }
+
+    reserva {
+        string id_reserva PK
+        date fecha
+        time hora
+        string id_cliente FK
+        string id_pista FK
+    }
+
+    partida {
+        string id_partida PK
+        string id_reserva FK
+        string id_pista FK
+    }
+
+    jugador {
+        string id_jugador PK
+        string nombre
+    }
+
+    participacion {
+        string id_partida FK
+        string id_jugador FK
+        int puntaje
+    }
+
+    cafeteria {
+        string id_cafeteria PK
+        string id_centro FK
+    }
+
+    menu {
+        string id_menu PK
+        string nombre
+        string descripcion
+        float precio
+        string id_cafeteria FK
+    }
+
+    pedido {
+        string id_pedido PK
+        date horario
+        float precio_total
+        string id_reserva FK
+        string id_menu FK
+    }
