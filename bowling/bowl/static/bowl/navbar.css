@@ -1,16 +1,14 @@
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(to bottom, #011835, rgb(26, 4, 54));
-  color: #eee;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.navbar {
+  margin-top: 10px;
 }
-/* From Uiverse.io by SelfMadeSystem */ 
+
+/* El svg abajo a la derecha */
 .outline {
   position: absolute;
-  inset: 0;
+  bottom: 0;
+  right: 0;
+  width: 400px; /* ancho fijo de la barra */
+  height: 60px;
   pointer-events: none;
 }
 
@@ -19,93 +17,10 @@ body {
   stroke-dasharray: 0 0 10 40 10 40;
   transition: 0.5s;
   stroke: #fff;
-}
-
-.nav {
-  position: relative;
-  width: 100%;
-  height: 60px;
-  margin-top: 10px;
-}
-
-.container:hover .outline .rect {
-  transition: 99999999999s;
-  /* Must specify these values here as something *different* just so that the transition works properly */
-  stroke-dashoffset: 1;
-  stroke-dasharray: 0;
-}
-
-.container {
-  position: absolute;
-  inset: 0;
-  background: #bef6;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0.5em;
-}
-
-.btn {
-  padding: 0.5em 1.5em;
-  color: #fff;
-  cursor: pointer;
-  transition: 0.1s;
-}
-
-.btn:hover {
-  background: #fff3;
-}
-
-.btn:nth-child(1):hover ~ svg .rect {
-  stroke-dashoffset: 0;
-  stroke-dasharray: 0 2 8 73.3 8 10.7;
-}
-
-.btn:nth-child(2):hover ~ svg .rect {
-  stroke-dashoffset: 0;
-  stroke-dasharray: 0 12.6 9.5 49.3 9.5 31.6;
-}
-
-.btn:nth-child(3):hover ~ svg .rect {
-  stroke-dashoffset: 0;
-  stroke-dasharray: 0 24.5 8.5 27.5 8.5 55.5;
-}
-
-.btn:nth-child(4):hover ~ svg .rect {
-  stroke-dashoffset: 0;
-  stroke-dasharray: 0 34.7 6.9 10.2 6.9 76;
 }
 
 .btn:hover ~ .outline .rect {
   stroke-dashoffset: 0;
-  stroke-dasharray: 0 0 10 40 10 40;
+  stroke-dasharray: 0 0 10 40 10 400;
   transition: 0.5s !important;
-}
-.btn-wrap {
-  position: relative;
-  display: inline-block;
-}
-
-.outline {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.rect {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 2;
-  stroke-dasharray: 0 0 10 40 10 40;
-  stroke-dashoffset: 5;
-  transition: 0.5s;
-}
-
-.btn-wrap:hover .rect {
-  stroke-dasharray: 0 2 8 73.3 8 10.7; /* Ajusta para cada botón si querés */
-  stroke-dashoffset: 0;
 }
