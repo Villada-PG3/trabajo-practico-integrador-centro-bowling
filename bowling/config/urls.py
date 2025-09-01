@@ -1,5 +1,5 @@
 """
-URL configuration for centrobowling project.
+URL configuration for config project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -16,12 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+<<<<<<< HEAD:bowling/centrobowling/urls.py
 from bowl.views import inicio, reserva, home, pistas, eventos, cafeteria, contacto
 from bowl import views
+=======
+
+from bowl.views import inicio, reserva, hola, holaa
+
+from bowl.views import inicio, ReservaView
+
+>>>>>>> 3d5bd55d81f0479b5daa75f48c9feca3f97246cf:bowling/config/urls.py
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio, name="inicio"),
+<<<<<<< HEAD:bowling/centrobowling/urls.py
     path('reserva/', views.reserva, name="reserva"),
     path('home/', views.home, name="home"),
     path('pistas/', views.pistas, name='pistas'),
@@ -29,4 +38,8 @@ urlpatterns = [
     path('cafeteria/', views.cafeteria, name='cafeteria'),  
     path('contacto/', views.contacto, name='contacto'),
     
+=======
+    path('reserva/', ReservaView.as_view(), name="reserva")
+
+>>>>>>> 3d5bd55d81f0479b5daa75f48c9feca3f97246cf:bowling/config/urls.py
 ]

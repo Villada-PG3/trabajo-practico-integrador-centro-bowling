@@ -1,34 +1,26 @@
-.button-container {
-  display: flex;
-  background-color: rgba(245, 73, 144);
-  width: 250px;
-  height: 40px;
-  align-items: center;
-  justify-content: space-around;
-  border-radius: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px,
-        rgba(245, 73, 144, 0.5) 5px 10px 15px;
+.navbar {
+  margin-top: 10px;
 }
 
-.button {
-  outline: 0 !important;
-  border: 0 !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  transition: all ease-in-out 0.3s;
-  cursor: pointer;
+/* El svg abajo a la derecha */
+.outline {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 400px; /* ancho fijo de la barra */
+  height: 60px;
+  pointer-events: none;
 }
 
-.button:hover {
-  transform: translateY(-3px);
+.rect {
+  stroke-dashoffset: 5;
+  stroke-dasharray: 0 0 10 40 10 40;
+  transition: 0.5s;
+  stroke: #fff;
 }
 
-.icon {
-  font-size: 20px;
+.btn:hover ~ .outline .rect {
+  stroke-dashoffset: 0;
+  stroke-dasharray: 0 0 10 40 10 400;
+  transition: 0.5s !important;
 }
