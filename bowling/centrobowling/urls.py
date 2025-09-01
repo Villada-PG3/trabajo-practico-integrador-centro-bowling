@@ -16,11 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from bowl.views import inicio, reserva
+from bowl.views import inicio, reserva, home, pistas, eventos, cafeteria, contacto
+from bowl import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio, name="inicio"),
-    path('reserva/', reserva, name="reserva")
+    path('reserva/', views.reserva, name="reserva"),
+    path('home/', views.home, name="home"),
+    path('pistas/', views.pistas, name='pistas'),
+    path('eventos/', views.eventos, name='eventos'),
+    path('cafeteria/', views.cafeteria, name='cafeteria'),  
+    path('contacto/', views.contacto, name='contacto'),
     
 ]
