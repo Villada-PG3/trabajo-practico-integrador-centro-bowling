@@ -1,5 +1,9 @@
 {% extends 'bowl/navbar.html' %}
+{% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="hero-section">
@@ -30,4 +34,4 @@
         <p>Genera reportes a la medida de tus necesidades y objetivos.</p>
     </div>
 </div>
-{% endblock %}
+{% endblock content %}

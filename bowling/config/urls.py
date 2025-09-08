@@ -27,8 +27,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio, name="inicio"),
     path('reserva/', ReservaView.as_view(), name="reserva"),
-    path('cafe/', cafe, name="cafe")
-    path('toggle-theme/', toggle_theme_mode, name='toggle_theme'),
+    path('cafe/', cafe, name="cafe"),
+
 
 
 ]

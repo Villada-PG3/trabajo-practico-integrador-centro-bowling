@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'bowl/navbar.css' %}">
-
+    
+    {% block extra_css %}
+    {% endblock %}
     
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     
     <title>Dashboard Top Menu</title>
 </head>
 <body>
-    
     <nav class="navbar">
         <div class="image-text">
-            <span class="image">
-                </span>
+            <span class="image"></span>
             <div class="logo-text">
                 <span class="name">Codinglab</span>
                 <span class="profession">Web developer</span>
@@ -78,7 +77,7 @@
                         <span class="mode-text">Dark mode</span>
                         <div class="toggle-switch"></div>
                     </div>
-                    <div class = "container-button">
+                    <div class="container-button">
                         <a href="#">
                             <i class='bx bx-log-out icon'></i>
                             <span class="text">Logout</span>
@@ -87,12 +86,10 @@
                 </div>
             </div>
         </div>
-       
-  
     </nav>
+    
     <section class="home">
         {% block content %}
-        <div class="text">Dashboard Top Menu</div>
         {% endblock %}
     </section>
 
@@ -102,7 +99,6 @@
               modeText = document.querySelector('.mode-text'),
               modeIcon = document.getElementById('mode-icon');
 
-        // Function to set the theme based on a parameter
         const setTheme = (theme) => {
             if (theme === 'dark') {
                 body.classList.add('dark');
@@ -117,16 +113,13 @@
             }
         };
 
-        // On page load, apply the saved theme from local storage
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             setTheme(savedTheme);
         } else {
-            // Default to light mode if no theme is saved
             setTheme('light');
         }
 
-        // Handle the click event on the toggle switch
         modeSwitch.addEventListener('click', () => {
             const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);

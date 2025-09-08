@@ -1,0 +1,113 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/cafe.css' %}">
+{% endblock %}
+{% block content%}
+<body>
+    <nav class="navbar">
+        <div class="image-text">
+            <span class="image"></span>
+            <div class="logo-text">
+                <span class="name">Café Codinglab</span>
+                <span class="profession">Café & Desayunos</span>
+            </div>
+        </div>
+        <div class="menu">
+            <div class="search-box">
+                <i class='bx bx-search icon'></i>
+                <input type="text" placeholder="Buscar...">
+            </div>
+            <ul class="menu-links">
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-home-alt icon'></i>
+                        <span class="text nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-coffee icon'></i>
+                        <span class="text nav-text">Menú</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-bell icon'></i>
+                        <span class="text nav-text">Promociones</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-user icon'></i>
+                        <span class="text nav-text">Reservas</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-heart icon'></i>
+                        <span class="text nav-text">Favoritos</span>
+                    </a>
+                </li>
+                <li class="nav-link">
+                    <a href="#">
+                        <i class='bx bx-wallet icon'></i>
+                        <span class="text nav-text">Pedidos</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="bottom-content">
+            <div class="profile">
+                <i class='bx bx-user icon'></i>
+                <span class="text nav-text">Iniciar Sesión</span>
+                <div class="profile-dropdown">
+                    <div class="mode-switch">
+                        <i class='bx bx-moon icon' id="mode-icon"></i>
+                        <span class="mode-text">Modo Oscuro</span>
+                        <div class="toggle-switch"></div>
+                    </div>
+                    <div class="container-button">
+                        <a href="#">
+                            <i class='bx bx-log-out icon'></i>
+                            <span class="text">Cerrar Sesión</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="hero-section">
+            <h1>¡Bienvenido a Nuestra Cafetería!</h1>
+            <p>Descubre nuestra selección de cafés, bebidas y bocadillos preparados con los mejores ingredientes.</p>
+            <a href="#" class="cta-button">Ver Menú Completo</a>
+        </div>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class='bx bx-coffee icon-big'></i>
+                <h3>Café Clásico</h3>
+                <p>Un espresso fuerte y aromático, perfecto para empezar el día.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-cup icon-big'></i>
+                <h3>Latte Especial</h3>
+                <p>Mezcla cremosa de espresso, leche vaporizada y un toque de vainilla.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-cake icon-big'></i>
+                <h3>Pasteles Frescos</h3>
+                <p>Deliciosos pasteles caseros, ideales para acompañar tu bebida favorita.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-leaf icon-big'></i>
+                <h3>Té Orgánico</h3>
+                <p>Selección de tés naturales y saludables para un momento de relax.</p>
+            </div>
+        </div>
+    </section>
+    
+</body>
+</html>
+{% endblock %}
