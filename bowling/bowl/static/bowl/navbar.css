@@ -14,6 +14,7 @@
     --primary-color-light: #F6F5FF;
     --toggle-color: #DDD;
     --text-color: #707070;
+    --estado-logeo: 1;
     /* ====== Transition ====== */
     --tran-02: all 0.2s ease;
     --tran-03: all 0.3s ease;
@@ -122,9 +123,10 @@ body.dark{
     background-color: var(--primary-color);
     color: var(--navbar-color);
 }
-.menu-links a .icon{
+.menu-links a .icon{    
     font-size: 20px;
     margin-right: 8px;
+    
 }
 .menu-links a .text{
     font-size: 16px;
@@ -252,7 +254,10 @@ body.dark .icon {
     color: var(--text-color);
 }
 body .icon{
-    color: var(--text-color);
+    color: var(--primary-color);
+}
+body .nav-link:hover .icon{
+    color: var(--toggle-color);
 }
 /* ===== Nuevos Estilos para el Home ===== */
 .hero-section {
@@ -316,10 +321,14 @@ body .icon{
     transform: translateY(-5px);
     box-shadow: 0 8px 12px rgba(0,0,0,0.15);
 }
+
 .icon-big {
     font-size: 4rem;
     color: var(--primary-color);
     margin-bottom: 15px;
+}
+body.dark .icon-big{
+    color: var(--text-color);
 }
 .feature-item h3 {
     font-size: 1.3rem;
@@ -341,4 +350,7 @@ body.dark .feature-item {
 }
 body.dark .cta-button {
     color: var(--text-color);
+}
+.container-button{
+  opacity: var(--estado-logeo);
 }
