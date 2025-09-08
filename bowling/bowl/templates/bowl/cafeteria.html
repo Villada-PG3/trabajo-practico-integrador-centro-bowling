@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceBowling - Tu Experiencia Favorita</title>
+    <link rel="stylesheet" href="{% static 'normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'bowl/cafeteria.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cart Icon -->
+    <div class="cart-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C17 18.104 17.896 19 19 19C20.104 19 21 18.104 21 17C21 15.896 20.104 15 19 15C17.896 15 17 15.896 17 17ZM7 19C5.896 19 5 18.104 5 17C5 15.896 5.896 15 7 15C8.104 15 9 15.896 9 17C9 18.104 8.104 19 7 19Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="cart-count">0</span>
+    </div>
+
+    <!-- Cart Dropdown -->
+    <div class="cart-dropdown" id="cartDropdown">
+        <div class="master-container">
+            <div class="card cart">
+                <label class="title">Tu carrito</label>
+                <div class="products">
+                    <!-- Productos se agregarán dinámicamente con JS -->
+                </div>
+            </div>
+
+            <div class="card coupons">
+                <label class="title">Aplicar cupones</label>
+                <form class="form">
+                    <input type="text" placeholder="Aplica tus cupones aquí" class="input_field">
+                    <button type="button">Aplicar</button>
+                </form>
+            </div>
+
+            <div class="card checkout">
+                <label class="title">Checkout</label>
+                <div class="details">
+                    <span>Subtotal de tu carrito:</span>
+                    <span class="subtotal">$0.00</span>
+                    <span>Descuento por cupones aplicados:</span>
+                    <span class="discount">$0.00</span>
+                    <span>Cargos de envío:</span>
+                    <span>$4.99</span>
+                </div>
+                <div class="checkout--footer">
+                    <label class="price"><sup>$</sup><span class="total">4.99</span></label>
+                    <button class="checkout-btn">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="hero">
+        <h1>SpaceBowling: Tu Experiencia Favorita</h1>
+        <p>¡Cómo querés hoy tu pedido!</p>
+    </header>
+
+    <!-- Carousel Section -->
+    <section class="carousel-section">
+        <div class="carousel-container">
+            <button class="carousel-btn prev">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="carousel-track">
+                <div class="product-card">
+                    <img src="{% static 'images/space-burger.jpg' %}" alt="SpaceBowling Burger" class="product-img">
+                    <h3>SpaceBowling Burger</h3>
+                    <p>Clásica hamburguesa con carne jugosa, lechuga, queso y salsa especial.</p>
+                    <span class="price">$12.99</span>
+                    <button class="add-to-cart" data-name="SpaceBowling Burger" data-price="12.99" data-desc="Clásica con queso">Agregar al carrito</button>
+                </div>
+                <div class="product-card">
+                    <img src="{% static 'images/space-nuggets.jpg' %}" alt="SpaceNuggets" class="product-img">
+                    <h3>SpaceNuggets</h3>
+                    <p>Deliciosos nuggets crujientes con salsa a elección.</p>
+                    <span class="price">$8.99</span>
+                    <button class="add-to-cart" data-name="SpaceNuggets" data-price="8.99" data-desc="6 piezas con salsa">Agregar al carrito</button>
+                </div>
+                <div class="product-card">
+                    <img src="{% static 'images/space-fries.jpg' %}" alt="SpaceFries" class="product-img">
+                    <h3>SpaceFries</h3>
+                    <p>Papas doradas y crujientes, perfectas para compartir.</p>
+                    <span class="price">$4.99</span>
+                    <button class="add-to-cart" data-name="SpaceFries" data-price="4.99" data-desc="Tamaño mediano">Agregar al carrito</button>
+                </div>
+                <div class="product-card">
+                    <img src="{% static 'images/space-coffee.jpg' %}" alt="SpaceCafé" class="product-img">
+                    <h3>SpaceCafé</h3>
+                    <p>Café recién hecho con un toque especial.</p>
+                    <span class="price">$3.99</span>
+                    <button class="add-to-cart" data-name="SpaceCafé" data-price="3.99" data-desc="Capuchino">Agregar al carrito</button>
+                </div>
+            </div>
+            <button class="carousel-btn next">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Marketing Cards Section -->
+    <section class="marketing-section">
+        <div class="marketing-card">
+            <h3>Horarios de Atención</h3>
+            <p>Lunes a Domingo: 10:00 AM - 12:00 AM. ¡Vení a disfrutar en cualquier momento!</p>
+        </div>
+        <div class="marketing-card">
+            <h3>Ubicación</h3>
+            <p>Av. Espacial 123, Ciudad del Bowling. Encontranos cerca de las pistas principales.</p>
+        </div>
+        <div class="marketing-card">
+            <h3>Contacto</h3>
+            <p>Llamanos al +54 9 11 1234-5678 o escribinos a info@spacebowling.com.</p>
+        </div>
+    </section>
+
+    <!-- FAQ Collapsible Sections -->
+    <section class="faq-section">
+        <h2>Preguntas Frecuentes</h2>
+        <div class="faq-item">
+            <button class="faq-toggle">¿Qué medios de pago acepta SpaceBowling?</button>
+            <div class="faq-content">
+                <p>Aceptamos efectivo, tarjetas de crédito/débito, y pagos a través de la app de SpaceBowling.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-toggle">¿Cómo puedo cancelar mi pedido?</button>
+            <div class="faq-content">
+                <p>Puedes cancelar tu pedido desde la app o llamando al restaurante antes de que sea preparado.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-toggle">Seguimiento del estado de mi pedido</button>
+            <div class="faq-content">
+                <p>Rastrea tu pedido en tiempo real desde la sección 'Mis Pedidos' en la app.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-toggle">Mi pedido no llegó como esperaba</button>
+            <div class="faq-content">
+                <p>Contáctanos a través de la app o al número de atención al cliente para resolverlo.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-toggle">Mi tarjeta ha sido rechazada</button>
+            <div class="faq-content">
+                <p>Verificá los fondos o contactá a tu banco. También podés usar otro método de pago.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-toggle">Confirmación de compra</button>
+            <div class="faq-content">
+                <p>Recibirás un correo o notificación en la app con los detalles de tu compra.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <ul>
+            <li><a href="#">Contáctanos</a></li>
+            <li><a href="#">Acerca de Nosotros</a></li>
+            <li><a href="#">Política de Privacidad</a></li>
+            <li><a href="#">Términos de Servicio</a></li>
+            <li><a href="#">Mapa del Sitio</a></li>
+        </ul>
+        <p>&copy; 2025 SpaceBowling. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Carousel Logic
+        const track = document.querySelector('.carousel-track');
+        const prevBtn = document.querySelector('.prev');
+        const nextBtn = document.querySelector('.next');
+        const cardWidth = document.querySelector('.product-card').offsetWidth + 20;
+        let currentIndex = 0;
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = Math.min(currentIndex + 1, track.children.length - 3);
+            track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            track.style.transition = 'transform 0.5s ease-in-out';
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = Math.max(currentIndex - 1, 0);
+            track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            track.style.transition = 'transform 0.5s ease-in-out';
+        });
+
+        // Reset transition on resize
+        window.addEventListener('resize', () => {
+            track.style.transition = 'none';
+            setTimeout(() => {
+                track.style.transition = 'transform 0.5s ease-in-out';
+            }, 100);
+        });
+
+        // Cart Logic
+        const productsContainer = document.querySelector('.products');
+        const subtotalSpan = document.querySelector('.subtotal');
+        const discountSpan = document.querySelector('.discount');
+        const totalSpan = document.querySelector('.total');
+        const cartCount = document.querySelector('.cart-count');
+        const cartIcon = document.querySelector('.cart-icon');
+        const cartDropdown = document.getElementById('cartDropdown');
+        let cartItems = [];
+        let subtotal = 0;
+        let discount = 0;
+
+        cartIcon.addEventListener('click', (event) => {
+            event.stopPropagation();
+            cartDropdown.style.display = cartDropdown.style.display === 'block' ? 'none' : 'block';
+            if (cartDropdown.style.display === 'block') {
+                cartDropdown.style.animation = 'slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+                cartDropdown.style.display = 'none';
+            }
+        });
+
+        // Prevent close on inner clicks
+        cartDropdown.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const name = button.dataset.name;
+                const price = parseFloat(button.dataset.price);
+                const desc = button.dataset.desc;
+
+                const existingItem = cartItems.find(item => item.name === name);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cartItems.push({ name, price, desc, quantity: 1 });
+                }
+
+                updateCart();
+            });
+        });
+
+        function updateCart() {
+            productsContainer.innerHTML = '';
+            subtotal = 0;
+            let totalItems = 0;
+
+            cartItems.forEach(item => {
+                subtotal += item.price * item.quantity;
+                totalItems += item.quantity;
+
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product');
+                productDiv.innerHTML = `
+                    <svg fill="none" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
+                        <rect fill="#F5F5F5" rx="8.25" height="60" width="60"></rect>
+                    </svg>
+                    <div>
+                        <span>${item.name}</span>
+                        <p>${item.desc}</p>
+                    </div>
+                    <div class="quantity">
+                        <button onclick="changeQuantity('${item.name}', -1)">-</button>
+                        <label>${item.quantity}</label>
+                        <button onclick="changeQuantity('${item.name}', 1)">+</button>
+                    </div>
+                    <label class="price small">$${ (item.price * item.quantity).toFixed(2) }</label>
+                `;
+                productsContainer.appendChild(productDiv);
+            });
+
+            subtotalSpan.textContent = `$${subtotal.toFixed(2)}`;
+            discountSpan.textContent = `$${discount.toFixed(2)}`;
+            const shipping = 4.99;
+            const total = subtotal - discount + shipping;
+            totalSpan.textContent = total.toFixed(2);
+
+            cartCount.textContent = totalItems;
+            if (totalItems > 0) {
+                cartCount.style.display = 'block';
+            } else {
+                cartCount.style.display = 'none';
+            }
+        }
+
+        window.changeQuantity = function(name, change) {
+            const item = cartItems.find(item => item.name === name);
+            if (item) {
+                item.quantity = Math.max(item.quantity + change, 0);
+                if (item.quantity === 0) {
+                    cartItems = cartItems.filter(i => i.name !== name);
+                }
+                updateCart();
+            }
+        };
+
+        document.querySelector('.coupons button').addEventListener('click', () => {
+            const input = document.querySelector('.input_field');
+            if (input.value.toUpperCase() === 'SPACE') {
+                discount = 5;
+                updateCart();
+                alert('Cupón aplicado: $5 de descuento');
+            } else {
+                alert('Cupón inválido');
+            }
+            input.value = '';
+        });
+
+        // FAQ Toggle
+        document.querySelectorAll('.faq-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                if (content.style.display === 'block') {
+                    content.style.display = 'none';
+                    button.style.backgroundColor = '#000000';
+                    content.style.animation = 'slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                } else {
+                    content.style.display = 'block';
+                    button.style.backgroundColor = '#333333';
+                    content.style.animation = 'slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
