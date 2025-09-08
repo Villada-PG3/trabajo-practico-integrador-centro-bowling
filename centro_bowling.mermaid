@@ -14,6 +14,7 @@ erDiagram
     pedido ||--o{ detalle_pedido : contiene
     menu ||--o{ detalle_pedido : pertenece
     cliente ||--|| usuario : tiene
+    cliente ||--o{ pedido : hace
 
     estadisticas_jugador {
         string id_estadistica PK
@@ -73,6 +74,7 @@ erDiagram
         float precio_total
         string id_reserva FK
         string id_cafeteria FK
+        int id_cliente FK
     }
 
     detalle_pedido {
@@ -123,14 +125,20 @@ erDiagram
         int posicion
     }
 
-    turno {
-        string id_turno PK
-        int numero_turno
-        int lanzamiento1
-        int lanzamiento2
-        int puntaje_turno
-        boolean strike
-        boolean spare
-        string id_partida FK
-        string id_jugador FK
-    }
+     turno {
+    int id_turno PK
+    int numero_turno
+    int lanzamiento1
+    int lanzamiento2
+    int lanzamiento3         
+    int puntaje_turno
+    int bonus
+    boolean strike
+    boolean spare
+    boolean falta1
+    boolean falta2
+    boolean falta3      
+    boolean frame_final
+    string id_partida FK
+    string id_jugador FK
+}
