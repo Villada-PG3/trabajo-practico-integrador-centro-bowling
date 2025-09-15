@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block content %}
+{% load static %}
+
   <div class="background_cafeteria">
   </div>
   <!-- Cart Icon -->
@@ -68,21 +70,21 @@
             </button>
             <div class="carousel-track">
                 <div class="product-card">
-                    <img src="{% static 'images/space-burger.jpg' %}" alt="SpaceBowling Burger" class="product-img">
+                    <img src="{% static 'bowl/imagenes/hamburguesa.png' %}" alt="SpaceBowling Burger" class="product-img">
                     <h3>SpaceBowling Burger</h3>
                     <p>Clásica hamburguesa con carne jugosa, lechuga, queso y salsa especial.</p>
                     <span class="price">$12.99</span>
                     <button class="add-to-cart" data-name="SpaceBowling Burger" data-price="12.99" data-desc="Clásica con queso">Agregar al carrito</button>
                 </div>
                 <div class="product-card">
-                    <img src="{% static 'images/space-nuggets.jpg' %}" alt="SpaceNuggets" class="product-img">
+                    <img src="{% static 'bowl/imagenes/nuggets.png' %}" alt="SpaceNuggets" class="product-img">
                     <h3>SpaceNuggets</h3>
                     <p>Deliciosos nuggets crujientes con salsa a elección.</p>
                     <span class="price">$8.99</span>
                     <button class="add-to-cart" data-name="SpaceNuggets" data-price="8.99" data-desc="6 piezas con salsa">Agregar al carrito</button>
                 </div>
                 <div class="product-card">
-                    <img src="{% static 'images/space-fries.jpg' %}" alt="SpaceFries" class="product-img">
+                    <img src="{% static 'bowl/imagenes/papas.png' %}" alt="SpaceFries" class="product-img">
                     <h3>SpaceFries</h3>
                     <p>Papas doradas y crujientes, perfectas para compartir.</p>
                     <span class="price">$4.99</span>
