@@ -1,0 +1,41 @@
+{% extends "bowl/navbar.html" %}
+
+{% block content %}
+<div class="contact-section">
+    <h1 class="contact-title">Contacto</h1>
+    <p class="contact-subtitle">¿Tenés alguna consulta? Completá el formulario y te responderemos a la brevedad.</p>
+
+    <div class="contact-container">
+        <!-- Formulario de contacto -->
+        <form method="post" class="contact-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Tu correo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mensaje">Mensaje</label>
+                <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribí tu mensaje..." required></textarea>
+            </div>
+
+            <button type="submit" class="cta-button">Enviar</button>
+        </form>
+
+        <!-- Información de contacto -->
+        <div class="contact-info">
+            <h3>También podés encontrarnos en:</h3>
+            <ul>
+                <li><i class='bx bx-map'></i> Av. Siempreviva 742, Springfield</li>
+                <li><i class='bx bx-phone'></i> +54 9 11 1234 5678</li>
+                <li><i class='bx bx-envelope'></i> contacto@spacebowling.com</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
