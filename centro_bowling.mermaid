@@ -5,16 +5,18 @@ erDiagram
     usuario ||--o{ reserva : hace
     reserva ||--o{ partida : incluye
     partida ||--o{ turno : tiene
-    turno ||--o{ jugador : tiene
+    turno }o--|| jugador : pertenece_a
     reserva ||--o{ cafeteria : accede
     cafeteria }o--o{ menu : ofrece
     cafeteria ||--o{ pedido : recibe
     jugador ||--o{ jugador_partida : participa
     partida ||--o{ jugador_partida : incluye
     pedido ||--o{ detalle_pedido : contiene
-    menu ||--o{ detalle_pedido : pertenece
     cliente ||--|{ usuario : tiene
     cliente ||--o{ pedido : hace
+    detalle_pedido ||--o{ menu : incluye    
+    detalle_pedido }o--|| cliente : pertenece_a
+
 
     estadisticas_jugador {
         string id_estadistica PK
@@ -74,7 +76,7 @@ erDiagram
         float precio_total
         string id_reserva FK
         string id_cafeteria FK
-        int id_cliente FK
+        string id_cliente FK
     }
 
     detalle_pedido {
@@ -83,6 +85,7 @@ erDiagram
         string id_menu FK
         int cantidad
         float subtotal
+        string id_cliente FK
     }
 
     cliente {
@@ -125,20 +128,20 @@ erDiagram
         int posicion
     }
 
-     turno {
-    int id_turno PK
-    int numero_turno
-    int lanzamiento1
-    int lanzamiento2
-    int lanzamiento3         
-    int puntaje_turno
-    int bonus
-    boolean strike
-    boolean spare
-    boolean falta1
-    boolean falta2
-    boolean falta3      
-    boolean frame_final
-    string id_partida FK
-    string id_jugador FK
-}
+    turno {
+        int id_turno PK
+        int numero_turno
+        int lanzamiento1
+        int lanzamiento2
+        int lanzamiento3         
+        int puntaje_turno
+        int bonus
+        boolean strike
+        boolean spare
+        boolean falta1
+        boolean falta2
+        boolean falta3      
+        boolean frame_final
+        string id_partida FK
+        string id_jugador_partida FK
+    }
