@@ -1,0 +1,93 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+<style>
+.content-container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+ul.comidas-list {
+    list-style: none;
+    padding: 0;
+}
+
+ul.comidas-list li {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+ul.comidas-list li:hover {
+    background-color: #e6f7ee;
+}
+
+a.edit {
+    color: #28a745;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a.edit:hover {
+    text-decoration: underline;
+}
+
+.no-data {
+    text-align: center;
+    color: #888;
+    padding: 15px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Lista de Comidas</h1>
+    <a href="{% url 'crear_comida' %}" class="btn">Nueva Comida</a>
+    <ul class="comidas-list">
+        {% for comida in comidas %}
+        <li>
+            <span>{{ comida.nombre }} - {{ comida.precio }}$</span>
+            <a href="{% url 'editar_comida' comida.pk %}" class="edit">Editar</a>
+        </li>
+        {% empty %}
+        <li class="no-data">No hay comidas registradas.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}
