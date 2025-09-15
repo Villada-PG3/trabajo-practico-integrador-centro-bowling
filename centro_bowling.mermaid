@@ -13,7 +13,7 @@ erDiagram
     partida ||--o{ jugador_partida : incluye
     pedido ||--o{ detalle_pedido : contiene
     menu ||--o{ detalle_pedido : pertenece
-    cliente ||--|| usuario : tiene
+    cliente ||--|{ usuario : tiene
     cliente ||--o{ pedido : hace
 
     estadisticas_jugador {
