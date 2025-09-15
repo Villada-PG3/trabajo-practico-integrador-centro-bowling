@@ -32,7 +32,7 @@ class UsuarioAdmin(admin.ModelAdmin):
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
     list_display = ('id_cliente', 'nombre', 'direccion', 'telefono', 'email')
-    search_fields = ('nombre', 'email')
+    search_fields = ('nombre', 'email') 
 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
