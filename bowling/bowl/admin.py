@@ -21,12 +21,12 @@ class PistaAdmin(admin.ModelAdmin):
 
 @admin.register(TipoPista)
 class TipoPistaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'zona', 'precio', 'descuento', 'descripcion')
-    search_fields = ('nombre',)
+    list_display = ('id', 'tipo', 'zona', 'precio', 'descuento', 'descripcion')
+    search_fields = ('tipo',)
 
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'nombre_usuario', 'email', 'activo')
+    list_display = ('id_usuario', 'cliente', 'nombre_usuario', 'email', 'activo')
     search_fields = ('nombre_usuario', 'email')
 
 @admin.register(Cliente)
@@ -46,20 +46,20 @@ class PartidaAdmin(admin.ModelAdmin):
 
 @admin.register(JugadorPartida)
 class JugadorPartidaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'jugador', 'partida', 'puntaje_final', 'posicion')
+    list_display = ('id_jugador_partida', 'jugador', 'partida', 'puntaje_final', 'posicion')
 
 @admin.register(Turno)
 class TurnoAdmin(admin.ModelAdmin):
     list_display = (
-        'id_turno', 'numero_turno', 'partida', 'jugador', 'lanzamiento1', 'lanzamiento2', 
-        'lanzamiento3', 'puntaje_turno', 'bonus', 'strike', 'spare', 
+        'id_turno', 'numero_turno', 'partida', 'jugador_partida', 'lanzamiento1', 'lanzamiento2',
+        'lanzamiento3', 'puntaje_turno', 'bonus', 'strike', 'spare',
         'falta1', 'falta2', 'falta3', 'frame_final'
     )
-    list_filter = ('partida', 'jugador')
+    list_filter = ('partida', 'jugador_partida')
 
 @admin.register(Cafeteria)
 class CafeteriaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono')
+    list_display = ('id_cafeteria', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono')
     search_fields = ('nombre',)
 
 @admin.register(Menu)
@@ -69,7 +69,7 @@ class MenuAdmin(admin.ModelAdmin):
 
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('id_pedido', 'horario', 'precio_total', 'reserva', 'menu')
+    list_display = ('id_pedido', 'horario', 'precio_total', 'reserva', 'cafeteria', 'cliente')
     list_filter = ('horario',)
 
 @admin.register(DetallePedido)
