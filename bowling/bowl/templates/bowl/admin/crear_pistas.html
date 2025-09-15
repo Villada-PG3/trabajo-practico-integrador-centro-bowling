@@ -1,0 +1,17 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Crear Pista</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+</body>
+{% endblockcontent%}

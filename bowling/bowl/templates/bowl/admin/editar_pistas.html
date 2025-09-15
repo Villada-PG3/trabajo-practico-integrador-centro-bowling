@@ -1,0 +1,19 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Lista de Pistas</h1>
+<a href="{% url 'crear_pista' %}">Nueva Pista</a>
+<ul>
+  {% for pista in pistas %}
+    <li>
+      Pista {{ pista.numero }} - {{ pista.tipo }} - {{ pista.estado }}
+      <a href="{% url 'editar_pista' pista.pk %}">Editar</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblockcontent%}
