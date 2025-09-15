@@ -2,4 +2,18 @@
 /.venv
 /env
 /.env
+<<<<<<< HEAD
 *.Zone.Identifier
+=======
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+*.log
+/static/
+media/
+>>>>>>> b880126141b95126722b1fe4a814d37423bb8e0e

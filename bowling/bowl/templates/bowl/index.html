@@ -1,0 +1,14 @@
+{% extends "bowl/navbar.html" %}
+
+{% block title %}Inicio - SpaceBowling{% endblock %}
+
+{% block content %}
+<section class="hero text-center">
+    <img src="https://images.unsplash.com/photo-1619785295818-c86c55ee4a6f"
+         alt="Bowling Background"
+         class="img-fluid rounded shadow mb-4">
+    <h2 class="fw-bold">Vive la emoción del Bowling</h2>
+    <p>Diversión, amigos y la mejor experiencia en SpaceBowling 🎳✨</p>
+    <a href="{% url 'reserva' %}" class="btn btn-primary btn-lg mt-3">Reserva tu pista ahora</a>
+</section>
+{% endblock %}
