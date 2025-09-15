@@ -45,19 +45,19 @@ class ReservaView(LoginRequiredMixin, ListView):
 # ---------- Vistas de Pistas ----------
 class ListaPistasView(ListView):
     model = Pista
-    template_name = "bowl/admin/lista_pistas.html"
+    template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
 
 
 class CrearPistaView(CreateView):
     model = Pista
     form_class = PistaForm
-    template_name = "bowl/admin/crear_pista.html"
+    template_name = "bowl/cositas_admin/crear_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
 
 class EditarPistaView(UpdateView):
     model = Pista
     form_class = PistaForm
-    template_name = "bowl/admin/editar_pista.html"
+    template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
