@@ -42,6 +42,24 @@ class ReservaView(LoginRequiredMixin, ListView):
     template_name = "bowl/reserva.html"
     context_object_name = "reservas"
 
+<<<<<<< HEAD
     def get_queryset(self):
         return Reserva.objects.filter(usuario=self.request.user).order_by('-fecha', 'hora')
 
+=======
+
+def home(request):
+    return render(request, 'bowl/home.html')
+
+def pistas(request):
+    return render(request, 'bowl/pistas.html')
+
+def eventos(request):
+    return render(request, 'bowl/eventos.html')
+
+def cafeteria(request):  
+    return render(request, 'bowl/cafeteria.html')
+
+def contacto(request):
+    return render(request, 'bowl/contacto.html')
+>>>>>>> b880126141b95126722b1fe4a814d37423bb8e0e
