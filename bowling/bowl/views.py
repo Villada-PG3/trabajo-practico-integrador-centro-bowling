@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Reserva, Pista
-from .forms import PistaForm
+from .models import Reserva, Pista, Cafeteria
+from .forms import PistaForm, CafeteriaForm
 
 
 # ---------- Vistas de Inicio y Tema ----------
@@ -61,3 +61,23 @@ class EditarPistaView(UpdateView):
     form_class = PistaForm
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
+
+# ---------- Vistas de Cafeteria ----------
+class ListaComidaView(ListView):
+    model = Cafeteria
+    template_name = "bowl/cositas_admin/lista_comidas.html"
+    context_object_name = "cafeteria"
+
+
+class CrearCafeteriaView(CreateView):
+    model = Cafeteria
+    form_class = CafeteriaForm
+    template_name = "bowl/cositas_admin/crear_comida.html"
+    success_url = reverse_lazy('lista_comida')
+
+
+class EditarCafeteriaView(UpdateView):
+    model = Cafeteria
+    form_class = CafeteriaForm
+    template_name = "bowl/cositas_admin/editar_comida.html"
+    success_url = reverse_lazy('lista_comida')
