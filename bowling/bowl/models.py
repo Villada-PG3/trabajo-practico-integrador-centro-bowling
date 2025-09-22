@@ -79,6 +79,15 @@ class Jugador(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class comida (models.Model):
+    id_comida = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.FloatField()
+
+    def __str__(self):
+        return self.nombre
 
 class EstadisticasJugador(models.Model):
     id_estadistica = models.AutoField(primary_key=True)
