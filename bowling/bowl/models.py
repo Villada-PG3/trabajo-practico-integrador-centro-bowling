@@ -36,8 +36,7 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-    def __str__(self):
-        return self.nombre
+
 
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
@@ -79,7 +78,6 @@ class Jugador(models.Model):
 
     def __str__(self):
         return self.nombre
-    
 class comida (models.Model):
     id_comida = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
