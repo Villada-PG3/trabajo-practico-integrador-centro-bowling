@@ -23,64 +23,50 @@
                 <span class="profession">Web developer</span>
             </div>
         </div>
+
         <div class="menu">
-            <div class="search-box">
-                <i class='bx bx-search icon'></i>
-                <input type="text" placeholder="Search...">
-            </div>
             <ul class="menu-links">
                 <li class="nav-link">
-                    <a href="#">
+                    <a href="{% url 'inicio' %}">
                         <i class='bx bx-home-alt icon'></i>
-                        <span class="text nav-text">Dashboard</span>
+                        <span class="text nav-text">Inicio</span>
                     </a>
                 </li>
                 <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-bar-chart-alt-2 icon'></i>
-                        <span class="text nav-text">Revenue</span>
+                    <a href="{% url 'lista_pistas' %}">
+                <i class='bx bx-bowling-ball icon'></i>
+                        <span class="text nav-text">Pistas</span>
                     </a>
                 </li>
                 <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-bell icon'></i>
-                        <span class="text nav-text">Notifications</span>
+                    <a href="{% url 'lista_comida' %}">
+                        <i class='bx bx-coffee icon'></i>
+                        <span class="text nav-text">Cafeteria</span>
                     </a>
                 </li>
                 <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-pie-chart-alt icon'></i>
-                        <span class="text nav-text">Analytics</span>
-                    </a>
-                </li>
-                <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-heart icon'></i>
-                        <span class="text nav-text">Likes</span>
-                    </a>
-                </li>
-                <li class="nav-link">
-                    <a href="#">
-                        <i class='bx bx-wallet icon'></i>
-                        <span class="text nav-text">Wallets</span>
+                    <a href="{% url 'reserva' %}">
+                        <i class='bx bx-calendar icon'></i>
+                        <span class="text nav-text">Reservas</span>
                     </a>
                 </li>
             </ul>
         </div>
+
         <div class="bottom-content">
             <div class="profile">
                 <i class='bx bx-user icon'></i>
-                <span class="text nav-text">LogIn</span>
+                <span class="text nav-text">Perfil</span>
                 <div class="profile-dropdown">
                     <div class="mode-switch">
                         <i class='bx bx-moon icon' id="mode-icon"></i>
-                        <span class="mode-text">Dark mode</span>
+                        <span class="mode-text">Modo Oscuro</span>
                         <div class="toggle-switch"></div>
                     </div>
                     <div class="container-button">
                         <a href="#">
                             <i class='bx bx-log-out icon'></i>
-                            <span class="text">Logout</span>
+                            <span class="text">Cerrar Sesion</span>
                         </a>
                     </div>
                 </div>
@@ -102,12 +88,12 @@
         const setTheme = (theme) => {
             if (theme === 'dark') {
                 body.classList.add('dark');
-                modeText.innerText = "Light mode";
+                modeText.innerText = "Modo Claro";
                 modeIcon.classList.remove('bx-moon');
                 modeIcon.classList.add('bx-sun');
             } else {
                 body.classList.remove('dark');
-                modeText.innerText = "Dark mode";
+                modeText.innerText = "Modo Oscuro";
                 modeIcon.classList.remove('bx-sun');
                 modeIcon.classList.add('bx-moon');
             }
@@ -126,6 +112,5 @@
             setTheme(newTheme);
         });
     </script>
-
 </body>
 </html>

@@ -14,10 +14,12 @@ class PistaForm(forms.ModelForm):
 class CafeteriaForm(forms.ModelForm):
     class Meta:
         model = Menu
-        fields = ['id_menu', 'nombre', 'tipo_pista', 'estado']
+        fields = ['id_menu', 'nombre', 'descripcion', 'precio']
 
     def clean_numero(self):
         id_pista = self.cleaned_data['id_pista']
         if Pista.objects.filter(id_pista=id_pista).exists():
             raise forms.ValidationError("El número de pista ya existe.")
         return id_pista
+    
+

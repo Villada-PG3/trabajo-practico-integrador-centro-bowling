@@ -152,6 +152,10 @@ body.dark{
     background-color: var(--primary-color);
     color: var(--navbar-color);
 }
+.profile:hover .icon{
+
+    color: var(--primary---light);
+}
 .profile .icon{
     font-size: 20px;
     margin-right: 8px;
@@ -160,6 +164,9 @@ body.dark{
     font-size: 16px;
     font-weight: 500;
 }
+
+
+
 .profile-dropdown{
     display: none;
     position: absolute;
@@ -171,6 +178,7 @@ body.dark{
     padding: 10px 0;
     min-width: 150px;
     z-index: 1000;
+    width: 80px;
 }
 .profile:hover .profile-dropdown{
     display: block;
@@ -258,4 +266,13 @@ body .icon{
 }
 body .nav-link:hover .icon{
     color: var(--toggle-color);
+}
+
+#mode-icon {
+    color: var(--primary-color); /* color cuando está en light mode */
+    transition: var(--tran-05);
+}
+
+body.dark #mode-icon {
+    color: #f5c542; /* color visible en dark mode, tipo amarillo */
 }

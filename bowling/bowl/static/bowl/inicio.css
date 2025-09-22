@@ -7,7 +7,7 @@
     --primary-color-light: #F6F5FF;
     --toggle-color: #DDD;
     --text-color: #707070;
-    --estado-logeo: 1;
+    --estado-logeo: none;
     /* ====== Transition ====== */
     --tran-02: all 0.2s ease;
     --tran-03: all 0.3s ease;
@@ -119,5 +119,6 @@ body.dark .cta-button {
     color: var(--text-color);
 }
 .container-button{
-  opacity: var(--estado-logeo);
+    opacity: var(--estado-logeo);
+
 }

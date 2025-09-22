@@ -6,34 +6,41 @@ from django.urls import reverse_lazy
 from .models import Reserva, Pista, Cafeteria
 from .forms import PistaForm, CafeteriaForm
 
-
-# ---------- Vistas de Inicio y Tema ----------
-class InicioView(TemplateView):
-    template_name = "bowl/inicio.html"
-
+# ---------- Mixin para theme_mode ----------
+class ThemeMixin:
+    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
         return context
 
 
+# ---------- Vistas de Inicio y Tema ----------
+class InicioView(ThemeMixin, TemplateView):
+    template_name = "bowl/inicio.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context 
+        return context
+
+
 def toggle_theme_mode(request):
-    """Función simple, no necesita CBV."""
+    """Alterna entre light y dark"""
     current_mode = request.session.get('theme_mode', 'light')
     request.session['theme_mode'] = 'dark' if current_mode == 'light' else 'light'
     return redirect(request.META.get('HTTP_REFERER', 'inicio'))
 
 
-class CafeView(TemplateView):
+class CafeView(ThemeMixin, TemplateView):
     template_name = "bowl/cafe.html"
 
 
-class IniciarSesionView(TemplateView):
+class IniciarSesionView(ThemeMixin, TemplateView):
     template_name = "bowl/inicio_sesion1.html"
 
 
 # ---------- Vistas de Reservas ----------
-class ReservaView(LoginRequiredMixin, ListView):
+class ReservaView(ThemeMixin, LoginRequiredMixin, ListView):
     model = Reserva
     template_name = "bowl/reserva.html"
     context_object_name = "reservas"
@@ -43,40 +50,41 @@ class ReservaView(LoginRequiredMixin, ListView):
 
 
 # ---------- Vistas de Pistas ----------
-class ListaPistasView(ListView):
+class ListaPistasView(ThemeMixin, ListView):
     model = Pista
     template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
 
 
-class CrearPistaView(CreateView):
+class CrearPistaView(ThemeMixin, CreateView):
     model = Pista
     form_class = PistaForm
     template_name = "bowl/cositas_admin/crear_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
 
-class EditarPistaView(UpdateView):
+class EditarPistaView(ThemeMixin, UpdateView):
     model = Pista
     form_class = PistaForm
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
-# ---------- Vistas de Cafeteria ----------
-class ListaComidaView(ListView):
+
+# ---------- Vistas de Cafetería ----------
+class ListaComidaView(ThemeMixin, ListView):
     model = Cafeteria
     template_name = "bowl/cositas_admin/lista_comidas.html"
     context_object_name = "cafeteria"
 
 
-class CrearCafeteriaView(CreateView):
+class CrearCafeteriaView(ThemeMixin, CreateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/crear_comida.html"
     success_url = reverse_lazy('lista_comida')
 
 
-class EditarCafeteriaView(UpdateView):
+class EditarCafeteriaView(ThemeMixin, UpdateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/editar_comida.html"

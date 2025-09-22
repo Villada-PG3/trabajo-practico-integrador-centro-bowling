@@ -1,0 +1,153 @@
+/* Google Font Import - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* === Variables globales ya las tenés en :root === */
+:root{
+/* ===== Colors ===== */
+    --body-color: #E4E9F7;
+    --navbar-color: #FFF;
+    --primary-color: #695CFE;
+    --primary-color-light: #F6F5FF;
+    --toggle-color: #DDD;
+    --text-color: #707070;
+    --estado-logeo: 1;
+}
+
+body.dark{
+    --body-color: #18191a;
+    --navbar-color: #242526;
+    --primary-color: #3a3b3c;
+    --primary-color-light: #3a3b3c;
+    --toggle-color: #fff;
+    --text-color: #ccc;
+}
+/* Contenedores */
+.content-container, 
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: var(--navbar-color);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+}
+
+/* Titulos */
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+/* Formularios */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+input, select, textarea {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--toggle-color);
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--body-color);
+    color: var(--text-color);
+}
+
+/* Botones */
+button, .btn {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--primary-color-light);
+}
+
+/* Listas */
+ul.comidas-list {
+    list-style: none;
+    padding: 0;
+}
+
+ul.comidas-list li {
+    background-color: var(--primary-color-light);
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s;
+    color: var(--text-color);
+}
+
+ul.comidas-list li:hover {
+    background-color: var(--body-color);
+}
+
+a.edit {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a.edit:hover {
+    text-decoration: underline;
+}
+
+/* Tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: var(--navbar-color);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+thead {
+    background-color: var(--primary-color-light);
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--toggle-color);
+    transition: background-color 0.3s;
+}
+
+tbody tr:hover {
+    background-color: var(--body-color);
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+* {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
