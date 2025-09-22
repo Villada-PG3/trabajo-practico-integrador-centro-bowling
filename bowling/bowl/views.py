@@ -6,9 +6,11 @@ from django.urls import reverse_lazy
 from .models import Reserva, Pista, Cafeteria
 from .forms import PistaForm, CafeteriaForm
 
-# ---------- Mixin para theme_mode ----------
-class ThemeMixin:
-    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
+
+# ---------- Vistas de Inicio y Tema ----------
+class InicioView(TemplateView):
+    template_name = "bowl/inicio.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
@@ -69,22 +71,21 @@ class EditarPistaView(ThemeMixin, UpdateView):
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
-
-# ---------- Vistas de Cafetería ----------
-class ListaComidaView(ThemeMixin, ListView):
+# ---------- Vistas de Cafeteria ----------
+class ListaComidaView(ListView):
     model = Cafeteria
     template_name = "bowl/cositas_admin/lista_comidas.html"
     context_object_name = "cafeteria"
 
 
-class CrearCafeteriaView(ThemeMixin, CreateView):
+class CrearCafeteriaView(CreateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/crear_comida.html"
     success_url = reverse_lazy('lista_comida')
 
 
-class EditarCafeteriaView(ThemeMixin, UpdateView):
+class EditarCafeteriaView(UpdateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/editar_comida.html"

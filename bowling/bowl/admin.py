@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Jugador, EstadisticasJugador, Pista, TipoPista, Usuario, Reserva,
-    Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente
+    Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente, comida
 )
 
 @admin.register(Jugador)
@@ -19,10 +19,19 @@ class PistaAdmin(admin.ModelAdmin):
     list_display = ('id_pista', 'capacidad_maxima', 'estado', 'tipo_pista')
     search_fields = ('id_pista',)
 
+@admin.register(comida)
+class ComidaAdmin(admin.ModelAdmin):
+    list_display = ('id_comida', 'nombre', 'descripcion', 'precio')
+    search_fields = ('nombre',)
+
 @admin.register(TipoPista)
 class TipoPistaAdmin(admin.ModelAdmin):
     list_display = ('id', 'tipo', 'zona', 'precio', 'descuento', 'descripcion')
-    search_fields = ('tipo',)
+
+    def has_add_permission(self, request):
+        if TipoPista.objects.count() >= 3:
+            return False
+        return True
 
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
@@ -59,8 +68,12 @@ class TurnoAdmin(admin.ModelAdmin):
 
 @admin.register(Cafeteria)
 class CafeteriaAdmin(admin.ModelAdmin):
-    list_display = ('id_cafeteria', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono')
-    search_fields = ('nombre',)
+    list_display = ('id_cafeteria', 'nombre', 'horario_apertura', 'horario_cierre')
+    
+    def has_add_permission(self, request):
+        if Cafeteria.objects.exists():
+            return False
+        return True
 
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
