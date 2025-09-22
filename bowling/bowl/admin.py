@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Jugador, EstadisticasJugador, Pista, TipoPista, Usuario, Reserva,
-    Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente
+    Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente, comida
 )
 
 @admin.register(Jugador)
@@ -18,6 +18,11 @@ class EstadisticasJugadorAdmin(admin.ModelAdmin):
 class PistaAdmin(admin.ModelAdmin):
     list_display = ('id_pista', 'capacidad_maxima', 'estado', 'tipo_pista')
     search_fields = ('id_pista',)
+
+@admin.register(comida)
+class ComidaAdmin(admin.ModelAdmin):
+    list_display = ('id_comida', 'nombre', 'descripcion', 'precio')
+    search_fields = ('nombre',)
 
 @admin.register(TipoPista)
 class TipoPistaAdmin(admin.ModelAdmin):
