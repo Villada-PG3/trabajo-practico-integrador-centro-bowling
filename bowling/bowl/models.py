@@ -131,7 +131,6 @@ class Turno(models.Model):
 class Cafeteria(models.Model):
     id_cafeteria = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    ubicacion = models.CharField(max_length=200)
     horario_apertura = models.TimeField()
     horario_cierre = models.TimeField()
     capacidad_maxima = models.IntegerField()

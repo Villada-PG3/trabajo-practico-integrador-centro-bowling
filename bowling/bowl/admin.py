@@ -27,7 +27,11 @@ class ComidaAdmin(admin.ModelAdmin):
 @admin.register(TipoPista)
 class TipoPistaAdmin(admin.ModelAdmin):
     list_display = ('id', 'tipo', 'zona', 'precio', 'descuento', 'descripcion')
-    search_fields = ('tipo',)
+
+    def has_add_permission(self, request):
+        if TipoPista.objects.count() >= 3:
+            return False
+        return True
 
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
@@ -64,8 +68,12 @@ class TurnoAdmin(admin.ModelAdmin):
 
 @admin.register(Cafeteria)
 class CafeteriaAdmin(admin.ModelAdmin):
-    list_display = ('id_cafeteria', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono')
-    search_fields = ('nombre',)
+    list_display = ('id_cafeteria', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre')
+    
+    def has_add_permission(self, request):
+        if Cafeteria.objects.exists():
+            return False
+        return True
 
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
