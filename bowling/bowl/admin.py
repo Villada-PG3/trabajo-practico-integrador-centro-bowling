@@ -68,7 +68,7 @@ class TurnoAdmin(admin.ModelAdmin):
 
 @admin.register(Cafeteria)
 class CafeteriaAdmin(admin.ModelAdmin):
-    list_display = ('id_cafeteria', 'nombre', 'ubicacion', 'horario_apertura', 'horario_cierre')
+    list_display = ('id_cafeteria', 'nombre', 'horario_apertura', 'horario_cierre')
     
     def has_add_permission(self, request):
         if Cafeteria.objects.exists():
