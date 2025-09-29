@@ -34,7 +34,7 @@ class ReservaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Solo mostrar pistas libres
         try:
-            libre = Estado.objects.get(nombre='Libre')
+            libre = Estado.objects.get(nombre='libre')
             self.fields['pista'].queryset = Pista.objects.filter(estado=libre)
         except Estado.DoesNotExist:
             self.fields['pista'].queryset = Pista.objects.none()

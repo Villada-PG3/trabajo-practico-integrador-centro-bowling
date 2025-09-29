@@ -50,8 +50,8 @@ class ClienteAdmin(admin.ModelAdmin):
 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
-    list_display = ('id_reserva', 'fecha', 'hora', 'cliente', 'pista', 'estado', 'precio_total')
-    list_filter = ('estado', 'fecha')
+    list_display = ('id_reserva', 'fecha', 'hora', 'cliente', 'pista', 'precio_total')
+    list_filter = ('fecha',)
     search_fields = ('id_reserva',)
 
 @admin.register(Partida)
