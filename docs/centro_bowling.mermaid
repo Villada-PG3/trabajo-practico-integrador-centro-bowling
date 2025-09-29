@@ -1,6 +1,5 @@
 erDiagram
     jugador ||--|| estadisticas_jugador : tiene
-    pista }o--|| tipo_pista : tiene
     pista ||--o{ reserva : tiene
     usuario ||--o{ reserva : hace
     reserva ||--o{ partida : incluye
@@ -16,7 +15,9 @@ erDiagram
     cliente ||--o{ pedido : hace
     detalle_pedido ||--o{ menu : incluye    
     detalle_pedido }o--|| cliente : pertenece_a
-    menu ||--o{ comida : incluye
+    menu ||--o{ comida : refiere
+    pista }o--|| tipo_pista : tiene
+    usuario }o--|| rol : asignado
 
     estadisticas_jugador {
         string id_estadistica PK
@@ -34,6 +35,7 @@ erDiagram
         string email
         datetime fecha_creacion
         boolean activo
+        string id_rol FK
     }
 
     pista {
@@ -152,4 +154,10 @@ erDiagram
         boolean frame_final
         string id_partida FK
         string id_jugador_partida FK
+    }
+
+    rol{
+        string id_rol PK
+        string nombre
+        string descripcion
     }
