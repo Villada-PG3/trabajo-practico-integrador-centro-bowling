@@ -53,7 +53,6 @@ class Reserva(models.Model):
     hora = models.TimeField()
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
-    estado = models.CharField(max_length=50)
     precio_total = models.FloatField(default=0.0)
 
     def __str__(self):
