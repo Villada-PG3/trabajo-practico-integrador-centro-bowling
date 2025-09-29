@@ -14,8 +14,8 @@ class PistaForm(forms.ModelForm):
 
 class CafeteriaForm(forms.ModelForm):
     class Meta:
-        model = Menu
-        fields = ['id_menu', 'nombre', 'descripcion', 'precio']
+        model = Cafeteria
+        fields = ['id_cafeteria', 'nombre', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono']
 
     def clean_numero(self):
         id_pista = self.cleaned_data['id_pista']
