@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Jugador, EstadisticasJugador, Pista, TipoPista, Usuario, Reserva,
+    Jugador, EstadisticasJugador, Pista, TipoPista, Usuario, Reserva, Estado,
     Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente, comida
 )
 
@@ -18,6 +18,11 @@ class EstadisticasJugadorAdmin(admin.ModelAdmin):
 class PistaAdmin(admin.ModelAdmin):
     list_display = ('id_pista', 'capacidad_maxima', 'estado', 'tipo_pista')
     search_fields = ('id_pista',)
+
+@admin.register(Estado)
+class EstadoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre')
+    search_fields = ('nombre',)
 
 @admin.register(comida)
 class ComidaAdmin(admin.ModelAdmin):
