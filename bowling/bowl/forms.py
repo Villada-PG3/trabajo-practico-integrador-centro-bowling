@@ -1,5 +1,7 @@
 from django import forms
-from .models import Pista, Cafeteria
+from .models import Pista, Cafeteria, Estado, Reserva
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 class PistaForm(forms.ModelForm):
     class Meta:
@@ -23,4 +25,16 @@ class CafeteriaForm(forms.ModelForm):
             raise forms.ValidationError("El número de pista ya existe.")
         return id_pista
     
+class ReservaForm(forms.ModelForm):
+    class Meta:
+        model = Reserva
+        fields = ['fecha', 'hora', 'cliente', 'pista']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Solo mostrar pistas libres
+        try:
+            libre = Estado.objects.get(nombre='Libre')
+            self.fields['pista'].queryset = Pista.objects.filter(estado=libre)
+        except Estado.DoesNotExist:
+            self.fields['pista'].queryset = Pista.objects.none()
