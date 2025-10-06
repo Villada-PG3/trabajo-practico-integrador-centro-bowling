@@ -111,6 +111,7 @@ class Command(BaseCommand):
             {'nombre': 'SpaceFries', 'descripcion': 'Papas doradas y crujientes, perfectas para compartir.', 'precio': 4.99},
             {'nombre': 'SpaceNuggets', 'descripcion': 'Deliciosos nuggets crujientes con salsa a elección.', 'precio': 8.99},
             {'nombre': 'SpaceBowling Burger', 'descripcion': 'Clásica hamburguesa con carne jugosa, lechuga, queso y salsa especial.', 'precio': 12.99},
+            {'nombre': 'SpaceGaseosa', 'descripcion': 'Rica y refrescante gaseosa para acompañar tu comida.', 'precio': 2.99}
         ]
         
         for c in comidas_data:
@@ -118,20 +119,20 @@ class Command(BaseCommand):
 
         cafe, _ = Cafeteria.objects.get_or_create(
             nombre='Bowling Café',
-            defaults={'horario_apertura': time(10, 0), 'horario_cierre': time(24, 0), 'capacidad_maxima': 50, 'email': 'cafe@bowling.com', 'telefono': '3511112222'}
+            defaults={'horario_apertura': time(10, 0), 'horario_cierre': time(24, 0), 'capacidad_maxima': 10, 'email': 'cafe@bowling.com', 'telefono': '3511112222'}
         )
 
-        # === MENÚS ===
         menus_data = [
-            {'nombre': 'Combo 1', 'descripcion': 'Pizza + Gaseosa', 'precio': 7000},
-            {'nombre': 'Combo 2', 'descripcion': 'Hamburguesa + Gaseosa', 'precio': 6000},
+            {'nombre': 'Espacial 1', 'descripcion': 'Spacegaseosa + Spacenuggets', 'precio': 10},
+            {'nombre': 'Espacial 2', 'descripcion': 'SpaceBowling Burguer + gaseosa', 'precio': 15},
+            {'nombre': 'Espacial 3', 'descripcion': 'SpaceBowling Burguer + Spacefries', 'precio': 16},
+            {'nombre': 'Espacial 4', 'descripcion': 'Spacecafe', 'precio': 2.99},
         ]
         menus = []
         for m in menus_data:
             obj, _ = Menu.objects.get_or_create(nombre=m['nombre'], defaults=m)
             menus.append(obj)
 
-        # === PEDIDOS ===
         pedido, _ = Pedido.objects.get_or_create(
             horario=timezone.now(),
             precio_total=13000,
@@ -140,7 +141,6 @@ class Command(BaseCommand):
             cliente=clientes[0]
         )
 
-        # === DETALLES DE PEDIDO ===
         for m in menus:
             DetallePedido.objects.get_or_create(pedido=pedido, menu=m, cliente=clientes[0], defaults={'cantidad': 1, 'subtotal': m.precio})
 
