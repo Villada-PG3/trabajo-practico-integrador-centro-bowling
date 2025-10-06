@@ -1,5 +1,5 @@
 from django import forms
-from .models import Pista, Cafeteria,Menu, Reserva
+from .models import Pista, Cafeteria,Menu, Reserva, Mensaje
 
 class PistaForm(forms.ModelForm):
     class Meta:
@@ -36,3 +36,8 @@ class ReservaForm(forms.ModelForm):
             self.fields['pista'].queryset = Pista.objects.filter(estado=libre)
         except Estado.DoesNotExist:
             self.fields['pista'].queryset = Pista.objects.none()
+
+class ContactoForm(forms.ModelForm):
+    class Meta:
+        model = Mensaje
+        fields = ['nombre', 'email', 'mensaje']

@@ -1,12 +1,52 @@
 {% extends "bowl/navbar.html" %}
 
 {% block content %}
-<div class="contact-section">
-    <h1 class="contact-title">Contacto</h1>
-    <p class="contact-subtitle">¿Tenés alguna consulta? Completá el formulario y te responderemos a la brevedad.</p>
+<div class="contact-page">
 
-    <div class="contact-container">
-        <!-- Formulario de contacto -->
+    <!-- 🧭 SECCIÓN 1: SOBRE NOSOTROS -->
+    <section class="about-section">
+        <h1 class="contact-title">Sobre Nosotros</h1>
+        <p class="about-text">
+            🎳 En <strong>Space Bowling</strong> nos apasiona brindar un espacio de diversión y entretenimiento para toda la familia.
+            Desde nuestra apertura en 2005, hemos crecido junto a nuestra comunidad ofreciendo las mejores pistas de bowling,
+            un ambiente acogedor, cafetería con productos artesanales y eventos especiales durante todo el año.
+        </p>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>📍 Nuestra Ubicación</h3>
+                <p>Av. Siempreviva 742, Springfield</p>
+            </div>
+            <div class="info-card">
+                <h3>📧 Correo Electrónico</h3>
+                <p>contacto@spacebowling.com</p>
+            </div>
+            <div class="info-card">
+                <h3>📞 Teléfono</h3>
+                <p>+54 9 11 1234 5678</p>
+            </div>
+            <div class="info-card">
+                <h3>🕒 Horarios</h3>
+                <p>Lunes a Domingo: 14:00 - 00:00</p>
+            </div>
+        </div>
+
+        <!-- 🗺️ MAPA -->
+        <div class="map-container">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.019789446256!2d-122.41941548468138!3d37.77492927975909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDQ2JzI5LjgiTiAxMjLCsDI1JzA3LjkiVw!5e0!3m2!1ses!2sar!4v1679949489982!5m2!1ses!2sar" 
+                width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ✉️ SECCIÓN 2: QUEJAS Y SUGERENCIAS -->
+    <section class="suggestion-section">
+        <h2 class="contact-title">Quejas o Sugerencias</h2>
+        <p class="contact-subtitle">Tu opinión nos ayuda a mejorar. Completá el formulario y te responderemos a la brevedad.</p>
+
         <form method="post" class="contact-form">
             {% csrf_token %}
             <div class="form-group">
@@ -21,21 +61,12 @@
 
             <div class="form-group">
                 <label for="mensaje">Mensaje</label>
-                <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribí tu mensaje..." required></textarea>
+                <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribí tu queja o sugerencia..." required></textarea>
             </div>
 
             <button type="submit" class="cta-button">Enviar</button>
         </form>
+    </section>
 
-        <!-- Información de contacto -->
-        <div class="contact-info">
-            <h3>También podés encontrarnos en:</h3>
-            <ul>
-                <li><i class='bx bx-map'></i> Av. Siempreviva 742, Springfield</li>
-                <li><i class='bx bx-phone'></i> +54 9 11 1234 5678</li>
-                <li><i class='bx bx-envelope'></i> contacto@spacebowling.com</li>
-            </ul>
-        </div>
-    </div>
 </div>
 {% endblock %}
