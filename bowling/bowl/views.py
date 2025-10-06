@@ -9,6 +9,11 @@ from django.contrib import messages
 from .models import Reserva, Pista, Cafeteria
 from .forms import PistaForm, CafeteriaForm
 
+class ThemeMixin:
+    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['theme_mode'] = self.request.session.get('theme_mode', 'light')
 
 class ThemeMixin:
     """Agrega theme_mode al contexto de todas las vistas que lo usen"""

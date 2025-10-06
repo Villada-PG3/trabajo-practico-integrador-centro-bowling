@@ -36,8 +36,6 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-
-
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
@@ -55,7 +53,6 @@ class Reserva(models.Model):
     hora = models.TimeField()
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
-    estado = models.CharField(max_length=50)
     precio_total = models.FloatField(default=0.0)
 
     def __str__(self):
@@ -139,7 +136,6 @@ class Cafeteria(models.Model):
 
     def __str__(self):
         return self.nombre
-
 
 class Menu(models.Model):
     id_menu = models.AutoField(primary_key=True)
