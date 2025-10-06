@@ -54,23 +54,41 @@
         </div>
 
         <div class="bottom-content">
-            <div class="profile">
-                <i class='bx bx-user icon'></i>
-                <span class="text nav-text">Perfil</span>
-                <div class="profile-dropdown">
-                    <div class="mode-switch">
-                        <i class='bx bx-moon icon' id="mode-icon"></i>
-                        <span class="mode-text">Modo Oscuro</span>
-                        <div class="toggle-switch"></div>
-                    </div>
-                    <div class="container-button">
-                        <a href="#">
-                            <i class='bx bx-log-out icon'></i>
-                            <span class="text">Cerrar Sesion</span>
+            {% if request.user.is_authenticated %}
+                          <div class="profile">   
+                            <i class='bx bx-user icon'></i>
+                            <span class="text nav-text">Perfil</span>
+                            <div class="profile-dropdown">
+                                <div class="mode-switch">
+                                    <i class='bx bx-moon icon' id="mode-icon"></i>
+                                    <div class="toggle-switch"></div>
+                                </div>
+                                <form method="post" action="{% url 'cerrar_sesion' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="logout-btn">
+                                        <i class='bx bx-log-out icon'></i>
+                                        <span class="text">Cerrar Sesión</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                                                    
+            {% else %}
+                <div class="profile">
+                    <div class="nav-link">
+                        <a href="{% url 'iniciar_sesion' %}">
+                            <span class="text nav-text">Iniciar Sesion</span>
                         </a>
+                        <div class="profile-dropdown">
+                            <div class="mode-switch">
+                                <i class='bx bx-moon icon' id="mode-icon"></i>
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>  
                     </div>
                 </div>
-            </div>
+            
+            {% endif %}
         </div>
     </nav>
     
@@ -82,18 +100,17 @@
     <script>
         const body = document.querySelector('body'),
               modeSwitch = document.querySelector('.mode-switch'),
-              modeText = document.querySelector('.mode-text'),
-              modeIcon = document.getElementById('mode-icon');
 
+              modeIcon = document.getElementById('mode-icon');
+        
         const setTheme = (theme) => {
             if (theme === 'dark') {
                 body.classList.add('dark');
-                modeText.innerText = "Modo Claro";
                 modeIcon.classList.remove('bx-moon');
                 modeIcon.classList.add('bx-sun');
             } else {
                 body.classList.remove('dark');
-                modeText.innerText = "Modo Oscuro";
+
                 modeIcon.classList.remove('bx-sun');
                 modeIcon.classList.add('bx-moon');
             }

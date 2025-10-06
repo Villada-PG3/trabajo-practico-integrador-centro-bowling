@@ -1,8 +1,11 @@
 # bowl/views.py
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from .models import Reserva, Pista, Cafeteria
 from .forms import PistaForm, CafeteriaForm
 
@@ -12,22 +15,20 @@ class ThemeMixin:
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
 
-# ---------- Vistas de Inicio y Tema ----------
-class InicioView(ThemeMixin, TemplateView):
-    template_name = "bowl/inicio.html"
-
+class ThemeMixin:
+    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
-        return context
 
 
 # ---------- Vistas de Inicio y Tema ----------
-class InicioView(ThemeMixin, TemplateView):
+class InicioView(TemplateView, ThemeMixin):
     template_name = "bowl/inicio.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context 
+        context['estado_logueo'] = 0
         return context
 
 
@@ -38,16 +39,16 @@ def toggle_theme_mode(request):
     return redirect(request.META.get('HTTP_REFERER', 'inicio'))
 
 
-class CafeView(ThemeMixin, TemplateView):
+class CafeView(LoginRequiredMixin, ThemeMixin, TemplateView):
     template_name = "bowl/cafe.html"
 
 
-class IniciarSesionView(ThemeMixin, TemplateView):
+class LoginnView(ThemeMixin, LoginView):
     template_name = "bowl/inicio_sesion1.html"
 
 
 # ---------- Vistas de Reservas ----------
-class ReservaView(ThemeMixin, LoginRequiredMixin, ListView):
+class ReservaView(LoginRequiredMixin, ThemeMixin, ListView):
     model = Reserva
     template_name = "bowl/reserva.html"
     context_object_name = "reservas"
@@ -57,41 +58,44 @@ class ReservaView(ThemeMixin, LoginRequiredMixin, ListView):
 
 
 # ---------- Vistas de Pistas ----------
-class ListaPistasView(ThemeMixin, ListView):
+class ListaPistasView(LoginRequiredMixin, ThemeMixin, ListView):
     model = Pista
     template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
 
 
-class CrearPistaView(ThemeMixin, CreateView):
+class CrearPistaView(LoginRequiredMixin, ThemeMixin, CreateView):
     model = Pista
     form_class = PistaForm
     template_name = "bowl/cositas_admin/crear_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
 
-class EditarPistaView(ThemeMixin, UpdateView):
+class EditarPistaView(LoginRequiredMixin, ThemeMixin, UpdateView):
     model = Pista
     form_class = PistaForm
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
+
 # ---------- Vistas de Cafeteria ----------
-class ListaComidaView(ListView):
+class ListaComidaView(LoginRequiredMixin, ThemeMixin, ListView):
     model = Cafeteria
     template_name = "bowl/cositas_admin/lista_comidas.html"
     context_object_name = "cafeteria"
 
 
-class CrearCafeteriaView(CreateView):
+class CrearCafeteriaView(LoginRequiredMixin, ThemeMixin, CreateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/crear_comida.html"
     success_url = reverse_lazy('lista_comida')
 
 
-class EditarCafeteriaView(UpdateView):
+class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UpdateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/editar_comida.html"
     success_url = reverse_lazy('lista_comida')
+
+
