@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from bowl.views import (
-    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, CrearCafeteriaView, EditarCafeteriaView,LoginnView
+    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView
 )
 from django.contrib.auth.views import LogoutView
 
@@ -30,4 +30,7 @@ urlpatterns = [
 
     #LogOut
     path('cerrar_sesion/', LogoutView.as_view(next_page='inicio'), name='cerrar_sesion'),
+
+    #Contacto
+    path('contacto/', ContactoView.as_view(), name='contacto'),
 ]
