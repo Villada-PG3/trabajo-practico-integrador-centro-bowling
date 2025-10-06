@@ -1,63 +1,32 @@
-<!DOCTYPE html>
-<html lang="es">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'bowl/inicio_sesion1.css' %}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+{% extends 'bowl/navbar.html' %}
+{% load static %}
 
-    <div class="form-container">
-        <h1 class="title">Iniciar Sesión</h1>
-        
-        <form class="form" action="inicio_sesion1.html" method="GET">
-            <div class="input-group">
-                <label for="usuario">Usuario</label>
-                <input type="text" id="usuario" name="usuario" placeholder="Ingresa tu usuario">
-            </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/login.css' %}">
+{% endblock %}
 
-            <div class="input-group">
-                <label for="contraseña">Contraseña</label>
-                <input type="password" id="contraseña" name="contraseña" placeholder="Ingresa tu contraseña">
-            </div>
+{% block content %}
+    <div class = "container">
+    <div class="login-container">
+        <h2>Inicia sesión</h2>
 
-            <div class="forgot">
-                <a href="#">¿Olvidaste tu contraseña?</a>
-            </div>
+        <form method="post">
+            {% csrf_token %}
+            
+            <input type="text" name="username" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
 
-            <button type="submit" class="sign">Ingresar</button>
+            <button type="submit">Entrar</button>
         </form>
 
-        <div class="social-message">
-            <div class="line"></div>
-            <p class="message">O ingresa con</p>
-            <div class="line"></div>
-        </div>
+        {% if form.errors %}
+            <p class="error">Usuario o contraseña incorrectos</p>
+        {% endif %}
 
-        <div class="social-icons">
-            <button class="icon" aria-label="Iniciar con Google">
-                <!-- Ícono de Google -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.45 1.23 8.78 3.64l6.44-6.44C35.59 2.91 30.23 0 24 0 14.64 0 6.51 5.85 2.55 14.1l7.89 6.13C12.16 13.46 17.64 9.5 24 9.5z"/>
-                    <path fill="#4285F4" d="M46.14 24.55c0-1.57-.14-3.08-.39-4.55H24v8.61h12.45c-.54 2.93-2.17 5.4-4.63 7.07l7.1 5.52c4.15-3.83 6.55-9.45 6.55-16.65z"/>
-                    <path fill="#FBBC05" d="M10.44 28.23c-.48-1.41-.75-2.91-.75-4.45s.27-3.04.75-4.45l-7.89-6.13C.92 16.24 0 20.02 0 24s.92 7.76 2.55 10.8l7.89-6.13z"/>
-                    <path fill="#34A853" d="M24 48c6.23 0 11.47-2.06 15.29-5.59l-7.1-5.52c-2.02 1.36-4.61 2.16-8.19 2.16-6.36 0-11.84-3.96-13.56-9.73l-7.89 6.13C6.51 42.15 14.64 48 24 48z"/>
-                </svg>
-            </button>
-
-            <button class="icon" aria-label="Iniciar con Facebook">
-                <!-- Ícono de Facebook -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                    <path fill="#1877F2" d="M48 24C48 10.75 37.25 0 24 0S0 10.75 0 24c0 11.99 8.8 21.91 20.25 23.75V30.94h-6.09v-6.94h6.09v-5.28c0-6.03 3.59-9.38 9.08-9.38 2.63 0 5.38.47 5.38.47v5.94h-3.03c-2.98 0-3.9 1.85-3.9 3.74v4.51h6.64l-1.06 6.94h-5.58v16.81C39.2 45.91 48 35.99 48 24z"/>
-                </svg>
-            </button>
-        </div>
-
-        <p class="signup">¿No tienes una cuenta? <a href="#">Regístrate</a></p>
+        <p class="register-link">
+            ¿No tienes cuenta? 
+            <a href="{% url 'inicio' %}">Regístrate</a>
+        </p>
     </div>
-
-</body>
-</html>
+    </div>
+{% endblock content %}

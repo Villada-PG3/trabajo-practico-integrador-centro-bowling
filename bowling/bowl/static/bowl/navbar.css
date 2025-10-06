@@ -1,12 +1,19 @@
 /* Google Font Import - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-*{
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
-:root{
+
+a {
+    text-decoration: none;  /* saca el subrayado */
+    color: inherit;         /* hereda el color del padre */
+}
+
+:root {
     /* ===== Colors ===== */
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
@@ -21,16 +28,19 @@
     --tran-04: all 0.4s ease;
     --tran-05: all 0.5s ease;
 }
-body{
+
+body {
     min-height: 100vh;
     background-color: var(--body-color);
     transition: var(--tran-05);
 }
-::selection{
+
+::selection {
     background-color: var(--primary-color);
     color: #fff;
 }
-body.dark{
+
+body.dark {
     --body-color: #18191a;
     --navbar-color: #242526;
     --primary-color: #3a3b3c;
@@ -38,8 +48,9 @@ body.dark{
     --toggle-color: #fff;
     --text-color: #ccc;
 }
+
 /* ===== Navbar ===== */
-.navbar{
+.navbar {
     position: fixed;
     top: 0;
     left: 0;
@@ -54,37 +65,45 @@ body.dark{
     transition: var(--tran-05);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.navbar .image-text{
+
+.navbar .image-text {
     display: flex;
     align-items: center;
 }
-.navbar .logo-text{
+
+.navbar .logo-text {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
 }
+
 .image-text .name {
     font-size: 18px;
     font-weight: 600;
 }
-.image-text .profession{
+
+.image-text .profession {
     font-size: 14px;
     margin-top: -2px;
 }
-.navbar .image{
+
+.navbar .image {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.navbar .image img{
+
+.navbar .image img {
     width: 40px;
     border-radius: 6px;
 }
-.navbar .menu{
+
+.navbar .menu {
     display: flex;
     align-items: center;
 }
-.navbar .search-box{
+
+.navbar .search-box {
     background-color: var(--primary-color-light);
     border-radius: 6px;
     display: flex;
@@ -93,7 +112,8 @@ body.dark{
     margin-right: 20px;
     transition: var(--tran-05);
 }
-.search-box input{
+
+.search-box input {
     height: 40px;
     width: 200px;
     outline: none;
@@ -103,14 +123,17 @@ body.dark{
     font-size: 16px;
     transition: var(--tran-05);
 }
-.navbar .menu-links{
+
+.navbar .menu-links {
     display: flex;
     list-style: none;
 }
-.menu-links li{
+
+.menu-links li {
     margin: 0 10px;
 }
-.menu-links a{
+
+.menu-links a {
     display: flex;
     align-items: center;
     color: var(--text-color);
@@ -119,25 +142,29 @@ body.dark{
     border-radius: 6px;
     transition: var(--tran-03);
 }
-.menu-links a:hover{
+
+.menu-links a:hover {
     background-color: var(--primary-color);
     color: var(--navbar-color);
 }
-.menu-links a .icon{    
+
+.menu-links a .icon {    
     font-size: 20px;
     margin-right: 8px;
-    
 }
-.menu-links a .text{
-    font-size: 16px;
+
+.menu-links a .text {
+    font-size: 15px;
     font-weight: 500;
 }
-.navbar .bottom-content{
+
+.navbar .bottom-content {
     display: flex;
     align-items: center;
     position: relative;
 }
-.bottom-content .profile{
+
+.bottom-content .profile {
     display: flex;
     align-items: center;
     color: var(--text-color);
@@ -146,28 +173,28 @@ body.dark{
     border-radius: 6px;
     transition: var(--tran-03);
     cursor: pointer;
-
 }
-.profile:hover{
+
+.profile:hover {
     background-color: var(--primary-color);
     color: var(--navbar-color);
 }
-.profile:hover .icon{
 
+.profile:hover .icon {
     color: var(--primary---light);
 }
-.profile .icon{
+
+.profile .icon {
     font-size: 20px;
     margin-right: 8px;
 }
-.profile .text{
+
+.profile .text {
     font-size: 16px;
     font-weight: 500;
 }
 
-
-
-.profile-dropdown{
+.profile-dropdown {
     display: none;
     position: absolute;
     top: 100%;
@@ -180,10 +207,12 @@ body.dark{
     z-index: 1000;
     width: 80px;
 }
-.profile:hover .profile-dropdown{
+
+.profile:hover .profile-dropdown {
     display: block;
 }
-.profile-dropdown a{
+
+.profile-dropdown a {
     display: flex;
     align-items: center;
     color: var(--text-color);
@@ -191,19 +220,23 @@ body.dark{
     padding: 8px 20px;
     transition: var(--tran-03);
 }
-.profile-dropdown a:hover{
+
+.profile-dropdown a:hover {
     background-color: var(--primary-color);
     color: var(--navbar-color);
 }
-.profile-dropdown a .icon{
+
+.profile-dropdown a .icon {
     font-size: 18px;
     margin-right: 10px;
 }
-.profile-dropdown a .text{
+
+.profile-dropdown a .text {
     font-size: 15px;
     font-weight: 500;
 }
-.home{
+
+.home {
     position: relative;
     top: 60px;
     left: 0;
@@ -213,28 +246,26 @@ body.dark{
     transition: var(--tran-05);
     padding: 20px;
 }
-.home .text{
+
+.home .text {
     font-size: 30px;
     font-weight: 500;
     color: var(--text-color);
 }
-body.dark .home .text{
+
+body.dark .home .text {
     color: var(--text-color);
 }
+
 /* Dark/Light Mode Switch */
-.mode-switch{
+.mode-switch {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 20px;
+    padding: 8px 10px;
     cursor: pointer;
 }
-.mode-switch .mode-text{
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text-color);
-}
-.mode-switch .toggle-switch{
+
+.mode-switch .toggle-switch {
     position: relative;
     display: inline-block;
     height: 22px;
@@ -242,8 +273,10 @@ body.dark .home .text{
     border-radius: 25px;
     background-color: var(--toggle-color);
     transition: var(--tran-05);
+    margin-left: 4px; /* Espacio entre ícono y toggle */
 }
-.mode-switch .toggle-switch::before{
+
+.mode-switch .toggle-switch::before {
     content: '';
     position: absolute;
     height: 15px;
@@ -255,16 +288,69 @@ body.dark .home .text{
     background-color: var(--navbar-color);
     transition: var(--tran-04);
 }
-body.dark .toggle-switch::before{
+
+body.dark .toggle-switch::before {
     left: 24px;
 }
+
+/* Ajuste del ícono */
+.mode-switch .icon {
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+body.dark .mode-switch .icon {
+    color: #f5c542;
+}
+
+/* Ajuste del formulario dentro del dropdown */
+.profile-dropdown form {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* Alinear a la izquierda */
+}
+
+.profile-dropdown form:hover {
+    background-color: var(--primary-color); /* Hover en todo el ancho del form */
+}
+
+.profile-dropdown .logout-btn {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 8px 10px;
+    width: 80%; /* Manteniendo tu preferencia */
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--tran-03);
+}
+
+.profile-dropdown .logout-btn:hover {
+    color: var(--navbar-color); /* Cambiar solo el color del texto e ícono */
+}
+
+/* Ajuste del ícono dentro del botón */
+.profile-dropdown .logout-btn .icon {
+    font-size: 18px;
+    margin-right: 0px; 
+    margin-left: 0px; /* Espacio entre ícono y texto */
+}
+
+body .icon {
+    color: var(--primary-color);
+}
+
 body.dark .icon {
     color: var(--text-color);
 }
-body .icon{
-    color: var(--primary-color);
-}
-body .nav-link:hover .icon{
+
+body .nav-link:hover .icon {
     color: var(--toggle-color);
 }
 

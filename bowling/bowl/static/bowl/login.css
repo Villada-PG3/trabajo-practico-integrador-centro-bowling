@@ -1,0 +1,110 @@
+/* Fondo general */
+:root{
+    /* ===== Colors ===== */
+    --body-color: #E4E9F7;
+    --navbar-color: #FFF;
+    --primary-color: #695CFE;
+    --primary-color-light: #F6F5FF;
+    --toggle-color: #DDD;
+    --text-color: #707070;
+    --estado-logeo: none;
+}
+
+body {
+    background-color: var(--body-color);
+    font-family: 'Poppins', sans-serif;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    
+}
+.container {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+}
+
+/* Caja central */
+.login-container {
+    background: var(--navbar-color);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    width: 350px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Título */
+.login-container h2 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Inputs */
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.login-container input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(105, 92, 254, 0.4); /* Puedes usar var(--primary-color) con opacity si quieres */
+}
+
+/* Botón */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-container button:hover {
+    background: #5a52e0; /* También se puede hacer variable si quieres */
+}
+
+/* Error */
+.error {
+    margin-top: 10px;
+    color: red;
+    font-size: 14px;
+}
+
+/* Link de registro */
+.register-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.register-link a {
+    color: var(--primary-color);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
