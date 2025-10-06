@@ -1,5 +1,5 @@
 from django import forms
-from .models import Pista, Cafeteria,Menu
+from .models import Pista, Cafeteria,Menu, Reserva
 
 class PistaForm(forms.ModelForm):
     class Meta:

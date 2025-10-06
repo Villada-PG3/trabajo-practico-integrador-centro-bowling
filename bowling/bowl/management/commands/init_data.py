@@ -72,15 +72,26 @@ class Command(BaseCommand):
 
         # === RESERVAS ===
         reservas_data = [
-            {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000},
-            {'fecha': date.today() + timedelta(days=1), 'hora': time(20, 0), 'cliente': clientes[1], 'pista': pista2, 'precio_total': 8000},
-        ]
+        {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000, 'estado': Estado.objects.get(nombre='Disponible')},
+        {'fecha': date.today() + timedelta(days=1), 'hora': time(20, 0), 'cliente': clientes[1], 'pista': pista2, 'precio_total': 8000, 'estado': Estado.objects.get(nombre='Ocupada')},
+]
+
         reservas = []
         for r in reservas_data:
-            obj, created = Reserva.objects.get_or_create(fecha=r['fecha'], hora=r['hora'], cliente=r['cliente'], defaults=r)
+            obj, created = Reserva.objects.get_or_create(
+                fecha=r['fecha'],
+                hora=r['hora'],
+                cliente=r['cliente'],
+                pista=r['pista'],
+                defaults={
+                    'precio_total': r['precio_total'],
+                    'estado': r['estado']
+                }
+            )
             reservas.append(obj)
-            self.stdout.write(self.style.SUCCESS(f'Reserva para {r["cliente"].nombre} {"creada" if created else "ya existe"}'))
-
+            self.stdout.write(self.style.SUCCESS(
+                f'Reserva para {r["cliente"].nombre} {"creada" if created else "ya existe"}'
+            ))
         # === PARTIDAS ===
         partida1, _ = Partida.objects.get_or_create(pista=pista1, reserva=reservas[0], defaults={'duracion': time(1, 0)})
         partida2, _ = Partida.objects.get_or_create(pista=pista2, reserva=reservas[1], defaults={'duracion': time(1, 30)})
@@ -147,3 +158,4 @@ class Command(BaseCommand):
             DetallePedido.objects.get_or_create(pedido=pedido, menu=m, cliente=clientes[0], defaults={'cantidad': 1, 'subtotal': m.precio})
 
         self.stdout.write(self.style.SUCCESS("✅ Inicialización del Centro de Bowling completada."))
+    

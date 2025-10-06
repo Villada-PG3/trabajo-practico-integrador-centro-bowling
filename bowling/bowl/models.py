@@ -54,6 +54,7 @@ class Reserva(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
     precio_total = models.FloatField(default=0.0)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True) 
 
     def __str__(self):
         return f"Reserva {self.id_reserva}"
