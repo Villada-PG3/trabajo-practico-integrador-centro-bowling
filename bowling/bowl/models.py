@@ -43,6 +43,7 @@ class Usuario(models.Model):
     email = models.EmailField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     activo = models.BooleanField(default=True)
+    contraseña = models.CharField(max_length=100, default='1234')
 
     def __str__(self):
         return self.nombre_usuario
