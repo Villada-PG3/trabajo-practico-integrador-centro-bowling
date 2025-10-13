@@ -28,6 +28,7 @@ class Pista(models.Model):
 
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # ← NUEVA LÍNEA
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)
@@ -35,6 +36,29 @@ class Cliente(models.Model):
 
     def __str__(self):
         return self.nombre
+
+# RESERVA debe estar ANTES de Partida
+class Reserva(models.Model):
+    id_reserva = models.AutoField(primary_key=True)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
+    precio_total = models.FloatField(default=0.0)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True) 
+
+    def __str__(self):
+        return f"Reserva {self.id_reserva}"
+
+# AHORA Partida puede referenciar a Reserva
+class Partida(models.Model):
+    id_partida = models.AutoField(primary_key=True)
+    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
+    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
+    duracion = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Partida {self.id_partida}"
 
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
@@ -48,27 +72,6 @@ class Usuario(models.Model):
     def __str__(self):
         return self.nombre_usuario
 
-class Reserva(models.Model):
-    id_reserva = models.AutoField(primary_key=True)
-    fecha = models.DateField()
-    hora = models.TimeField()
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
-    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
-    precio_total = models.FloatField(default=0.0)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True) 
-
-    def __str__(self):
-        return f"Reserva {self.id_reserva}"
-
-class Partida(models.Model):
-    id_partida = models.AutoField(primary_key=True)
-    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
-    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
-    duracion = models.TimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Partida {self.id_partida}"
-
 class Jugador(models.Model):
     id_jugador = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -77,6 +80,7 @@ class Jugador(models.Model):
 
     def __str__(self):
         return self.nombre
+
 class comida (models.Model):
     id_comida = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)

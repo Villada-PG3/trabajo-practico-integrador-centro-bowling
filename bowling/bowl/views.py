@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.core.mail import send_mail
-from .models import Reserva, Pista, Cafeteria, Mensaje
+from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente
 from .forms import PistaForm, CafeteriaForm, ContactoForm
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -47,6 +47,7 @@ class CafeView(LoginRequiredMixin, ThemeMixin, TemplateView):
 class LoginnView(ThemeMixin, LoginView):
     template_name = "bowl/inicio_sesion1.html"
 
+
 # -------------------------
 # Vistas de Reservas
 # -------------------------
@@ -56,7 +57,13 @@ class ReservaView(LoginRequiredMixin, ThemeMixin, ListView):
     context_object_name = "reservas"
 
     def get_queryset(self):
-        return Reserva.objects.filter(usuario=self.request.user).order_by('-fecha', 'hora')
+        try:
+            # Obtener el Cliente asociado al User actual
+            cliente = Cliente.objects.get(user=self.request.user)
+            return Reserva.objects.filter(cliente=cliente).order_by('-fecha', 'hora')
+        except Cliente.DoesNotExist:
+            # Si no existe Cliente para este User
+            return Reserva.objects.none()
 
 # -------------------------
 # Vistas de Pistas
