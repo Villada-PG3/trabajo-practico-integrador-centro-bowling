@@ -1,12 +1,17 @@
 {% extends "bowl/navbar.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/contacto.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="contact-page">
+<main class="contact-page">
 
-    <!-- 🧭 SECCIÓN 1: SOBRE NOSOTROS -->
-    <section class="about-section">
-        <h1 class="contact-title">Sobre Nosotros</h1>
-        <p class="about-text">
+    <!-- SOBRE NOSOTROS -->
+    <section class="contacto-info">
+        <h2>Sobre Nosotros</h2>
+        <p>
             🎳 En <strong>Space Bowling</strong> nos apasiona brindar un espacio de diversión y entretenimiento para toda la familia.
             Desde nuestra apertura en 2005, hemos crecido junto a nuestra comunidad ofreciendo las mejores pistas de bowling,
             un ambiente acogedor, cafetería con productos artesanales y eventos especiales durante todo el año.
@@ -14,11 +19,11 @@
 
         <div class="info-cards">
             <div class="info-card">
-                <h3>📍 Nuestra Ubicación</h3>
+                <h3>📍 Ubicación</h3>
                 <p>Av. Siempreviva 742, Springfield</p>
             </div>
             <div class="info-card">
-                <h3>📧 Correo Electrónico</h3>
+                <h3>📧 Correo</h3>
                 <p>contacto@spacebowling.com</p>
             </div>
             <div class="info-card">
@@ -31,7 +36,7 @@
             </div>
         </div>
 
-        <!-- 🗺️ MAPA -->
+        <!-- MAPA -->
         <div class="map-container">
             <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.019789446256!2d-122.41941548468138!3d37.77492927975909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDQ2JzI5LjgiTiAxMjLCsDI1JzA3LjkiVw!5e0!3m2!1ses!2sar!4v1679949489982!5m2!1ses!2sar" 
@@ -42,12 +47,12 @@
 
     <hr class="divider">
 
-    <!-- ✉️ SECCIÓN 2: QUEJAS Y SUGERENCIAS -->
-    <section class="suggestion-section">
-        <h2 class="contact-title">Quejas o Sugerencias</h2>
-        <p class="contact-subtitle">Tu opinión nos ayuda a mejorar. Completá el formulario y te responderemos a la brevedad.</p>
+    <!-- FORMULARIO DE CONTACTO -->
+    <section class="contacto-form">
+        <h2>Quejas o Sugerencias</h2>
+        <p>Tu opinión nos ayuda a mejorar. Completá el formulario y te responderemos a la brevedad.</p>
 
-        <form method="post" class="contact-form">
+        <form method="post">
             {% csrf_token %}
             <div class="form-group">
                 <label for="nombre">Nombre</label>
@@ -68,5 +73,5 @@
         </form>
     </section>
 
-</div>
+</main>
 {% endblock %}
