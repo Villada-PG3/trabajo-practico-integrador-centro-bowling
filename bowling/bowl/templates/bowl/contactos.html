@@ -7,17 +7,28 @@
 
 {% block content %}
 <main class="contact-page">
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <!-- HEADER INFORMACIÓN -->
     <div class="contact-header">
         <h1>Contacto</h1>
         <div class="header-info">
             <div class="info-item">
                 <i class='bx bx-envelope'></i>
-                <span>contacto@spacebowling.com</span>
+                <span>spacebowling@gmail.com</span>
             </div>
             <div class="info-item">
                 <i class='bx bx-phone'></i>
-                <span>+54 9 11 1234 5678</span>
+                <span>+54 9 351 1234 5678</span>
             </div>
             <div class="info-item">
                 <i class='bx bx-time'></i>
@@ -63,7 +74,7 @@
                 <div class="about-content">
                     <p>
                         🎳 En <strong>Space Bowling</strong> nos apasiona brindar un espacio de diversión y entretenimiento para toda la familia.
-                        Desde nuestra apertura en 2005, hemos crecido junto a nuestra comunidad ofreciendo las mejores pistas de bowling,
+                        Desde nuestra apertura en 2020, hemos crecido junto a nuestra comunidad ofreciendo las mejores pistas de bowling,
                         un ambiente acogedor, cafetería con productos artesanales y eventos especiales durante todo el año.
                     </p>
                     

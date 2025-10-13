@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from .models import Reserva, Pista, Cafeteria, Mensaje
 from .forms import PistaForm, CafeteriaForm, ContactoForm
+from django.conf import settings
+EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
 
 
@@ -104,15 +106,46 @@ class ContactoView(View):
     template_name = "bowl/contactos.html"
 
     def get(self, request):
-        form = ContactoForm()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name)
 
     def post(self, request):
-        form = ContactoForm(request.POST)
-        if form.is_valid():
-            # Guardar o enviar el mensaje, según tu lógica
-            form.save()
-            messages.success(request, "¡Mensaje enviado con éxito!")
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        mensaje_texto = request.POST.get('mensaje')
+        
+        # Crear el mensaje del correo
+        asunto = f'Nuevo mensaje de contacto de {nombre}'
+        cuerpo = f"""
+        Nombre: {nombre}
+        Email: {email}
+        
+        Mensaje:
+        {mensaje_texto}
+        
+        ---
+        Enviado desde Space Bowling
+        """
+        
+        try:
+            print("🔄 Intentando enviar correo...")
+            print(f"De: {EMAIL_HOST_USER}")
+            print(f"Para: {EMAIL_HOST_USER}")
+            print(f"Asunto: {asunto}")
+            
+            # Enviar el correo
+            send_mail(
+                asunto,
+                cuerpo,
+                EMAIL_HOST_USER,  # Desde
+                [EMAIL_HOST_USER],  # Para
+                fail_silently=False,
+            )
+            
+            print("✅ Correo enviado exitosamente")
+            messages.success(request, '¡Mensaje enviado correctamente! Te responderemos a la brevedad.')
             return redirect('contacto')
-        return render(request, self.template_name, {'form': form})
-    
+            
+        except Exception as e:
+            print(f"❌ ERROR al enviar correo: {str(e)}")
+            messages.error(request, f'Error al enviar el mensaje. Por favor, intenta nuevamente. Error: {str(e)}')
+            return redirect('contacto')
