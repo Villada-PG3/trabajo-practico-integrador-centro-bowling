@@ -7,31 +7,18 @@
 
 {% block content %}
 <div class="hero-section">
-    <h1>¡Bienvenidos a nuestro sitio web!</h1>
-    <p>Descubre nuestros servicios y todo lo que tenemos para ofrecerte.</p>
-    <a href="#" class="cta-button">Empezar ahora</a>
+    <h1>¡Bienvenidos a Spacebowling!</h1>
+    <p>Descubre nuestros servicios y lo que tenemos para ofrecerte.</p>
 </div>
 
 <div class="features-grid">
     <div class="feature-item">
-        <i class='bx bx-laptop icon-big'></i>
-        <h3>Plataforma Online</h3>
-        <p>Accede a todas nuestras herramientas y recursos desde cualquier lugar.</p>
+        <a href="{% url 'nosotros' %}" target="_blank" class="cta-button">Nosotros / Historia</a>
     </div>
     <div class="feature-item">
-        <i class='bx bx-user-voice icon-big'></i>
-        <h3>Soporte 24/7</h3>
-        <p>Nuestro equipo de expertos está disponible para ayudarte en todo momento.</p>
+        <a href="{% url 'galeria' %}" target="_blank" class="cta-button">Galería / Fotos</a>
     </div>
     <div class="feature-item">
-        <i class='bx bx-data icon-big'></i>
-        <h3>Análisis de Datos</h3>
-        <p>Obtén información detallada para tomar las mejores decisiones.</p>
-    </div>
-    <div class="feature-item">
-        <i class='bx bx-bar-chart-alt-2 icon-big'></i>
-        <h3>Reportes Personalizados</h3>
-        <p>Genera reportes a la medida de tus necesidades y objetivos.</p>
+        <a href="{% url 'reglas' %}" target="_blank" class="cta-button">Reglas del Bowling y el Establecimiento</a>
     </div>
 </div>
-{% endblock content %}

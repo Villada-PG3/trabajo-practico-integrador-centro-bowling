@@ -1,5 +1,5 @@
 from django import forms
-from .models import Pista, Cafeteria,Menu, Reserva
+from .models import Pista, Cafeteria,Menu, Reserva, Mensaje
 
 class PistaForm(forms.ModelForm):
     class Meta:
@@ -59,3 +59,9 @@ class EditarPistaForm(forms.ModelForm):
         if Pista.objects.filter(id_pista=id_pista).exists():
             raise forms.ValidationError("El número de pista ya existe.")
         return id_pista
+
+class ContactoForm(forms.ModelForm):
+    class Meta:
+        model = Mensaje
+        fields = ['nombre', 'email', 'mensaje']
+

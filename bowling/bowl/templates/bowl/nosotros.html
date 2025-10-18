@@ -1,0 +1,36 @@
+{% extends "bowl/navbar.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/nosotros.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Nosotros</h1>
+
+    <p>
+        Somos un grupo de adolescentes apasionados por el bowling y la gestión de espacios de entretenimiento. 
+        Nuestra historia comenzó cuando, durante un proyecto escolar, realizamos un trabajo sobre la importancia de los centros recreativos en la vida comunitaria. 
+        Inspirados por ese estudio, decidimos dar un paso más allá y desarrollar Space Bowling, un proyecto que combina diversión, deporte y emprendimiento.
+    </p>
+
+    <p>
+        A lo largo del camino, aprendimos sobre la organización de pistas, la atención al cliente y la administración de un espacio de ocio, 
+        siempre con el objetivo de ofrecer experiencias memorables para toda la familia. Nuestro proyecto busca ser un lugar seguro, entretenido y accesible, donde la comunidad pueda reunirse y disfrutar.
+    </p>
+
+    <h2>Nuestro Equipo</h2>
+    <p>
+        El equipo está compuesto por cuatro estudiantes comprometidos, cada uno aportando sus habilidades en distintas áreas: tecnología, logística, marketing y atención al cliente. 
+        Nos apasiona aprender y mejorar constantemente, asegurándonos de que cada visitante viva una experiencia única en nuestro centro.
+    </p>
+    <div class="nosotros-galeria">
+        <img src="{% static 'bowl/img/pista1.jpg' %}" alt="Adriano Mancuso" class="foto-galeria">
+        <img src="{% static 'bowl/img/pista2.jpg' %}" alt="Nicolás Ferreyra" class="foto-galeria">
+        <img src="{% static 'bowl/img/cafe.jpg' %}" alt="Faustino Pedone" class="foto-galeria">
+        <img src="{% static 'bowl/img/cafe.jpg' %}" alt="Santiago Riccioni" class="foto-galeria">
+
+    </div>
+</div>
+{% endblock %}

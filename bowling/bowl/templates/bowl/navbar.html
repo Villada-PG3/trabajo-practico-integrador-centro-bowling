@@ -34,7 +34,7 @@
                 </li>
                 <li class="nav-link">
                     <a href="{% url 'lista_pistas' %}">
-                <i class='bx bx-bowling-ball icon'></i>
+                        <i class='bx bx-bowling-ball icon'></i>
                         <span class="text nav-text">Pistas</span>
                     </a>
                 </li>
@@ -50,29 +50,35 @@
                         <span class="text nav-text">Reservas</span>
                     </a>
                 </li>
+                <!-- Nuevo botón de contacto -->
+                <li class="nav-link">
+                    <a href="{% url 'contacto' %}">
+                        <i class='bx bx-envelope icon'></i>
+                        <span class="text nav-text">Contacto</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
         <div class="bottom-content">
             {% if request.user.is_authenticated %}
-                          <div class="profile">   
-                            <i class='bx bx-user icon'></i>
-                            <span class="text nav-text">Perfil</span>
-                            <div class="profile-dropdown">
-                                <div class="mode-switch">
-                                    <i class='bx bx-moon icon' id="mode-icon"></i>
-                                    <div class="toggle-switch"></div>
-                                </div>
-                                <form method="post" action="{% url 'cerrar_sesion' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="logout-btn">
-                                        <i class='bx bx-log-out icon'></i>
-                                        <span class="text">Cerrar Sesión</span>
-                                    </button>
-                                </form>
-                            </div>
+                <div class="profile">   
+                    <i class='bx bx-user icon'></i>
+                    <span class="text nav-text">Perfil</span>
+                    <div class="profile-dropdown">
+                        <div class="mode-switch">
+                            <i class='bx bx-moon icon' id="mode-icon"></i>
+                            <div class="toggle-switch"></div>
                         </div>
-                                                    
+                        <form method="post" action="{% url 'cerrar_sesion' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">
+                                <i class='bx bx-log-out icon'></i>
+                                <span class="text">Cerrar Sesión</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>                            
             {% else %}
                 <div class="profile">
                     <div class="nav-link">
@@ -87,7 +93,6 @@
                         </div>  
                     </div>
                 </div>
-            
             {% endif %}
         </div>
     </nav>
@@ -100,7 +105,6 @@
     <script>
         const body = document.querySelector('body'),
               modeSwitch = document.querySelector('.mode-switch'),
-
               modeIcon = document.getElementById('mode-icon');
         
         const setTheme = (theme) => {
@@ -110,7 +114,6 @@
                 modeIcon.classList.add('bx-sun');
             } else {
                 body.classList.remove('dark');
-
                 modeIcon.classList.remove('bx-sun');
                 modeIcon.classList.add('bx-moon');
             }

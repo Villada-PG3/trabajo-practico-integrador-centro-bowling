@@ -28,6 +28,7 @@ class Pista(models.Model):
 
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # ← NUEVA LÍNEA
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)
@@ -36,12 +37,16 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
+
 class Usuario(AbstractUser):
     ROLE_CHOICES = (
         ('admin', 'Administrador'),
         ('empleado', 'Empleado'),
     )
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='empleado')
+
+
+# RESERVA debe estar ANTES de Partida
 
 class Reserva(models.Model):
     id_reserva = models.AutoField(primary_key=True)
@@ -55,6 +60,7 @@ class Reserva(models.Model):
     def __str__(self):
         return f"Reserva {self.id_reserva}"
 
+# AHORA Partida puede referenciar a Reserva
 class Partida(models.Model):
     id_partida = models.AutoField(primary_key=True)
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
@@ -64,6 +70,18 @@ class Partida(models.Model):
     def __str__(self):
         return f"Partida {self.id_partida}"
 
+class Usuario(models.Model):
+    id_usuario = models.AutoField(primary_key=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+    nombre_usuario = models.CharField(max_length=50)
+    email = models.EmailField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+    contraseña = models.CharField(max_length=100, default='1234')
+
+    def __str__(self):
+        return self.nombre_usuario
+
 class Jugador(models.Model):
     id_jugador = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -72,6 +90,7 @@ class Jugador(models.Model):
 
     def __str__(self):
         return self.nombre
+
 class comida (models.Model):
     id_comida = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -164,3 +183,12 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.menu.nombre} para {self.cliente.nombre}"
+    
+class Mensaje(models.Model):
+    nombre = models.CharField(max_length=100)
+    email = models.EmailField()
+    mensaje = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.email}"
