@@ -36,3 +36,26 @@ class ReservaForm(forms.ModelForm):
             self.fields['pista'].queryset = Pista.objects.filter(estado=libre)
         except Estado.DoesNotExist:
             self.fields['pista'].queryset = Pista.objects.none()
+
+
+class CrearPistaForm(forms.ModelForm):
+    class Meta:
+        model = Pista
+        fields = ['id_pista', 'capacidad_maxima', 'tipo_pista']
+
+    def clean_id_pista(self):
+        id_pista = self.cleaned_data['id_pista']
+        if Pista.objects.filter(id_pista=id_pista).exists():
+            raise forms.ValidationError("El número de pista ya existe.")
+        return id_pista
+    
+class EditarPistaForm(forms.ModelForm):
+    class Meta:
+        model = Pista
+        fields = ['id_pista', 'capacidad_maxima', 'tipo_pista']
+
+    def clean_id_pista(self):
+        id_pista = self.cleaned_data['id_pista']
+        if Pista.objects.filter(id_pista=id_pista).exists():
+            raise forms.ValidationError("El número de pista ya existe.")
+        return id_pista

@@ -16,20 +16,26 @@ from bowl.models import (
 from django.utils import timezone
 from datetime import date, time, timedelta
 
-# Crear el superusuario si no existe
-if not User.objects.filter(username="admin").exists():
-    User.objects.create_superuser("admin", "", "1234")
-    print("✅ Superusuario creado: admin / 1234")
-else:
-    print("ℹ️ Ya existe el superusuario 'admin'")
 
-
-
+from django.contrib.auth import get_user_model
 
 class Command(BaseCommand):
     help = "Inicializa datos predeterminados del Centro de Bowling"
 
     def handle(self, *args, **kwargs):
+
+        User = get_user_model()  # Esto ahora apunta a 'bowl.Usuario'
+
+        if not User.objects.filter(username="admin").exists():
+            User.objects.create_superuser(
+                username="admin",
+                password="admin123",
+                email="admin@example.com"
+            )
+                
+            
+
+
         # === TIPOS DE PISTA ===
         tipos = [
             {'tipo': 'Profesional', 'zona': 'Zona A', 'precio': 15000, 'descuento': 10, 'descripcion': 'Pista de nivel profesional con sensores avanzados.'},
@@ -62,14 +68,16 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'Cliente "{c["nombre"]}" {"creado" if created else "ya existe"}'))
 
         # === USUARIOS ===
-        usuarios_data = [
-            {'nombre_usuario': 'juanp', 'email': 'juan@example.com', 'cliente': clientes[0]},
-            {'nombre_usuario': 'marial', 'email': 'maria@example.com', 'cliente': clientes[1]},
-        ]
-        for u in usuarios_data:
-            obj, created = Usuario.objects.get_or_create(nombre_usuario=u['nombre_usuario'], defaults=u)
-            self.stdout.write(self.style.SUCCESS(f'Usuario "{u["nombre_usuario"]}" {"creado" if created else "ya existe"}'))
+      #  usuarios_data = [
+      #      {'nombre_usuario': 'juanp', 'email': 'juan@example.com', 'cliente': clientes[0], 'contraseña':'1234'},
+     #       {'nombre_usuario': 'marial', 'email': 'maria@example.com', 'cliente': clientes[1],'contraseña':'1234'},
+    #    ]
+    #    for u in usuarios_data:
+  #          obj, created = Usuario.objects.get_or_create(nombre_usuario=u['nombre_usuario'], defaults=u)
+ #           self.stdout.write(self.style.SUCCESS(f'Usuario "{u["nombre_usuario"]}" {"creado" if created else "ya existe"}'))
 
+
+        
         # === RESERVAS ===
         reservas_data = [
         {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000, 'estado': Estado.objects.get(nombre='Disponible')},

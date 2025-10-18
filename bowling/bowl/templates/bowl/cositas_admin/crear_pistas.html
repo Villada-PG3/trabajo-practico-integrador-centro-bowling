@@ -8,10 +8,11 @@
 {% block content %}
 <div class="container">
     <h1>Crear Pista</h1>
+    <p>Debug: Checking if form is present: {{ form }}</p>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Guardar</button>
     </form>
 </div>
-{% endblock content %}
+{% endblock %}

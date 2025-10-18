@@ -38,10 +38,7 @@ class TipoPistaAdmin(admin.ModelAdmin):
             return False
         return True
 
-@admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('id_usuario', 'cliente', 'nombre_usuario', 'email', 'activo')
-    search_fields = ('nombre_usuario', 'email')
+
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):

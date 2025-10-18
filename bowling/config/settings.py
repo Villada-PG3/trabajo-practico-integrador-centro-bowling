@@ -130,3 +130,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/iniciar_sesion/'
 LOGIN_REDIRECT_URL =  'inicio'
 LOGOUT_REDIRECT_URL =  'inicio'
+
+
+AUTH_USER_MODEL = 'bowl.Usuario'

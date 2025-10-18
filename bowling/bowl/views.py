@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Reserva, Pista, Cafeteria
-from .forms import PistaForm, CafeteriaForm
+from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm
 
 class ThemeMixin:
     """Agrega theme_mode al contexto de todas las vistas que lo usen"""
@@ -15,11 +15,6 @@ class ThemeMixin:
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
 
-class ThemeMixin:
-    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['theme_mode'] = self.request.session.get('theme_mode', 'light')
 
 
 # ---------- Vistas de Inicio y Tema ----------
@@ -58,22 +53,28 @@ class ReservaView(LoginRequiredMixin, ThemeMixin, ListView):
 
 
 # ---------- Vistas de Pistas ----------
-class ListaPistasView(LoginRequiredMixin, ThemeMixin, ListView):
+class ListaPistasView(LoginRequiredMixin, ListView):
     model = Pista
     template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Esto asegura que pasamos todas las pistas
+        context['pistas'] = Pista.objects.all()
+        return context
 
-class CrearPistaView(LoginRequiredMixin, ThemeMixin, CreateView):
+
+class CrearPistaView(CreateView):
     model = Pista
-    form_class = PistaForm
+    form_class = CrearPistaForm
     template_name = "bowl/cositas_admin/crear_pistas.html"
-    success_url = reverse_lazy('lista_pistas')
+    success_url = reverse_lazy('lista_pistas')  # adonde redirige después de crear
 
 
 class EditarPistaView(LoginRequiredMixin, ThemeMixin, UpdateView):
     model = Pista
-    form_class = PistaForm
+    form_class = EditarPistaForm
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 

@@ -14,3 +14,4 @@ class BowlConfig(AppConfig):
 
     def ready(self):
         import bowl.signals  # conecta los signals
+
