@@ -1,8 +1,10 @@
 from django import forms
 from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario
 from django.utils import timezone
-
+from datetime import time
 from django.contrib.auth.forms import UserCreationForm
+
+
 
 class RegistroUsuarioForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Se requiere un email válido")
@@ -52,6 +54,9 @@ class ReservaForm(forms.ModelForm):
             raise forms.ValidationError("Esta pista ya está reservada en esa fecha y hora.")
 
         return cleaned_data
+
+    HORA_CHOICES = [(f"{h:02d}:00", f"{h:02d}:00") for h in range(14, 24)]
+    hora = forms.ChoiceField(choices=HORA_CHOICES)
 
 
 class CrearPistaForm(forms.ModelForm):

@@ -22,6 +22,7 @@ class Pista(models.Model):
     capacidad_maxima = models.IntegerField()
     tipo_pista = models.ForeignKey(TipoPista, on_delete=models.CASCADE, null=True, blank=True)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
+    numero = models.PositiveIntegerField(unique=True)
 
     def __str__(self):
         return f"Pista {self.id_pista}"

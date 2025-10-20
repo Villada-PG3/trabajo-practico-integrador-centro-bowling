@@ -71,9 +71,10 @@ def nosotros(request):
 # -------------------------
 # Vistas de Reservas
 # -------------------------
-class ReservaListView(ListView):
+# Vista para mostrar tus reservas
+class ReservaListView(ThemeMixin, ListView):
     model = Reserva
-    template_name = 'bowl/reservas.html'
+    template_name = 'bowl/mis_reservas.html'
     context_object_name = 'reservas'
 
     def get_queryset(self):
@@ -87,48 +88,42 @@ class ReservaListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['pistas'] = Pista.objects.all()
+        context['today'] = timezone.now().date()
         return context
 
-
-class ReservaCreateView(CreateView):
+# Vista para crear nueva reserva
+class ReservaCreateView(ThemeMixin, CreateView):
     model = Reserva
-    template_name = 'bowl/reservas.html'  # Puedes usar el mismo template
+    template_name = 'bowl/nueva_reserva.html'
     fields = ['fecha', 'hora', 'pista']
 
     def form_valid(self, form):
         user = self.request.user
-        # Asociamos el cliente y el usuario
         try:
             cliente = user.cliente
         except Cliente.DoesNotExist:
             messages.error(self.request, "No tienes un cliente asociado.")
-            return redirect('reserva')
-
+            return redirect('reserva_list')
+        
         form.instance.cliente = cliente
         form.instance.usuario = user
-        form.instance.estado = Estado.objects.get(nombre="Pendiente")  # o el estado que uses
+        form.instance.estado = Estado.objects.get(nombre="Pendiente")
 
-        # Validación de horario: revisar si ya hay una reserva para esa pista, fecha y hora
+        # Validación de horario
         fecha = form.cleaned_data['fecha']
         hora = form.cleaned_data['hora']
         pista = form.cleaned_data['pista']
-
-        conflicto = Reserva.objects.filter(
-            pista=pista,
-            fecha=fecha,
-            hora=hora
-        ).exists()
-
+        conflicto = Reserva.objects.filter(pista=pista, fecha=fecha, hora=hora).exists()
         if conflicto:
             messages.error(self.request, "Esta pista ya está reservada en ese horario.")
-            return redirect('reserva')
+            return redirect('reserva_create')
 
         return super().form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, "Reserva realizada con éxito.")
-        return reverse_lazy('reserva')
+        return reverse_lazy('reserva_list')
+
 # -------------------------
 # Vistas de Pistas
 # -------------------------
