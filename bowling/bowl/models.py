@@ -58,6 +58,7 @@ class Reserva(models.Model):
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
     precio_total = models.FloatField(default=0.0)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True) 
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Reserva {self.id_reserva}"
@@ -74,6 +75,7 @@ class Partida(models.Model):
 
 class PerfilUsuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     nombre_usuario = models.CharField(max_length=50)
     email = models.EmailField()
