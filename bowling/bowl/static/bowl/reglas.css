@@ -1,7 +1,7 @@
 :root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
-    --primary-color: #695CFE;
+    --primary-color: #695CFE; /* Títulos siempre azules */
     --text-color: #707070;
     --tran-05: all 0.5s ease;
 }
@@ -25,7 +25,7 @@ body {
 }
 
 h1, h2 {
-    color: var(--primary-color);
+    color: #695CFE; /* Color fijo para todos los títulos */
     text-align: center;
     margin-bottom: 20px;
 }
@@ -48,6 +48,6 @@ ul li {
 body.dark {
     --body-color: #1c1c1c;
     --navbar-color: #2a2a2a;
-    --primary-color: #8a84ff;
     --text-color: #e1e1e1;
+    /* los títulos siguen siendo azules, ya que fijamos el color */
 }
