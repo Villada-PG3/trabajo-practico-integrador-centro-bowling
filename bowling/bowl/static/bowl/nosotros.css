@@ -1,7 +1,7 @@
 :root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
-    --primary-color: #695CFE;
+    --primary-color: #695CFE; /* Títulos siempre azules */
     --text-color: #707070;
     --tran-05: all 0.5s ease;
 }
@@ -25,7 +25,7 @@ body {
 }
 
 h1, h2 {
-    color: var(--primary-color);
+    color: var(--primary-color); /* Color fijo para títulos */
     text-align: center;
     margin-bottom: 20px;
 }
@@ -42,19 +42,19 @@ p {
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
-.foto-galeria {
-    width: 180px;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 50%;
+.nosotros-galeria img {
+    width: 150px;       /* tamaño final */
+    height: 150px;
+    object-fit: cover;  /* mantiene proporción y recorta si hace falta */
+    border-radius: 50%; /* círculos */
     border: 3px solid var(--primary-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.foto-galeria:hover {
+.nosotros-galeria img:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
@@ -63,6 +63,12 @@ p {
 body.dark {
     --body-color: #1c1c1c;
     --navbar-color: #2a2a2a;
-    --primary-color: #8a84ff;
     --text-color: #e1e1e1;
+    /* títulos y bordes de fotos siguen siendo azules */
+}
+
+h1, h2 {
+    color: #695CFE; /* títulos siempre azules, light y dark */
+    text-align: center;
+    margin-bottom: 20px;
 }
