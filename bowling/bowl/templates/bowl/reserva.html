@@ -11,7 +11,31 @@
     <p>Visualiza tus reservas y reserva nuevas pistas para disfrutar con tus amigos y familia.</p>
     <a href="{% url 'reserva' %}" class="cta-button">Nueva Reserva</a>
 </div>
-{% if Usuario.is_authenticated and Usuario.rol == "Administrador" %}
+
+{% if user.is_authenticated %}
+<div class="reserva-form-container">
+    <h2>Nueva Reserva</h2>
+    <form method="post" action="{% url 'reserva_nueva' %}">
+        {% csrf_token %}
+        <label for="id_fecha">Fecha:</label>
+        <input type="date" name="fecha" id="id_fecha" required>
+
+        <label for="id_hora">Hora:</label>
+        <input type="time" name="hora" id="id_hora" required>
+
+        <label for="id_pista">Pista:</label>
+        <select name="pista" id="id_pista" required>
+            {% for pista in pistas %}
+                <option value="{{ pista.id_pista }}">{{ pista.tipo_pista.tipo }} - {{ pista.tipo_pista.zona }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="cta-button">Reservar</button>
+    </form>
+</div>
+{% endif %}
+
+{% if user.is_authenticated and user.rol == "admin" %}
     <div class="reservas-container">
         {% if reservas %}
             {% for reserva in reservas %}
@@ -31,7 +55,7 @@
     <div class="reservas-container">
         {% if reservas %}
             {% for reserva in reservas %}
-                {% if reserva.usuario == Usuario %}
+                {% if reserva.usuario == user %}
                 <div class="reserva-card">
                     <h3>Pista: {{ reserva.pista.tipo_pista.tipo }} ({{ reserva.pista.tipo_pista.zona }})</h3>
                     <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>

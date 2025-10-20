@@ -3,9 +3,9 @@ from django import views
 from django.contrib import admin
 from django.urls import path,include
 from bowl.views import (
-    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
+    InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
     CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, 
-    registro, nosotros, GaleriaView, ReglasView
+    registro, nosotros, GaleriaView, ReglasView, ReservaCreateView
 )
 from django.contrib.auth.views import LogoutView
 
@@ -22,7 +22,8 @@ urlpatterns = [
     path('reglas/', ReglasView.as_view(), name='reglas'),
 
     # Reservas
-    path('reserva/', ReservaView.as_view(), name="reserva"),
+    path('reserva/', ReservaListView.as_view(), name="reserva"),
+    path('reserva/nueva/', ReservaCreateView.as_view(), name='reserva_nueva'),
 
     # Pistas
     path('pistas/', ListaPistasView.as_view(), name="lista_pistas"),

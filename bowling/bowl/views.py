@@ -8,13 +8,13 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 
 from .models import Reserva, Pista, Cafeteria, Usuario
-from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm
+from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ReservaForm
 
 from django.core.mail import send_mail
-from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente, Menu, comida
+from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente, Menu, comida, Estado
 from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ContactoForm, MenuForm, RegistroUsuarioForm
 from django.shortcuts import render
-
+from django.utils import timezone
 
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -71,26 +71,64 @@ def nosotros(request):
 # -------------------------
 # Vistas de Reservas
 # -------------------------
-class ReservaView(LoginRequiredMixin, ThemeMixin, ListView):
+class ReservaListView(ListView):
     model = Reserva
-    template_name = "bowl/reserva.html"
-    context_object_name = "reservas"
+    template_name = 'bowl/reservas.html'
+    context_object_name = 'reservas'
 
     def get_queryset(self):
-        try:
-            # Obtener el Cliente asociado al User actual
-            cliente = Cliente.objects.get(user=self.request.user)
-            return Reserva.objects.filter(cliente=cliente).order_by('-fecha', 'hora')
-        except Cliente.DoesNotExist:
-            # Si no existe Cliente para este User
-            return Reserva.objects.none()
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                return Reserva.objects.filter(cliente=user.cliente)
+            except Cliente.DoesNotExist:
+                return Reserva.objects.none()
+        return Reserva.objects.none()
+
     def get_context_data(self, **kwargs):
-        context =  super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            context["Usuario"] = self.request.user
+        context = super().get_context_data(**kwargs)
+        context['pistas'] = Pista.objects.all()
         return context
 
 
+class ReservaCreateView(CreateView):
+    model = Reserva
+    template_name = 'bowl/reservas.html'  # Puedes usar el mismo template
+    fields = ['fecha', 'hora', 'pista']
+
+    def form_valid(self, form):
+        user = self.request.user
+        # Asociamos el cliente y el usuario
+        try:
+            cliente = user.cliente
+        except Cliente.DoesNotExist:
+            messages.error(self.request, "No tienes un cliente asociado.")
+            return redirect('reserva')
+
+        form.instance.cliente = cliente
+        form.instance.usuario = user
+        form.instance.estado = Estado.objects.get(nombre="Pendiente")  # o el estado que uses
+
+        # Validación de horario: revisar si ya hay una reserva para esa pista, fecha y hora
+        fecha = form.cleaned_data['fecha']
+        hora = form.cleaned_data['hora']
+        pista = form.cleaned_data['pista']
+
+        conflicto = Reserva.objects.filter(
+            pista=pista,
+            fecha=fecha,
+            hora=hora
+        ).exists()
+
+        if conflicto:
+            messages.error(self.request, "Esta pista ya está reservada en ese horario.")
+            return redirect('reserva')
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, "Reserva realizada con éxito.")
+        return reverse_lazy('reserva')
 # -------------------------
 # Vistas de Pistas
 # -------------------------

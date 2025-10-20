@@ -1,6 +1,6 @@
 from django import forms
 from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario
-
+from django.utils import timezone
 
 from django.contrib.auth.forms import UserCreationForm
 
@@ -36,16 +36,22 @@ class CafeteriaForm(forms.ModelForm):
 class ReservaForm(forms.ModelForm):
     class Meta:
         model = Reserva
-        fields = ['fecha', 'hora', 'cliente', 'pista']
+        fields = ['pista', 'fecha', 'hora']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Solo mostrar pistas libres
-        try:
-            libre = Estado.objects.get(nombre='libre')
-            self.fields['pista'].queryset = Pista.objects.filter(estado=libre)
-        except Estado.DoesNotExist:
-            self.fields['pista'].queryset = Pista.objects.none()
+    def clean(self):
+        cleaned_data = super().clean()
+        pista = cleaned_data.get("pista")
+        fecha = cleaned_data.get("fecha")
+        hora = cleaned_data.get("hora")
+
+        if fecha < timezone.now().date():
+            raise forms.ValidationError("No se puede reservar en fechas pasadas.")
+
+        # Validar que la pista no esté reservada en ese horario
+        if Reserva.objects.filter(pista=pista, fecha=fecha, hora=hora).exists():
+            raise forms.ValidationError("Esta pista ya está reservada en esa fecha y hora.")
+
+        return cleaned_data
 
 
 class CrearPistaForm(forms.ModelForm):
