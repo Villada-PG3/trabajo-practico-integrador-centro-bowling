@@ -1,0 +1,20 @@
+{% extends "bowl/navbar.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/reglas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Reglas del Bowling</h1>
+    <p class="reglas-texto">
+        1. Cada jugador tiene 10 turnos.<br>
+        2. Se lanza la bola para derribar los pinos.<br>
+        3. Se permite un máximo de 2 lanzamientos por turno.<br>
+        4. Mantener la pista limpia y respetar los turnos.<br>
+        5. Seguir las indicaciones del personal del centro.<br>
+        6. Divertirse y respetar a los demás jugadores.
+    </p>
+</div>
+{% endblock %}

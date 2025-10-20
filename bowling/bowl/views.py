@@ -24,7 +24,8 @@ from django.views.generic import TemplateView
 class GaleriaView(TemplateView):
     template_name = "bowl/galeria.html"
 
-
+class ReglasView(TemplateView):
+    template_name = "bowl/reglas.html"
 
 # -------------------------
 # Mixins
