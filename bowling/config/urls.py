@@ -21,7 +21,6 @@ urlpatterns = [
     path('galeria/', GaleriaView.as_view(), name='galeria'),
     path('reglas/', ReglasView.as_view(), name='reglas'),
 
-
     # Reservas
     path('reserva/', ReservaView.as_view(), name="reserva"),
 
