@@ -19,6 +19,10 @@ from django.shortcuts import render
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
+from django.views.generic import TemplateView
+
+class GaleriaView(TemplateView):
+    template_name = "bowl/galeria.html"
 
 
 
