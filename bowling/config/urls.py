@@ -1,8 +1,11 @@
 # config/urls.py
+from django import views
 from django.contrib import admin
 from django.urls import path,include
 from bowl.views import (
-    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, registro
+    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
+    CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, 
+    registro, nosotros, GaleriaView, ReglasView
 )
 from django.contrib.auth.views import LogoutView
 
@@ -14,6 +17,10 @@ urlpatterns = [
     path('', InicioView.as_view(), name="inicio"),
     path('cafe/', CafeView.as_view(), name="cafe"),
     path('iniciar_sesion/', LoginnView.as_view(), name="iniciar_sesion"),
+    path('nosotros/', nosotros, name='nosotros'),
+    path('galeria/', GaleriaView.as_view(), name='galeria'),
+    path('reglas/', ReglasView.as_view(), name='reglas'),
+
 
     # Reservas
     path('reserva/', ReservaView.as_view(), name="reserva"),

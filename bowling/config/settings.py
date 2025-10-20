@@ -141,6 +141,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'faustinopedonelopez@gmail.com'  # Tu Gmail
-EMAIL_HOST_PASSWORD = 'ruuuhueabfzuvcob'  # CONTRASEÑA DE APLICACIÓN
+EMAIL_HOST_PASSWORD = 'nisbekkfrumydcqs'  # CONTRASEÑA DE APLICACIÓN
 DEFAULT_FROM_EMAIL = 'faustinopedonelopez@gmail.com'  # Añade esta línea
 
