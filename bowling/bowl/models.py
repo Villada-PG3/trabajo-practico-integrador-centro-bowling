@@ -26,9 +26,11 @@ class Pista(models.Model):
     def __str__(self):
         return f"Pista {self.id_pista}"
 
+from django.conf import settings
+
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # ← NUEVA LÍNEA
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)
@@ -37,13 +39,13 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Usuario(AbstractUser):
     ROLE_CHOICES = (
         ('admin', 'Administrador'),
         ('empleado', 'Empleado'),
     )
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='empleado')
+    REQUIRED_FIELDS = []
 
 
 # RESERVA debe estar ANTES de Partida
@@ -70,7 +72,7 @@ class Partida(models.Model):
     def __str__(self):
         return f"Partida {self.id_partida}"
 
-class Usuario(models.Model):
+class PerfilUsuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     nombre_usuario = models.CharField(max_length=50)

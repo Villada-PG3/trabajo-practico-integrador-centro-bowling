@@ -1,0 +1,121 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+<style>
+.asignar-admin-container {
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.asignar-admin-container h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--text-color);
+    margin-bottom: 30px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--navbar-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.user-table th, .user-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    color: var(--text-color);
+}
+
+.user-table th {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.user-table tr:hover {
+    background-color: var(--primary-color-light);
+    transition: var(--tran-03);
+}
+
+.form-rol {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--toggle-color);
+    background-color: var(--body-color);
+    color: var(--text-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #5548c7;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="asignar-admin-container">
+    <h1>Gestión de Roles de Usuario</h1>
+    <p style="text-align:center; color: var(--text-color); margin-bottom: 20px;">
+        Asigna o quita privilegios de administrador a los usuarios registrados.
+    </p>
+
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol Actual</th>
+                <th>Cambiar Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>
+                    {% if usuario.rol == 'admin' %}
+                        🟢 Administrador
+                    {% else %}
+                        ⚪ Empleado
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" class="form-rol">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ usuario.id }}">
+                        <select name="rol">
+                            <option value="empleado" {% if usuario.rol == 'empleado' %}selected{% endif %}>Empleado</option>
+                            <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                        </select>
+                        <button type="submit">Actualizar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

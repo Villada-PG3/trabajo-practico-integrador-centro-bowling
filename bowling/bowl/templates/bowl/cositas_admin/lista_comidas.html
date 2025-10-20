@@ -4,8 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
 <style>
-    :root{
-    /* ===== Colors ===== */
+:root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
     --primary-color: #695CFE;
@@ -13,16 +12,16 @@
     --toggle-color: #DDD;
     --text-color: #707070;
     --estado-logeo: 1;
-    }
-
-    body.dark{
+}
+body.dark {
     --body-color: #18191a;
     --navbar-color: #242526;
     --primary-color: #3a3b3c;
     --primary-color-light: #3a3b3c;
     --toggle-color: #fff;
     --text-color: #ccc;
-    }
+}
+
 .content-container {
     max-width: 900px;
     margin: 20px auto;
@@ -52,9 +51,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-.btn:hover {
-    background-color: #218838;
-}
+.btn:hover { background-color: #218838; }
 
 ul.comidas-list {
     list-style: none;
@@ -72,9 +69,7 @@ ul.comidas-list li {
     transition: background-color 0.3s;
 }
 
-ul.comidas-list li:hover {
-    background-color: #e6f7ee;
-}
+ul.comidas-list li:hover { background-color: #e6f7ee; }
 
 a.edit {
     color: #28a745;
@@ -82,9 +77,7 @@ a.edit {
     font-weight: 500;
 }
 
-a.edit:hover {
-    text-decoration: underline;
-}
+a.edit:hover { text-decoration: underline; }
 
 .no-data {
     text-align: center;
@@ -101,7 +94,7 @@ a.edit:hover {
     <ul class="comidas-list">
         {% for comida in comidas %}
         <li>
-            <span>{{ comida.nombre }} - {{ comida.precio }}$</span>
+            <span>{{ comida.nombre }} - ${{ comida.precio }}</span>
             <a href="{% url 'editar_comida' comida.pk %}" class="edit">Editar</a>
         </li>
         {% empty %}
@@ -109,4 +102,4 @@ a.edit:hover {
         {% endfor %}
     </ul>
 </div>
-{% endblock content %}
+{% endblock %}

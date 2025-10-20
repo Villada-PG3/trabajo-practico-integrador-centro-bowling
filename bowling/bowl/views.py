@@ -7,12 +7,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 
-from .models import Reserva, Pista, Cafeteria
+from .models import Reserva, Pista, Cafeteria, Usuario
 from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm
 
 from django.core.mail import send_mail
-from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente
-from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ContactoForm
+from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente, Menu, comida
+from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ContactoForm, MenuForm, RegistroUsuarioForm
+
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
@@ -39,6 +40,8 @@ class InicioView(ThemeMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['estado_logueo'] = 0
+        if self.request.user.is_authenticated:
+            context["Usuario"] = self.request.user
         return context
 
 def toggle_theme_mode(request):
@@ -107,11 +110,22 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UpdateView):
 # -------------------------
 # Vistas de Cafetería
 # -------------------------
-class ListaComidaView(LoginRequiredMixin, ThemeMixin, ListView):
-    model = Cafeteria
-    template_name = "bowl/cositas_admin/lista_comidas.html"
-    context_object_name = "cafeteria"
+class ListaComidaView(View):
+    def get(self, request):
+        comidas = comida.objects.all()
+        return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
+class CrearComidaView(View):
+    def get(self, request):
+        form = MenuForm()
+        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
+
+    def post(self, request):
+        form = MenuForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("lista_comida")
+        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
 class CrearCafeteriaView(LoginRequiredMixin, ThemeMixin, CreateView):
     model = Cafeteria
     form_class = CafeteriaForm
@@ -124,6 +138,38 @@ class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UpdateView):
     template_name = "bowl/cositas_admin/editar_comida.html"
     success_url = reverse_lazy('lista_comida')
 
+
+class AsignarAdminView(LoginRequiredMixin, ThemeMixin, View):
+    template_name = "bowl/cositas_admin/asignar_admin.html"
+
+
+    def get(self, request):
+        # Solo los usuarios con rol 'admin' pueden acceder
+        if getattr(request.user, 'rol', None) != 'admin':
+            messages.error(request, "No tienes permiso para acceder a esta página.")
+           # return redirect('inicio')
+
+        usuarios = Usuario.objects.all().order_by('username')
+        return render(request, self.template_name, {'usuarios': usuarios})
+
+    def post(self, request):
+        # Solo los usuarios con rol 'admin' pueden cambiar roles
+        if getattr(request.user, 'rol', None) != 'admin':
+            messages.error(request, "No tienes permiso para realizar esta acción.")
+            return redirect('inicio')
+
+        user_id = request.POST.get('user_id')
+        nuevo_rol = request.POST.get('rol')
+
+        try:
+            usuario = Usuario.objects.get(id=user_id)
+            usuario.rol = nuevo_rol
+            usuario.save()
+            messages.success(request, f"✅ El rol de {usuario.username} se actualizó correctamente.")
+        except Usuario.DoesNotExist:
+            messages.error(request, "❌ Usuario no encontrado.")
+
+        return redirect('asignar_admin')
 # -------------------------
 # VISTA DE CONTACTO
 # -------------------------
@@ -175,3 +221,19 @@ class ContactoView(View):
             print(f"❌ ERROR al enviar correo: {str(e)}")
             messages.error(request, f'Error al enviar el mensaje. Por favor, intenta nuevamente. Error: {str(e)}')
             return redirect('contacto')
+        
+
+def registro(request):
+    if request.method == "POST":
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f"Usuario {user.username} registrado correctamente")
+            return render(request, "bowl/inicio_sesion1.html")
+        else:
+            # Esto muestra los errores reales del form
+            print(form.errors)
+            messages.error(request, "Hubo un error en el formulario")
+    else:
+        form = RegistroUsuarioForm()
+    return render(request, "bowl/registro.html", {"form": form})

@@ -1,137 +1,30 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reservas - Centro de Bowling</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-b from-blue-50 to-white text-gray-900 font-sans min-h-screen flex flex-col">
+{% extends 'bowl/navbar.html' %}
+{% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/reserva.css' %}">
+{% endblock %}
 
-  <header>
-    <div class="container">
-      <h1>🎳 Centro de Bowling</h1>
-    </div>
-  </header>
+{% block content %}
+<div class="hero-section">
+    <h1>Reservas de Pistas</h1>
+    <p>Visualiza tus reservas y reserva nuevas pistas para disfrutar con tus amigos y familia.</p>
+    <a href="{% url 'reserva' %}" class="cta-button">Nueva Reserva</a>
+</div>
 
-  <main>
-    <section class="reservas">
-      <h2>Reservas</h2>
-      <p>
-        Aquí puedes ver y gestionar las reservas realizadas por los clientes.
-      </p>
-
-      <div class="overflow-x-auto rounded-lg shadow-inner border border-blue-200">
-        <table class="min-w-full table-auto border-collapse">
-          <thead class="bg-blue-100 text-blue-800 font-semibold">
-            <tr>
-              <th>ID Reserva</th>
-              <th>Cliente</th>
-              <th>Usuario</th>
-              <th>Pista</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Estado</th>
-              <th>Precio Total</th>
-              <th>Partida</th>
-              <th>Cafetería</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reserva in reservas %}
-              <tr>
-                <td>{{ reserva.id_reserva }}</td>
-                <td>{{ reserva.usuario.cliente.nombre }}</td>
-                <td>{{ reserva.usuario.nombre_usuario }}</td>
-                <td>{{ reserva.pista.id_pista }}</td>
-                <td>{{ reserva.fecha }}</td>
-                <td>{{ reserva.hora }}</td>
-                <td>
-                  <span class="estado {{ reserva.estado|lower }}">
-                    {{ reserva.estado }}
-                  </span>
-                </td>
-                <td>${{ reserva.precio_total }}</td>
-                <td>
-                  {% if reserva.partida %}
-                    Partida #{{ reserva.partida.id_partida }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
-                <td>
-                  {% if reserva.cafeteria %}
-                    {{ reserva.cafeteria.nombre }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="10" style="text-align: center; color: #aaa;">
-                  No hay reservas registradas.
-                </td>
-              </tr>
-            {% endfor %}
-=======
-              <th class="p-4 text-left">ID</th>
-              <th class="p-4 text-left">Cliente</th>
-              <th class="p-4 text-left">Pista</th>
-              <th class="p-4 text-left">Fecha</th>
-              <th class="p-4 text-left">Hora</th>
-              <th class="p-4 text-left">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b hover:bg-blue-50 transition">
-              <td class="p-4">1</td>
-              <td class="p-4 font-medium">Juan Pérez</td>
-              <td class="p-4">Pista 3</td>
-              <td class="p-4">2025-08-01</td>
-              <td class="p-4">18:00</td>
-              <td class="p-4">
-                <span class="inline-block px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 font-semibold select-none">
-                  Confirmada
-                </span>
-              </td>
-            </tr>
-            <tr class="border-b hover:bg-blue-50 transition">
-              <td class="p-4">2</td>
-              <td class="p-4 font-medium">María Gómez</td>
-              <td class="p-4">Pista 1</td>
-              <td class="p-4">2025-08-02</td>
-              <td class="p-4">20:30</td>
-              <td class="p-4">
-                <span class="inline-block px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800 font-semibold select-none">
-                  Pendiente
-                </span>
-              </td>
-            </tr>
-            <tr class="border-b hover:bg-blue-50 transition">
-              <td class="p-4">3</td>
-              <td class="p-4 font-medium">Carlos Díaz</td>
-              <td class="p-4">Pista 2</td>
-              <td class="p-4">2025-08-03</td>
-              <td class="p-4">16:00</td>
-              <td class="p-4">
-                <span class="inline-block px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 font-semibold select-none">
-                  Cancelada
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    </section>
-  </main>
-  <footer>
-    <p>&copy; 2025 Centro de Bowling. Todos los derechos reservados.</p>
-
-  </footer>
-
-</body>
-</html>
+<div class="reservas-container">
+    {% if reservas %}
+        {% for reserva in reservas %}
+        <div class="reserva-card">
+            <h3>Pista: {{ reserva.pista.tipo_pista.tipo }} ({{ reserva.pista.tipo_pista.zona }})</h3>
+            <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
+            <p><strong>Hora:</strong> {{ reserva.hora }}</p>
+            <p><strong>Precio:</strong> ${{ reserva.precio_total }}</p>
+            <p><strong>Estado:</strong> {{ reserva.estado.nombre }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-reservas">No tienes reservas registradas.</p>
+    {% endif %}
+</div>
+{% endblock %}

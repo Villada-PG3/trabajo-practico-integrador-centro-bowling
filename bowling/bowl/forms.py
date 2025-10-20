@@ -1,5 +1,15 @@
 from django import forms
-from .models import Pista, Cafeteria,Menu, Reserva, Mensaje
+from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario
+
+
+from django.contrib.auth.forms import UserCreationForm
+
+class RegistroUsuarioForm(UserCreationForm):
+    email = forms.EmailField(required=True, help_text="Se requiere un email válido")
+
+    class Meta:
+        model = Usuario
+        fields = ("username", "email", "password1", "password2")
 
 class PistaForm(forms.ModelForm):
     class Meta:
@@ -65,3 +75,7 @@ class ContactoForm(forms.ModelForm):
         model = Mensaje
         fields = ['nombre', 'email', 'mensaje']
 
+class MenuForm(forms.ModelForm):
+    class Meta:
+        model = Menu
+        fields = ['nombre', 'descripcion', 'precio']

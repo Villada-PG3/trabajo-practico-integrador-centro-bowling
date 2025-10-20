@@ -50,6 +50,14 @@
                         <span class="text nav-text">Reservas</span>
                     </a>
                 </li>
+                {% if  Usuario.rol == "Administrador"%}
+                    <li class="nav-link">
+                        <a href="{% url 'asignar' %}">
+                            <i class='bx bx-calendar icon'></i>
+                            <span class="text nav-text">Asignar</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <!-- Nuevo botón de contacto -->
                 <li class="nav-link">
                     <a href="{% url 'contacto' %}">

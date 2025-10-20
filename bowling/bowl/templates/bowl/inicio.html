@@ -13,12 +13,17 @@
 
 <div class="features-grid">
     <div class="feature-item">
-        <a href="{% url 'nosotros' %}" target="_blank" class="cta-button">Nosotros / Historia</a>
+        <i class="icon-big fas fa-bowling-ball"></i>
+        <h3>Reservas de Pistas</h3>
+        <p>Reserva tu pista de bowling fácilmente y disfruta de una experiencia inolvidable con amigos y familia.</p>
+        <a href="{% url 'reserva' %}" class="cta-button">Reservar Ahora</a>
     </div>
+
     <div class="feature-item">
-        <a href="{% url 'galeria' %}" target="_blank" class="cta-button">Galería / Fotos</a>
-    </div>
-    <div class="feature-item">
-        <a href="{% url 'reglas' %}" target="_blank" class="cta-button">Reglas del Bowling y el Establecimiento</a>
+        <i class="icon-big fas fa-utensils"></i>
+        <h3>Comida y Bebida</h3>
+        <p>Disfruta de nuestro menú variado con deliciosas opciones para acompañar tu juego.</p>
+        <a href="{% url 'cafe' %}" class="cta-button">Ver Menú</a>
     </div>
 </div>
+{% endblock %}

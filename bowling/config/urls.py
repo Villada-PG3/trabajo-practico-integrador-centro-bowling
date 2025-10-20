@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from bowl.views import (
-    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView
+    InicioView, CafeView, ReservaView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, registro
 )
 from django.contrib.auth.views import LogoutView
 
@@ -24,12 +24,17 @@ urlpatterns = [
     path('pistas/<int:pk>/editar/', EditarPistaView.as_view(), name="editar_pista"),
     
     #Cafeteria
-    path('cafeteria/', ListaComidaView.as_view(), name="lista_comida"),
-    path('cafeteria/crear/', CrearCafeteriaView.as_view(), name="crear_comida"),
+    path('comidas/', ListaComidaView.as_view(), name='lista_comida'),
+    path('comidas/crear/', CrearComidaView.as_view(), name='crear_comida'),
+    path('comidas/editar/<int:pk>/', EditarCafeteriaView.as_view(), name='editar_comida'),
+  
     path('cafeteria/<int:pk>/editar/', EditarCafeteriaView.as_view(), name="editar_comida"),
 
     #LogOut
     path('cerrar_sesion/', LogoutView.as_view(next_page='inicio'), name='cerrar_sesion'),
+     path('registro/', registro, name='registro'),
+    #Asignar Admin
+    path('asignar_admin/', AsignarAdminView.as_view(), name='asignar'),
 
     #Contacto
     path('contacto/', ContactoView.as_view(), name='contacto'),

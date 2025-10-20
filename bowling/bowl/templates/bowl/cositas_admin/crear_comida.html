@@ -1,18 +1,17 @@
-    {% extends 'bowl/navbar.html' %}
-    {% load static %}
+{% extends 'bowl/navbar.html' %}
+{% load static %}
 
-    {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'bowl/admin.css' %}">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
+{% endblock %}
 
-    {% endblock %}
-
-    {% block content %}
-    <div class="content-container">
-        <h1>Agregar Comida</h1>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Agregar</button>
-        </form>
-    </div>
-    {% endblock content %}
+{% block content %}
+<div class="content-container">
+    <h1>Agregar Comida</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Agregar</button>
+    </form>
+</div>
+{% endblock %}
