@@ -3,7 +3,7 @@
 SpaceBowling es un sistema para un centro de bowling con cafetería. Permite administrar clientes, gestionar pistas por categoría (BASE, VIP, ULTRA VIP),
 registrar reservas, partidas, jugadores y turnos, y controlar pedidos en la cafetería. También incluye sistema de contactos y gestión interna.
 
-📂 Estructura del Proyecto
+📂 Estructura relevante del Proyecto
 ----------------------------------------------------------------
 | Carpeta / Archivo| Descripción                               | 
 |------------------|-------------------------------------------|
@@ -15,7 +15,6 @@ registrar reservas, partidas, jugadores y turnos, y controlar pedidos en la cafe
 | `bowl/apps.py`   | Configuración de la app                   |
 | `bowl/forms.py`  | Formularios Django                        |
 | `bowl/models.py` | Modelos de la base de datos               |
-| `bowl/tests.py`  | Tests unitarios                           |
 | `bowl/views.py`  | Vistas del proyecto                       |
 | `config/`        | Configuración general del proyecto Django |
 | `docs/`          | Documentación y diagramas (Mermaid, PNG)  |
@@ -46,12 +45,10 @@ Correr el servidor local:
 python manage.py runserver
 
 👤 Superusuario
-Ya creado en la inicialización del proyecto:
-Usuario	Contraseña
- admin   	1234
+Ya creado en la inicialización del proyecto. El usuario es admin, la contraseña es 1234
 Acceder al panel de administración: http://127.0.0.1:8000/admin
 
-📜 Licencia
+📜 Licencia:
 Proyecto de uso escolar.
 
 🧑‍💻 Autores
