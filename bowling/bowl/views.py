@@ -73,6 +73,11 @@ class ReservaView(LoginRequiredMixin, ThemeMixin, ListView):
         except Cliente.DoesNotExist:
             # Si no existe Cliente para este User
             return Reserva.objects.none()
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["Usuario"] = self.request.user
+        return context
 
 
 # -------------------------
