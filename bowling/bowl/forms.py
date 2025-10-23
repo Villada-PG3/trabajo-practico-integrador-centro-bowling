@@ -1,4 +1,5 @@
 from django import forms
+
 from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario
 from django.utils import timezone
 from datetime import time
@@ -12,6 +13,8 @@ class RegistroUsuarioForm(UserCreationForm):
     class Meta:
         model = Usuario
         fields = ("username", "email", "password1", "password2")
+
+
 
 class PistaForm(forms.ModelForm):
     class Meta:

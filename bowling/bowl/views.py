@@ -16,6 +16,16 @@ from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, Co
 from django.shortcuts import render
 from django.utils import timezone
 
+class ThemeMixin:
+    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['theme_mode'] = self.request.session.get('theme_mode','light')
+# ---------- Vistas de Inicio y Tema ----------
+class InicioView(TemplateView):
+    template_name = "bowl/inicio.html"
+
+
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
