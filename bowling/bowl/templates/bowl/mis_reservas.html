@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/reserva.css' %}">
+<link rel="stylesheet" href="{% static 'bowl/mis_reservas.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -10,14 +10,14 @@
     <h1>Mis Reservas</h1>
     <p>Visualiza tus reservas y gestiona nuevas reservas de pistas.</p>
     <a href="{% url 'nueva_reserva' %}" class="cta-button">Nueva Reserva</a>
-
 </div>
 
 <div class="reservas-container">
     {% if reservas %}
         {% for reserva in reservas %}
         <div class="reserva-card">
-            <h3>Pista: {{ reserva.pista.tipo_pista.tipo }} ({{ reserva.pista.tipo_pista.zona }})</h3>
+            <h3>{{ reserva.pista.nombre }}</h3>
+            <p><strong>Tipo de Pista:</strong> {{ reserva.pista.tipo.nombre }}</p>
             <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
             <p><strong>Hora:</strong> {{ reserva.hora }}</p>
             <p><strong>Precio:</strong> ${{ reserva.precio_total }}</p>

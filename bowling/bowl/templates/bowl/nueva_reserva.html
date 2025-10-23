@@ -1,36 +1,44 @@
-{% extends 'bowl/navbar.html' %}
+{% extends "bowl/navbar.html" %}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/reserva.css' %}">
+<link rel="stylesheet" href="{% static 'bowl/nueva_reserva.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <h1>Nueva Reserva</h1>
-    <p>Selecciona la pista, fecha y hora para tu reserva.</p>
-</div>
-
 <div class="reserva-form-container">
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_fecha">Fecha:</label>
-            <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
-        </div>
-        <div class="form-group">
-            <label for="id_hora">Hora:</label>
-            <input type="time" id="id_hora" name="hora" required min="14:00" max="00:00">
-        </div>
-        <div class="form-group">
-            <label for="id_pista">Pista:</label>
-            <select id="id_pista" name="pista" required>
-                {% for pista in pistas %}
-                    <option value="{{ pista.id }}">{{ pista.tipo_pista.tipo }} ({{ pista.tipo_pista.zona }})</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="cta-button">Reservar</button>
-    </form>
+  <h1>Nueva Reserva</h1>
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="id_fecha">Fecha:</label>
+      <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
+    </div>
+
+    <div class="form-group">
+      <label for="id_hora">Hora:</label>
+      <select id="id_hora" name="hora" required>
+        <option value="">Seleccionar hora</option>
+        {% for hora in horarios %}
+          <option value="{{ hora }}">{{ hora }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="id_pista">Pista:</label>
+      <select id="id_pista" name="pista" required>
+        <option value="">Seleccionar pista</option>
+        {% for pista in pistas %}
+          <option value="{{ pista.id }}">
+            {{ pista.nombre }} - {{ pista.tipo.nombre }} (${{ pista.precio }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="cta-button">Reservar</button>
+  </form>
 </div>
 {% endblock %}

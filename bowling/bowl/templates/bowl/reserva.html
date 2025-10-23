@@ -8,41 +8,16 @@
 {% block content %}
 <div class="hero-section">
     <h1>Reservas de Pistas</h1>
-    <p>Visualiza tus reservas y reserva nuevas pistas para disfrutar con tus amigos y familia.</p>
+    <p>Visualiza tus reservas y reserva nuevas pistas para disfrutar con amigos o familia.</p>
     <a href="{% url 'nueva_reserva' %}" class="cta-button">Nueva Reserva</a>
 </div>
-
-{% if user.is_authenticated %}
-<div id="reserva-form" class="reserva-form-container">
-    <h2>Nueva Reserva</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_fecha">Fecha:</label>
-            <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
-        </div>
-        <div class="form-group">
-            <label for="id_hora">Hora:</label>
-            <input type="time" id="id_hora" name="hora" required min="14:00" max="00:00">
-        </div>
-        <div class="form-group">
-            <label for="id_pista">Pista:</label>
-            <select id="id_pista" name="pista" required>
-                {% for i in numeros %}
-                    <option value="{{ i }}">Pista {{ i }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="cta-button">Reservar</button>
-    </form>
-</div>
-{% endif %}
 
 <div class="reservas-container">
     {% if reservas %}
         {% for reserva in reservas %}
         <div class="reserva-card">
-            <h3>Pista: {{ reserva.pista.tipo_pista.tipo }} ({{ reserva.pista.tipo_pista.zona }})</h3>
+            <h3>Pista: {{ reserva.pista.nombre }}</h3>
+            <p><strong>Tipo:</strong> {{ reserva.pista.tipo.nombre }}</p>
             <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
             <p><strong>Hora:</strong> {{ reserva.hora }}</p>
             <p><strong>Precio:</strong> ${{ reserva.precio_total }}</p>

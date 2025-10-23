@@ -36,9 +36,17 @@ class CafeteriaForm(forms.ModelForm):
         return id_pista
     
 class ReservaForm(forms.ModelForm):
+    HORA_CHOICES = [(f"{h:02d}:00", f"{h:02d}:00") for h in range(14, 24)]
+
+    hora = forms.ChoiceField(
+        choices=HORA_CHOICES,
+        label="Hora",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Reserva
-        fields = ['pista', 'fecha', 'hora']
+        fields = ['fecha', 'hora', 'pista']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,17 +54,17 @@ class ReservaForm(forms.ModelForm):
         fecha = cleaned_data.get("fecha")
         hora = cleaned_data.get("hora")
 
+        if not fecha or not hora or not pista:
+            return cleaned_data
+
         if fecha < timezone.now().date():
             raise forms.ValidationError("No se puede reservar en fechas pasadas.")
 
-        # Validar que la pista no esté reservada en ese horario
         if Reserva.objects.filter(pista=pista, fecha=fecha, hora=hora).exists():
             raise forms.ValidationError("Esta pista ya está reservada en esa fecha y hora.")
 
         return cleaned_data
 
-    HORA_CHOICES = [(f"{h:02d}:00", f"{h:02d}:00") for h in range(14, 24)]
-    hora = forms.ChoiceField(choices=HORA_CHOICES)
 
 
 class CrearPistaForm(forms.ModelForm):
