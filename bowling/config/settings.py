@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bowl',
+    'bowl.apps.BowlConfig',
 ]
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
