@@ -4,6 +4,7 @@ from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario
 from django.utils import timezone
 from datetime import time
 from django.contrib.auth.forms import UserCreationForm
+from datetime import datetime
 
 
 
@@ -59,6 +60,11 @@ class ReservaForm(forms.ModelForm):
 
         if not fecha or not hora or not pista:
             return cleaned_data
+
+        # Convertir string "14:00" a objeto time
+        if isinstance(hora, str):
+            hora = datetime.strptime(hora, "%H:%M").time()
+            cleaned_data["hora"] = hora
 
         if fecha < timezone.now().date():
             raise forms.ValidationError("No se puede reservar en fechas pasadas.")

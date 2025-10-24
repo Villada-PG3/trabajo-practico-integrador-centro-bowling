@@ -190,7 +190,6 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, CreateView):
         messages.success(self.request, "Reserva creada correctamente.")
         return super().form_valid(form)
 
-
     def get_success_url(self):
         return reverse_lazy('reserva')
 # -------------------------

@@ -20,14 +20,17 @@
             <thead>
                 <tr>
                     <th>Cliente</th>
-                    <th>Pista</th>
-                    <th>Horario</th>
                     <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Pista</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
                 </tr>
             </thead>
             <tbody>
                 {% for reserva in reservas %}
                 <tr>
+                    <td>{{ reserva.cliente.nombre }}</td>
                     <td>{{ reserva.fecha }}</td>
                     <td>{{ reserva.hora }}</td>
                     <td>Pista {{ reserva.pista.numero }}</td>
@@ -36,12 +39,11 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align:center;">No hay reservas aún</td>
+                    <td colspan="6" style="text-align:center;">No hay reservas aún</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-
 {% endblock %}
