@@ -6,26 +6,42 @@
 {% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <h1>Reservas de Pistas</h1>
-    <p>Visualiza tus reservas y reserva nuevas pistas para disfrutar con amigos o familia.</p>
-    <a href="{% url 'nueva_reserva' %}" class="cta-button">Nueva Reserva</a>
+<div class="reserva-container">
+    <!-- Bloque de información / botón -->
+    <div class="reserva-info">
+        <h2>Reserva tu pista</h2>
+        <p>¡Reserva ahora y asegura tu turno!</p>
+        <a href="{% url 'nueva_reserva1' %}" class="btn-reservar">Nueva Reserva</a>
+    </div>
+
+    <!-- Tabla de reservas -->
+    <div class="tabla-reservas">
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Pista</th>
+                    <th>Horario</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.fecha }}</td>
+                    <td>{{ reserva.hora }}</td>
+                    <td>Pista {{ reserva.pista.numero }}</td>
+                    <td>${{ reserva.precio_total }}</td>
+                    <td>{{ reserva.estado.nombre }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align:center;">No hay reservas aún</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="reservas-container">
-    {% if reservas %}
-        {% for reserva in reservas %}
-        <div class="reserva-card">
-            <h3>Pista: {{ reserva.pista.nombre }}</h3>
-            <p><strong>Tipo:</strong> {{ reserva.pista.tipo.nombre }}</p>
-            <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
-            <p><strong>Hora:</strong> {{ reserva.hora }}</p>
-            <p><strong>Precio:</strong> ${{ reserva.precio_total }}</p>
-            <p><strong>Estado:</strong> {{ reserva.estado.nombre }}</p>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p class="no-reservas">No tienes reservas registradas.</p>
-    {% endif %}
-</div>
 {% endblock %}

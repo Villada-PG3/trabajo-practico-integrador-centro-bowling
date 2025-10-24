@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/nueva_reserva.css' %}">
+<link rel="stylesheet" href="{% static 'bowl/nueva_reserva1.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -31,8 +31,8 @@
       <select id="id_pista" name="pista" required>
         <option value="">Seleccionar pista</option>
         {% for pista in pistas %}
-          <option value="{{ pista.id }}">
-            {{ pista.nombre }} - {{ pista.tipo.nombre }} (${{ pista.precio }})
+          <option value="{{ pista.id_pista }}">
+            Pista {{ pista.numero }} - {{ pista.tipo_pista.tipo }} (${{ pista.tipo_pista.precio }})
           </option>
         {% endfor %}
       </select>

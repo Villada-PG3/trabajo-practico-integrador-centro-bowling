@@ -23,8 +23,7 @@ urlpatterns = [
 
     # Reservas
     path('reserva/', ReservaListView.as_view(), name='reserva'),         # Ver todas las reservas
-    path('reserva/nueva/', ReservaCreateView.as_view(), name='nueva_reserva'),  # Crear reserva
-    path('mis-reservas/', ReservaListView.as_view(), name='reserva_list'),      # Mis reservas
+    path('reserva/nueva/', ReservaCreateView.as_view(), name='nueva_reserva1'),  # Crear reserva
 
     # Pistas
     path('pistas/', ListaPistasView.as_view(), name="lista_pistas"),
