@@ -17,20 +17,21 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         User = get_user_model()  # respeta AUTH_USER_MODEL
         admin_data = {
-        'username': 'admin_local',
-        'email': 'adminlocal@bowling.com',
-        'rol': 'admin',   # asumiendo que tu modelo Usuario tiene este campo
-        'password': 'admin123'
-    }
+            'username': 'admin_local',
+            'email': 'adminlocal@bowling.com',
+            'rol': 'admin',
+            'password': 'admin123'
+        }
 
+        # === USUARIO ADMIN ===
         if not Usuario.objects.filter(username=admin_data['username']).exists():
             admin_user = Usuario.objects.create(
                 username=admin_data['username'],
                 email=admin_data['email'],
                 rol=admin_data['rol'],
-                password=admin_data['password']  # si tu modelo no usa set_password()
+                password=admin_data['password']
             )
-            admin_user.set_password(admin_data['password'])  # encripta la contraseña
+            admin_user.set_password(admin_data['password'])
             admin_user.is_staff = True
             admin_user.is_superuser = True
             admin_user.save()
@@ -48,25 +49,53 @@ class Command(BaseCommand):
             obj, created = TipoPista.objects.get_or_create(tipo=t['tipo'], defaults=t)
             self.stdout.write(self.style.SUCCESS(f'TipoPista "{t["tipo"]}" {"creado" if created else "ya existe"}'))
 
+        # === ESTADOS ===
         estados = ['Disponible', 'Ocupada', 'En mantenimiento']
         for e in estados:
             obj, created = Estado.objects.get_or_create(nombre=e)
             self.stdout.write(self.style.SUCCESS(f'Estado "{e}" {"creado" if created else "ya existe"}'))
 
-        pista1, _ = Pista.objects.get_or_create(
-        numero=1,
-        capacidad_maxima=6,
-        tipo_pista=TipoPista.objects.get(tipo='BASE'),
-        estado=Estado.objects.get(nombre='Disponible')
-    )
+        # === PISTAS ===
+        # BORRAR TODAS LAS PISTAS EXISTENTES
+        Pista.objects.all().delete()
+        self.stdout.write(self.style.WARNING("Se eliminaron todas las pistas existentes."))
 
-        pista2, _ = Pista.objects.get_or_create(
-            numero=2,
-            capacidad_maxima=4,
-            tipo_pista=TipoPista.objects.get(tipo='VIP'),
-            estado=Estado.objects.get(nombre='Ocupada')
-    )
+        estado_disponible = Estado.objects.get(nombre="Disponible")
 
+        # 4 pistas Base
+        tipo_base = TipoPista.objects.get(tipo="BASE")
+        for i in range(1, 5):
+            Pista.objects.create(
+                numero=i,
+                capacidad_maxima=6,
+                tipo_pista=tipo_base,
+                estado=estado_disponible
+            )
+
+        # 3 pistas VIP
+        tipo_vip = TipoPista.objects.get(tipo="VIP")
+        for i in range(5, 8):
+            Pista.objects.create(
+                numero=i,
+                capacidad_maxima=6,
+                tipo_pista=tipo_vip,
+                estado=estado_disponible
+            )
+
+        # 3 pistas UltraVIP
+        tipo_ultravip = TipoPista.objects.get(tipo="ULTRA VIP")
+        for i in range(8, 11):
+            Pista.objects.create(
+                numero=i,
+                capacidad_maxima=6,
+                tipo_pista=tipo_ultravip,
+                estado=estado_disponible
+            )
+
+        self.stdout.write(self.style.SUCCESS("Pistas creadas exitosamente."))
+
+        pista1 = Pista.objects.get(numero=1)
+        pista2 = Pista.objects.get(numero=2)
 
         # === CLIENTES ===
         clientes_data = [
@@ -79,7 +108,7 @@ class Command(BaseCommand):
             clientes.append(obj)
             self.stdout.write(self.style.SUCCESS(f'Cliente "{c["nombre"]}" {"creado" if created else "ya existe"}'))
 
-        # === USUARIOS (Django Users) y link con Cliente.user ===
+        # === USUARIOS Y CLIENTES ===
         usuarios_data = [
             {'username': 'Nico_bolos', 'email': 'nicoferreyra2612@gmail.com', 'cliente_index': 0},
             {'username': 'soraya', 'email': 'soso@gmail.com', 'cliente_index': 1},
@@ -87,10 +116,8 @@ class Command(BaseCommand):
         for u in usuarios_data:
             user, created_user = User.objects.get_or_create(username=u['username'], defaults={'email': u['email']})
             if created_user:
-                # asignar contraseña por defecto (cambiar en producción)
                 user.set_password('1234')
                 user.save()
-            # asociar con el cliente correspondiente si existe
             idx = u.get('cliente_index')
             if idx is not None and idx < len(clientes):
                 cliente_obj = clientes[idx]
@@ -122,7 +149,7 @@ class Command(BaseCommand):
         partida1, _ = Partida.objects.get_or_create(pista=pista1, reserva=reservas[0], defaults={'duracion': time(1, 0)})
         partida2, _ = Partida.objects.get_or_create(pista=pista2, reserva=reservas[1], defaults={'duracion': time(1, 30)})
 
-        # === JUGADORES Y ESTADÍSTICAS ===
+        # === JUGADORES ===
         jugadores_data = [
             {'nombre': 'pichi', 'edad': 27, 'email': 'algo@gmail.com'},
             {'nombre': 'sori', 'edad': 20, 'email': 'soso@gmail.com'},
@@ -142,7 +169,7 @@ class Command(BaseCommand):
         for i in range(1, 4):
             Turno.objects.get_or_create(numero_turno=i, partida=partida1, jugador_partida=jp1, defaults={'lanzamiento1': 5, 'lanzamiento2': 4, 'puntaje_turno': 9})
 
-        # === COMIDAS, CAFETERIA, MENUS Y PEDIDOS ===
+        # === COMIDAS ===
         comidas_data = [
             {'nombre': 'SpaceCafé', 'descripcion': 'Café recién hecho con un toque especial.', 'precio': 3.99},
             {'nombre': 'SpaceFries', 'descripcion': 'Papas doradas y crujientes, perfectas para compartir.', 'precio': 4.99},
@@ -153,6 +180,7 @@ class Command(BaseCommand):
         for c in comidas_data:
             comida.objects.get_or_create(nombre=c['nombre'], defaults=c)
 
+        # === CAFETERÍA Y MENÚS ===
         cafe, _ = Cafeteria.objects.get_or_create(
             nombre='Bowling Café',
             defaults={'horario_apertura': time(10, 0), 'horario_cierre': time(23, 0), 'capacidad_maxima': 10, 'email': 'cafe@bowling.com', 'telefono': '3511112222'}
@@ -169,6 +197,7 @@ class Command(BaseCommand):
             obj, _ = Menu.objects.get_or_create(nombre=m['nombre'], defaults=m)
             menus.append(obj)
 
+        # === PEDIDOS ===
         pedido, _ = Pedido.objects.get_or_create(
             horario=timezone.now(),
             precio_total=13000,

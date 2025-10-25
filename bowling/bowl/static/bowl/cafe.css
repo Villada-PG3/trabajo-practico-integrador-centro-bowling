@@ -299,8 +299,8 @@ body {
 
 /* Cart Icon and Dropdown */
 .cart-icon {
-    width: 30px;   /* aumentá este valor */
-    height: 30px;
+    width: 70px;   /* aumentá este valor */
+    height: 70px;
     position: fixed;
     top: 75px;
     right: 25px;

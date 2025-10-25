@@ -1,0 +1,112 @@
+/* Variables de color */
+:root {
+    --reserva-color-primario: #007bff;
+    --reserva-color-hover: #0056b3;
+    --reserva-color-fondo: #ffffff;
+    --reserva-color-texto: #222;
+    --reserva-color-borde: #ddd;
+    --reserva-color-shadow: rgba(0, 0, 0, 0.08);
+    --reserva-input-bg: #f5f5f5;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --reserva-color-fondo: #1e1e2f;
+        --reserva-color-texto: #eee;
+        --reserva-color-borde: #444;
+        --reserva-color-shadow: rgba(0, 0, 0, 0.3);
+        --reserva-input-bg: #2a2a3d;
+        --reserva-color-primario: #66aaff;
+        --reserva-color-hover: #3399ff;
+    }
+}
+
+/* Contenedor principal */
+.reserva-form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--reserva-color-fondo);
+    border-left: 5px solid var(--reserva-color-primario);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px var(--reserva-color-shadow);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Título */
+.reserva-form-container h1 {
+    font-size: 26px;
+    margin-bottom: 25px;
+    color: var(--reserva-color-primario);
+    text-align: center;
+}
+
+/* Formulario */
+.reserva-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Grupo de inputs */
+.reserva-form-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reserva-form-container .form-group label {
+    font-weight: 600;
+    color: var(--reserva-color-texto);
+    font-size: 15px;
+}
+
+.reserva-form-container .form-group input,
+.reserva-form-container .form-group select {
+    padding: 10px 14px;
+    border: 1px solid var(--reserva-color-borde);
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: var(--reserva-input-bg);
+    color: var(--reserva-color-texto);
+    transition: all 0.3s ease;
+}
+
+.reserva-form-container .form-group input:focus,
+.reserva-form-container .form-group select:focus {
+    border-color: var(--reserva-color-primario);
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+    outline: none;
+}
+
+/* Botón de acción */
+.reserva-form-container .cta-button {
+    align-self: flex-start;
+    padding: 12px 28px;
+    background-color: var(--reserva-color-primario);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.reserva-form-container .cta-button:hover {
+    background-color: var(--reserva-color-hover);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .reserva-form-container {
+        padding: 20px;
+    }
+
+    .reserva-form-container .cta-button {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -1,0 +1,44 @@
+{% extends "bowl/navbar.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/nueva_reserva1.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reserva-form-container">
+  <h1>Nueva Reserva</h1>
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="id_fecha">Fecha:</label>
+      <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
+    </div>
+
+    <div class="form-group">
+      <label for="id_hora">Hora:</label>
+      <select id="id_hora" name="hora" required>
+        <option value="">Seleccionar hora</option>
+        {% for hora in horarios %}
+          <option value="{{ hora }}">{{ hora }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="id_pista">Pista:</label>
+      <select id="id_pista" name="pista" required>
+        <option value="">Seleccionar pista</option>
+        {% for pista in pistas %}
+          <option value="{{ pista.id_pista }}">
+            Pista {{ pista.numero }} - {{ pista.tipo_pista.tipo }} (${{ pista.tipo_pista.precio }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="cta-button">Reservar</button>
+  </form>
+</div>
+{% endblock %}

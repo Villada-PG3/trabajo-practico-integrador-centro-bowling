@@ -6,15 +6,25 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-
+from datetime import datetime, time, timedelta
 from .models import Reserva, Pista, Cafeteria, Usuario
 from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ReservaForm
 
 from django.core.mail import send_mail
 from .models import Reserva, Pista, Cafeteria, Mensaje, Cliente, Menu, comida, Estado
-from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ContactoForm, MenuForm, RegistroUsuarioForm
+from .forms import PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm, ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm
 from django.shortcuts import render
 from django.utils import timezone
+
+class ThemeMixin:
+    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['theme_mode'] = self.request.session.get('theme_mode','light')
+# ---------- Vistas de Inicio y Tema ----------
+class InicioView(TemplateView):
+    template_name = "bowl/inicio.html"
+
 
 from django.conf import settings
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -72,30 +82,88 @@ def nosotros(request):
 # Vistas de Reservas
 # -------------------------
 # Vista para mostrar tus reservas
-class ReservaListView(ThemeMixin, ListView):
+class ReservaListView(LoginRequiredMixin, ThemeMixin, ListView):
+    """Página principal: muestra tus reservas y botón de nueva reserva"""
     model = Reserva
-    template_name = 'bowl/mis_reservas.html'
+    template_name = 'bowl/reserva.html'
     context_object_name = 'reservas'
+    login_url = '/login/'
 
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
-            try:
-                return Reserva.objects.filter(cliente=user.cliente)
-            except Cliente.DoesNotExist:
-                return Reserva.objects.none()
+            cliente = getattr(user, "cliente", None)
+        if cliente:
+            return Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
         return Reserva.objects.none()
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now().date()
         return context
 
-# Vista para crear nueva reserva
-class ReservaCreateView(ThemeMixin, CreateView):
+
+class ReservaCreateView(LoginRequiredMixin, ThemeMixin, CreateView):
+    """Formulario para crear nueva reserva"""
     model = Reserva
-    template_name = 'bowl/nueva_reserva.html'
-    fields = ['fecha', 'hora', 'pista']
+    form_class = ReservaForm
+    template_name = 'bowl/nueva_reserva1.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.now().date()
+
+        # Horarios válidos: 14:00 → 23:00
+        hora_inicio = time(14, 0)
+        hora_fin = time(23, 0)
+        horarios = []
+        hora_actual = datetime.combine(today, hora_inicio)
+        hora_fin_dt = datetime.combine(today, hora_fin)
+
+        while hora_actual <= hora_fin_dt:
+            horarios.append(hora_actual.strftime("%H:%M"))
+            hora_actual += timedelta(minutes=15)
+
+        # Crear pistas base si faltan
+        if Pista.objects.count() < 10:
+            tipo_normal, _ = TipoPista.objects.get_or_create(
+                tipo="Normal", defaults={'zona': 'General', 'precio': 10000}
+            )
+            tipo_vip, _ = TipoPista.objects.get_or_create(
+                tipo="VIP", defaults={'zona': 'VIP', 'precio': 15000}
+            )
+            tipo_ultra, _ = TipoPista.objects.get_or_create(
+                tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 20000}
+            )
+
+            for i in range(1, 5):
+                Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_normal})
+            for i in range(5, 8):
+                Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_vip})
+            for i in range(8, 11):
+                Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_ultra})
+
+
+        # Pistas disponibles según fecha/hora seleccionadas
+        fecha = self.request.GET.get('fecha')
+        hora = self.request.GET.get('hora')
+        if fecha and hora:
+            try:
+                fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
+                hora_obj = datetime.strptime(hora, '%H:%M').time()
+                ocupadas = Reserva.objects.filter(fecha=fecha_obj, hora=hora_obj).values_list('pista_id', flat=True)
+                pistas_disponibles = Pista.objects.exclude(id__in=ocupadas)
+            except ValueError:
+                pistas_disponibles = Pista.objects.all()
+        else:
+            pistas_disponibles = Pista.objects.all()
+
+        context['today'] = today
+        context['horarios'] = horarios
+        context['pistas'] = pistas_disponibles
+        return context
 
     def form_valid(self, form):
         user = self.request.user
@@ -103,27 +171,27 @@ class ReservaCreateView(ThemeMixin, CreateView):
             cliente = user.cliente
         except Cliente.DoesNotExist:
             messages.error(self.request, "No tienes un cliente asociado.")
-            return redirect('reserva_list')
-        
+            return redirect('reserva')
+
         form.instance.cliente = cliente
         form.instance.usuario = user
         form.instance.estado = Estado.objects.get(nombre="Pendiente")
+        form.instance.precio_total = form.instance.pista.tipo_pista.precio  # ✅ corregido
 
-        # Validación de horario
-        fecha = form.cleaned_data['fecha']
-        hora = form.cleaned_data['hora']
-        pista = form.cleaned_data['pista']
-        conflicto = Reserva.objects.filter(pista=pista, fecha=fecha, hora=hora).exists()
-        if conflicto:
+        # Evita conflictos de horario
+        if Reserva.objects.filter(
+            pista=form.instance.pista,
+            fecha=form.instance.fecha,
+            hora=form.instance.hora
+        ).exists():
             messages.error(self.request, "Esta pista ya está reservada en ese horario.")
-            return redirect('reserva_create')
+            return redirect('nueva_reserva1')
 
+        messages.success(self.request, "Reserva creada correctamente.")
         return super().form_valid(form)
 
     def get_success_url(self):
-        messages.success(self.request, "Reserva realizada con éxito.")
-        return reverse_lazy('reserva_list')
-
+        return reverse_lazy('reserva')
 # -------------------------
 # Vistas de Pistas
 # -------------------------

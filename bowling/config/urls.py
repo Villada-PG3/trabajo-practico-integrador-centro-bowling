@@ -22,8 +22,8 @@ urlpatterns = [
     path('reglas/', ReglasView.as_view(), name='reglas'),
 
     # Reservas
-    path('reserva/', ReservaListView.as_view(), name="reserva"),
-    path('reserva/nueva/', ReservaCreateView.as_view(), name='nueva_reserva'),
+    path('reserva/', ReservaListView.as_view(), name='reserva'),         # Ver todas las reservas
+    path('reserva/nueva/', ReservaCreateView.as_view(), name='nueva_reserva1'),  # Crear reserva
 
     # Pistas
     path('pistas/', ListaPistasView.as_view(), name="lista_pistas"),

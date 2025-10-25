@@ -25,7 +25,10 @@ class Pista(models.Model):
     numero = models.PositiveIntegerField(unique=True)
 
     def __str__(self):
-        return f"Pista {self.id_pista}"
+        tipo = self.tipo_pista.tipo if self.tipo_pista else "Sin tipo"
+        precio = self.tipo_pista.precio if self.tipo_pista else "?"
+        return f"Pista {self.numero} - {tipo} (${precio})"
+
 
 from django.conf import settings
 
@@ -36,6 +39,7 @@ class Cliente(models.Model):
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)
     email = models.EmailField()
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.nombre
