@@ -53,8 +53,20 @@ class Command(BaseCommand):
             obj, created = Estado.objects.get_or_create(nombre=e)
             self.stdout.write(self.style.SUCCESS(f'Estado "{e}" {"creado" if created else "ya existe"}'))
 
-        pista1, _ = Pista.objects.get_or_create(capacidad_maxima=6, tipo_pista=TipoPista.objects.get(tipo='BASE'), estado=Estado.objects.get(nombre='Disponible'))
-        pista2, _ = Pista.objects.get_or_create(capacidad_maxima=4, tipo_pista=TipoPista.objects.get(tipo='VIP'), estado=Estado.objects.get(nombre='Ocupada'))
+        pista1, _ = Pista.objects.get_or_create(
+        numero=1,
+        capacidad_maxima=6,
+        tipo_pista=TipoPista.objects.get(tipo='BASE'),
+        estado=Estado.objects.get(nombre='Disponible')
+    )
+
+        pista2, _ = Pista.objects.get_or_create(
+            numero=2,
+            capacidad_maxima=4,
+            tipo_pista=TipoPista.objects.get(tipo='VIP'),
+            estado=Estado.objects.get(nombre='Ocupada')
+    )
+
 
         # === CLIENTES ===
         clientes_data = [

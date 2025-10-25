@@ -218,7 +218,7 @@ class AsignarAdminView(LoginRequiredMixin, ThemeMixin, View):
         except Usuario.DoesNotExist:
             messages.error(request, "❌ Usuario no encontrado.")
 
-        return redirect('asignar_admin')
+        return redirect('asignar')
 # -------------------------
 # VISTA DE CONTACTO
 # -------------------------
