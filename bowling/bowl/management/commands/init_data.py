@@ -50,7 +50,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'TipoPista "{t["tipo"]}" {"creado" if created else "ya existe"}'))
 
         # === ESTADOS ===
-        estados = ['Disponible', 'Ocupada', 'En mantenimiento']
+        estados = ['Disponible', 'Ocupada', 'En mantenimiento', 'Pendiente']
         for e in estados:
             obj, created = Estado.objects.get_or_create(nombre=e)
             self.stdout.write(self.style.SUCCESS(f'Estado "{e}" {"creado" if created else "ya existe"}'))
@@ -108,7 +108,7 @@ class Command(BaseCommand):
             clientes.append(obj)
             self.stdout.write(self.style.SUCCESS(f'Cliente "{c["nombre"]}" {"creado" if created else "ya existe"}'))
 
-        # === USUARIOS Y CLIENTES ===
+       # === USUARIOS Y CLIENTES ===
         usuarios_data = [
             {'username': 'Nico_bolos', 'email': 'nicoferreyra2612@gmail.com', 'cliente_index': 0},
             {'username': 'soraya', 'email': 'soso@gmail.com', 'cliente_index': 1},
@@ -121,10 +121,32 @@ class Command(BaseCommand):
             idx = u.get('cliente_index')
             if idx is not None and idx < len(clientes):
                 cliente_obj = clientes[idx]
-                if getattr(cliente_obj, 'user', None) != user:
-                    cliente_obj.user = user
+                # Check if the user is already assigned to another Cliente
+                if Cliente.objects.filter(user=user).exists():
+                    self.stdout.write(self.style.WARNING(
+                        f'El usuario "{u["username"]}" ya está asociado a otro cliente. Saltando asignación.'
+                    ))
+                    continue
+                # Check if the cliente already has a user
+                if hasattr(cliente_obj, 'user') and cliente_obj.user is not None:
+                    self.stdout.write(self.style.WARNING(
+                        f'El cliente "{cliente_obj.nombre}" ya tiene un usuario asignado. Saltando asignación.'
+                    ))
+                    continue
+                # Assign the user to the cliente
+                cliente_obj.user = user
+                try:
                     cliente_obj.save()
-            self.stdout.write(self.style.SUCCESS(f'Usuario "{u["username"]}" {"creado" if created_user else "ya existe"}'))
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Usuario "{u["username"]}" asignado al cliente "{cliente_obj.nombre}"'
+                    ))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(
+                        f'Error al asignar usuario "{u["username"]}" al cliente "{cliente_obj.nombre}": {str(e)}'
+                    ))
+            self.stdout.write(self.style.SUCCESS(
+                f'Usuario "{u["username"]}" {"creado" if created_user else "ya existe"}'
+            ))
 
         # === RESERVAS ===
         reservas_data = [

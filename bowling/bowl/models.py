@@ -22,7 +22,7 @@ class Pista(models.Model):
     capacidad_maxima = models.IntegerField()
     tipo_pista = models.ForeignKey(TipoPista, on_delete=models.CASCADE, null=True, blank=True)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
-    numero = models.PositiveIntegerField(unique=True)
+    numero = models.PositiveIntegerField(unique=True, null = True, blank = True )
 
     def __str__(self):
         tipo = self.tipo_pista.tipo if self.tipo_pista else "Sin tipo"
@@ -47,7 +47,7 @@ class Cliente(models.Model):
 class Usuario(AbstractUser):
     ROLE_CHOICES = (
         ('admin', 'Administrador'),
-        ('empleado', 'Empleado'),
+        ('cliente', 'cliente'),
     )
     rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='empleado')
     REQUIRED_FIELDS = []

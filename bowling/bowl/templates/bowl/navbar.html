@@ -30,41 +30,44 @@
                         <span class="text nav-text">Inicio</span>
                     </a>
                 </li>
+
                 <li class="nav-link">
                     <a href="{% url 'lista_pistas' %}">
                         <i class='bx bx-bowling-ball icon'></i>
                         <span class="text nav-text">Pistas</span>
                     </a>
                 </li>
+
                 <li class="nav-link">
-                    <a href="{% url 'lista_comida' %}">
-                        <i class='bx bx-coffee icon'></i>
-                        <span class="text nav-text">Cafeteria</span>
+                    <a href="{% url 'cafe' %}">
+                        <i class='bx bx-coffee-togo icon'></i>
+                        <span class="text nav-text">Cafetería</span>
                     </a>
                 </li>
+
                 <li class="nav-link">
                     <a href="{% url 'reserva' %}">
                         <i class='bx bx-calendar icon'></i>
                         <span class="text nav-text">Reservas</span>
                     </a>
                 </li>
-                {% if  Usuario.rol == "admin"%}
+
+                {% if request.user.rol == "admin" %}
                     <li class="nav-link">
                         <a href="{% url 'asignar' %}">
-                            <i class='bx bx-calendar icon'></i>
-                            <span class="text nav-text">Asignar</span>
+                            <i class='bx bx-user-check icon'></i>
+                            <span class="text nav-text">Asignar roles</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="{% url 'crear_comida' %}">
+                            <i class='bx bx-plus-circle icon'></i>
+                            <span class="text nav-text">Agregar comidas</span>
                         </a>
                     </li>
                 {% endif %}
-                {% if  Usuario.rol == "admin"%}
-                    <li class="nav-link">
-                        <a href="{% url 'asignar' %}">
-                            <i class='bx bx-calendar icon'></i>
-                            <span class="text nav-text">Asignar</span>
-                        </a>
-                    </li>
-                {% endif %}
-                <!-- Nuevo botón de contacto -->
+
                 <li class="nav-link">
                     <a href="{% url 'contacto' %}">
                         <i class='bx bx-envelope icon'></i>
@@ -97,7 +100,7 @@
                 <div class="profile">
                     <div class="nav-link">
                         <a href="{% url 'iniciar_sesion' %}">
-                            <span class="text nav-text">Iniciar Sesion</span>
+                            <span class="text nav-text">Iniciar Sesión</span>
                         </a>
                         <div class="profile-dropdown">
                             <div class="mode-switch">
