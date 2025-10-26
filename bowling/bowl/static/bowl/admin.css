@@ -1,24 +1,24 @@
 /* Google Font Import - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-/* === Variables globales ya las tenés en :root === */
+/* === Variables globales - PALETA CAFETERÍA === */
 :root{
 /* ===== Colors ===== */
-    --body-color: #E4E9F7;
-    --navbar-color: #FFF;
-    --primary-color: #695CFE;
-    --primary-color-light: #F6F5FF;
-    --toggle-color: #DDD;
-    --text-color: #707070;
+    --body-color: #f8f8f8;           /* Gris claro de cafetería */
+    --navbar-color: #FFFFFF;         /* Blanco puro */
+    --primary-color: #000000;        /* Negro principal de cafetería */
+    --primary-color-light: #1a1a1a;  /* Gris oscuro de cafetería */
+    --toggle-color: #e0e0e0;         /* Gris medio claro */
+    --text-color: #000000;           /* Negro para texto */
     --estado-logeo: 1;
 }
 
 body.dark{
-    --body-color: #18191a;
-    --navbar-color: #242526;
-    --primary-color: #3a3b3c;
-    --primary-color-light: #3a3b3c;
-    --toggle-color: #fff;
-    --text-color: #ccc;
+    --body-color: #0a0a0a;           /* Negro puro de cafetería dark */
+    --navbar-color: #1a1a1a;         /* Gris oscuro de cafetería */
+    --primary-color: #ffffff;        /* Blanco para acentos en dark */
+    --primary-color-light: #333333;  /* Gris medio de cafetería */
+    --toggle-color: #333333;         /* Gris medio */
+    --text-color: #ffffff;           /* Blanco para texto en dark */
 }
 /* Contenedores */
 .content-container, 
@@ -28,7 +28,7 @@ body.dark{
     background-color: var(--navbar-color);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15); /* Shadow más pronunciado como cafetería */
     font-family: 'Poppins', sans-serif;
     color: var(--text-color);
 }
@@ -71,7 +71,7 @@ button, .btn {
     border: none;
     border-radius: 8px;
     background-color: var(--primary-color);
-    color: white;
+    color: var(--navbar-color);      /* Texto blanco sobre fondo negro */
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -90,7 +90,7 @@ ul.comidas-list {
 }
 
 ul.comidas-list li {
-    background-color: var(--primary-color-light);
+    background-color: var(--body-color);  /* Usar body-color en lugar de primary-light */
     margin-bottom: 10px;
     padding: 12px;
     border-radius: 8px;
@@ -102,7 +102,7 @@ ul.comidas-list li {
 }
 
 ul.comidas-list li:hover {
-    background-color: var(--body-color);
+    background-color: var(--toggle-color); /* Gris medio al hover */
 }
 
 a.edit {
@@ -130,7 +130,7 @@ th, td {
 }
 
 thead {
-    background-color: var(--primary-color-light);
+    background-color: var(--body-color);  /* Gris claro para header */
 }
 
 tbody tr {
@@ -139,7 +139,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background-color: var(--body-color);
+    background-color: var(--body-color);  /* Gris claro al hover */
 }
 
 .no-data {

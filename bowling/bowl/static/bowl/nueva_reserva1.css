@@ -1,23 +1,23 @@
 /* Variables de color */
 :root {
-    --reserva-color-primario: #007bff;
-    --reserva-color-hover: #0056b3;
-    --reserva-color-fondo: #ffffff;
-    --reserva-color-texto: #222;
-    --reserva-color-borde: #ddd;
-    --reserva-color-shadow: rgba(0, 0, 0, 0.08);
-    --reserva-input-bg: #f5f5f5;
+    --reserva-color-primario: #000000;        /* Negro puro de cafetería */
+    --reserva-color-hover: #1a1a1a;           /* Gris oscuro */
+    --reserva-color-fondo: #ffffff;           /* Blanco puro */
+    --reserva-color-texto: #000000;           /* Negro puro */
+    --reserva-color-borde: #e0e0e0;           /* Gris claro */
+    --reserva-color-shadow: rgba(0, 0, 0, 0.15); /* Shadow más pronunciado */
+    --reserva-input-bg: #f8f8f8;              /* Gris claro de cafetería */
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --reserva-color-fondo: #1e1e2f;
-        --reserva-color-texto: #eee;
-        --reserva-color-borde: #444;
-        --reserva-color-shadow: rgba(0, 0, 0, 0.3);
-        --reserva-input-bg: #2a2a3d;
-        --reserva-color-primario: #66aaff;
-        --reserva-color-hover: #3399ff;
+        --reserva-color-fondo: #1a1a1a;       /* Gris oscuro de cafetería */
+        --reserva-color-texto: #ffffff;       /* Blanco puro */
+        --reserva-color-borde: #444444;       /* Gris medio */
+        --reserva-color-shadow: rgba(0, 0, 0, 0.4); /* Shadow más pronunciado */
+        --reserva-input-bg: #2a2a2a;          /* Gris medio oscuro */
+        --reserva-color-primario: #ffffff;    /* Blanco para acentos en dark */
+        --reserva-color-hover: #e0e0e0;       /* Gris claro */
     }
 }
 
@@ -27,7 +27,7 @@
     margin: 40px auto;
     padding: 30px;
     background-color: var(--reserva-color-fondo);
-    border-left: 5px solid var(--reserva-color-primario);
+    border-left: 5px solid var(--reserva-color-primario);  /* Negro en light, blanco en dark */
     border-radius: 10px;
     box-shadow: 0 4px 16px var(--reserva-color-shadow);
     font-family: 'Segoe UI', sans-serif;
@@ -37,7 +37,7 @@
 .reserva-form-container h1 {
     font-size: 26px;
     margin-bottom: 25px;
-    color: var(--reserva-color-primario);
+    color: var(--reserva-color-primario);      /* Negro en light, blanco en dark */
     text-align: center;
 }
 
@@ -57,7 +57,7 @@
 
 .reserva-form-container .form-group label {
     font-weight: 600;
-    color: var(--reserva-color-texto);
+    color: var(--reserva-color-texto);         /* Negro en light, blanco en dark */
     font-size: 15px;
 }
 
@@ -68,14 +68,14 @@
     border-radius: 6px;
     font-size: 15px;
     background-color: var(--reserva-input-bg);
-    color: var(--reserva-color-texto);
+    color: var(--reserva-color-texto);         /* Negro en light, blanco en dark */
     transition: all 0.3s ease;
 }
 
 .reserva-form-container .form-group input:focus,
 .reserva-form-container .form-group select:focus {
-    border-color: var(--reserva-color-primario);
-    box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+    border-color: var(--reserva-color-primario);  /* Negro en light, blanco en dark */
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);   /* Shadow negro */
     outline: none;
 }
 
@@ -83,8 +83,8 @@
 .reserva-form-container .cta-button {
     align-self: flex-start;
     padding: 12px 28px;
-    background-color: var(--reserva-color-primario);
-    color: #fff;
+    background-color: var(--reserva-color-primario);  /* Negro en light, blanco en dark */
+    color: var(--reserva-color-fondo);         /* Blanco en light, negro en dark */
     font-size: 16px;
     font-weight: 600;
     border: none;
@@ -96,7 +96,7 @@
 }
 
 .reserva-form-container .cta-button:hover {
-    background-color: var(--reserva-color-hover);
+    background-color: var(--reserva-color-hover);  /* Gris oscuro en light, gris claro en dark */
 }
 
 /* Responsive */

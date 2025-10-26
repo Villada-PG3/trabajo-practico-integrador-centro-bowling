@@ -4,7 +4,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #111827;
+    background-color: #0a0a0a;           /* Negro puro de cafetería */
 }
 
 /* From Uiverse.io by BHARGAVPATEL1244 */ 
@@ -23,8 +23,8 @@ button {
     font-size: 22px;
     border-radius: 500px;
     overflow: hidden;
-    background: rgba(156, 163, 175, 1);
-    color: ghostwhite;
+    background: #666666;                 /* Gris medio de cafetería */
+    color: #ffffff;                      /* Blanco puro */
 }
 
 button span {
@@ -34,7 +34,7 @@ button span {
 }
 
 button:hover span {
-    color: black;
+    color: #000000;                      /* Negro puro */
 }
 
 button::before,
@@ -49,7 +49,7 @@ button::after {
 
 button::before {
     content: "";
-    background: #000;
+    background: #ffffff;                 /* Blanco puro */
     width: 120%;
     left: -10%;
     transform: skew(30deg);

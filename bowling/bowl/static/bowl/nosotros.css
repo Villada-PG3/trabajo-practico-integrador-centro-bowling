@@ -1,8 +1,8 @@
 :root {
-    --body-color: #E4E9F7;
-    --navbar-color: #FFF;
-    --primary-color: #695CFE;
-    --text-color: #707070;
+    --body-color: #f8f8f8;           /* Gris claro de cafetería */
+    --navbar-color: #FFFFFF;         /* Blanco puro */
+    --primary-color: #000000;        /* Negro principal de cafetería */
+    --text-color: #000000;           /* Negro para texto */
     --tran-05: all 0.5s ease;
 }
 
@@ -14,22 +14,22 @@
     padding: 40px 20px;
     background-color: var(--navbar-color);
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Shadow más pronunciado */
 }
 
 .nosotros-title {
-    color: #695CFE;
+    color: #000000;                      /* Negro puro */
     text-align: center;
     margin-bottom: 20px;
     font-size: 2.2rem;
 }
 
 .nosotros-subtitle {
-    color: #695CFE;
+    color: #000000;                      /* Negro puro */
     text-align: left;
     margin: 30px 0 15px 0;
     font-size: 1.5rem;
-    border-bottom: 2px solid #695CFE;
+    border-bottom: 2px solid #000000;    /* Negro puro */
     padding-bottom: 8px;
 }
 
@@ -54,13 +54,13 @@
     height: 150px;
     object-fit: cover;
     border-radius: 50%;
-    border: 3px solid #695CFE;
+    border: 3px solid #000000;           /* Negro puro */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nosotros-galeria img:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25); /* Shadow más pronunciado */
 }
 
 /* Dark mode */
