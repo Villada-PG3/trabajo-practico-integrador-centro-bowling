@@ -15,7 +15,7 @@ class Command(BaseCommand):
     help = "Inicializa datos predeterminados del Centro de Bowling"
 
     def handle(self, *args, **kwargs):
-        User = get_user_model()  # respeta AUTH_USER_MODEL
+        User = get_user_model()  # Obtiene el modelo de usuario configurado en settings.py
         admin_data = {
             'username': 'admin_local',
             'email': 'adminlocal@bowling.com',
@@ -24,6 +24,7 @@ class Command(BaseCommand):
         }
 
         # === USUARIO ADMIN ===
+        # Verifica si ya existe, sino lo crea con permisos de superusuario
         if not Usuario.objects.filter(username=admin_data['username']).exists():
             admin_user = Usuario.objects.create(
                 username=admin_data['username'],
@@ -31,7 +32,7 @@ class Command(BaseCommand):
                 rol=admin_data['rol'],
                 password=admin_data['password']
             )
-            admin_user.set_password(admin_data['password'])
+            admin_user.set_password(admin_data['password'])  # Encripta la contraseña
             admin_user.is_staff = True
             admin_user.is_superuser = True
             admin_user.save()
@@ -46,6 +47,7 @@ class Command(BaseCommand):
             {'tipo': 'BASE', 'zona': 'Zona 1', 'precio': 10000, 'descuento': 0, 'descripcion': 'Zona general y con servicio base.'},
         ]
         for t in tipos:
+            # get_or_create evita duplicados
             obj, created = TipoPista.objects.get_or_create(tipo=t['tipo'], defaults=t)
             self.stdout.write(self.style.SUCCESS(f'TipoPista "{t["tipo"]}" {"creado" if created else "ya existe"}'))
 
@@ -56,13 +58,12 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'Estado "{e}" {"creado" if created else "ya existe"}'))
 
         # === PISTAS ===
-        # BORRAR TODAS LAS PISTAS EXISTENTES
-        Pista.objects.all().delete()
+        Pista.objects.all().delete()  # Limpiar pistas existentes para no duplicar
         self.stdout.write(self.style.WARNING("Se eliminaron todas las pistas existentes."))
 
         estado_disponible = Estado.objects.get(nombre="Disponible")
 
-        # 4 pistas Base
+        # Crear pistas Base
         tipo_base = TipoPista.objects.get(tipo="BASE")
         for i in range(1, 5):
             Pista.objects.create(
@@ -72,7 +73,7 @@ class Command(BaseCommand):
                 estado=estado_disponible
             )
 
-        # 3 pistas VIP
+        # Crear pistas VIP
         tipo_vip = TipoPista.objects.get(tipo="VIP")
         for i in range(5, 8):
             Pista.objects.create(
@@ -82,7 +83,7 @@ class Command(BaseCommand):
                 estado=estado_disponible
             )
 
-        # 3 pistas UltraVIP
+        # Crear pistas UltraVIP
         tipo_ultravip = TipoPista.objects.get(tipo="ULTRA VIP")
         for i in range(8, 11):
             Pista.objects.create(
@@ -104,6 +105,7 @@ class Command(BaseCommand):
         ]
         clientes = []
         for c in clientes_data:
+            # Evita duplicar clientes existentes
             obj, created = Cliente.objects.get_or_create(email=c['email'], defaults=c)
             clientes.append(obj)
             self.stdout.write(self.style.SUCCESS(f'Cliente "{c["nombre"]}" {"creado" if created else "ya existe"}'))
@@ -121,19 +123,19 @@ class Command(BaseCommand):
             idx = u.get('cliente_index')
             if idx is not None and idx < len(clientes):
                 cliente_obj = clientes[idx]
-                # Check if the user is already assigned to another Cliente
+                # Evita asignar usuario si ya está vinculado a otro cliente
                 if Cliente.objects.filter(user=user).exists():
                     self.stdout.write(self.style.WARNING(
                         f'El usuario "{u["username"]}" ya está asociado a otro cliente. Saltando asignación.'
                     ))
                     continue
-                # Check if the cliente already has a user
+                # Evita sobrescribir un cliente que ya tiene usuario
                 if hasattr(cliente_obj, 'user') and cliente_obj.user is not None:
                     self.stdout.write(self.style.WARNING(
                         f'El cliente "{cliente_obj.nombre}" ya tiene un usuario asignado. Saltando asignación.'
                     ))
                     continue
-                # Assign the user to the cliente
+                # Asignar usuario al cliente
                 cliente_obj.user = user
                 try:
                     cliente_obj.save()
@@ -168,10 +170,11 @@ class Command(BaseCommand):
             reservas.append(obj)
             self.stdout.write(self.style.SUCCESS(f'Reserva para {r["cliente"].nombre} {"creada" if created else "ya existe"}'))
 
+        # Crear partidas asociadas a reservas
         partida1, _ = Partida.objects.get_or_create(pista=pista1, reserva=reservas[0], defaults={'duracion': time(1, 0)})
         partida2, _ = Partida.objects.get_or_create(pista=pista2, reserva=reservas[1], defaults={'duracion': time(1, 30)})
 
-        # === JUGADORES ===
+        # === JUGADORES Y ESTADÍSTICAS ===
         jugadores_data = [
             {'nombre': 'pichi', 'edad': 27, 'email': 'algo@gmail.com'},
             {'nombre': 'sori', 'edad': 20, 'email': 'soso@gmail.com'},
@@ -182,12 +185,15 @@ class Command(BaseCommand):
             jugadores.append(obj)
             self.stdout.write(self.style.SUCCESS(f'Jugador "{j["nombre"]}" {"creado" if created else "ya existe"}'))
 
+        # Crear estadísticas iniciales de cada jugador
         for j in jugadores:
             EstadisticasJugador.objects.get_or_create(jugador=j, defaults={'partidas_jugadas': 1, 'promedio_puntaje': 4.0, 'total_strikes': 1, 'total_spares': 2})
 
+        # Asociar jugadores a partidas
         jp1, _ = JugadorPartida.objects.get_or_create(jugador=jugadores[0], partida=partida1, defaults={'puntaje_final': 13, 'posicion': 2})
         jp2, _ = JugadorPartida.objects.get_or_create(jugador=jugadores[1], partida=partida2, defaults={'puntaje_final': 100, 'posicion': 1})
 
+        # Crear turnos de la partida 1
         for i in range(1, 4):
             Turno.objects.get_or_create(numero_turno=i, partida=partida1, jugador_partida=jp1, defaults={'lanzamiento1': 5, 'lanzamiento2': 4, 'puntaje_turno': 9})
 
@@ -200,7 +206,7 @@ class Command(BaseCommand):
             {'nombre': 'SpaceGaseosa', 'descripcion': 'Rica y refrescante gaseosa para acompañar tu comida.', 'precio': 2.99}
         ]
         for c in comidas_data:
-            comida.objects.get_or_create(nombre=c['nombre'], defaults=c)
+            comida.objects.get_or_create(nombre=c['nombre'], defaults=c)  # Evita duplicar comidas
 
         # === CAFETERÍA Y MENÚS ===
         cafe, _ = Cafeteria.objects.get_or_create(

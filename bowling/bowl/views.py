@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 
+# Importación de modelos y formularios
 from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, comida
 from .forms import (
     PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
@@ -20,28 +21,27 @@ from .forms import (
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
 # -------------------------
-# Mixins
+# Mixins: clases reutilizables para compartir lógica entre vistas
 # -------------------------
 class ThemeMixin:
-    """Agrega theme_mode al contexto de todas las vistas que lo usen"""
+    """Agrega el modo de tema (oscuro/claro) al contexto"""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
         return context
 
+
 class UsuarioContext:
-    """Agrega 'usuario' y 'Usuario' al contexto de todas las vistas que lo usen"""
+    """Agrega información del usuario y su rol al contexto"""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         request = self.request
-
         if hasattr(request, 'user') and getattr(request.user, 'is_authenticated', False):
             context['usuario'] = request.user
             context['Usuario'] = getattr(request.user, 'rol', '') == 'admin'
         else:
             context['usuario'] = None
             context['Usuario'] = False
-
         return context
 
 # -------------------------
@@ -49,7 +49,7 @@ class UsuarioContext:
 # -------------------------
 class InicioView(ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/inicio.html"
-
+    # Agrega información del usuario al contexto de la página principal
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['estado_logueo'] = 0
@@ -57,6 +57,7 @@ class InicioView(ThemeMixin, UsuarioContext, TemplateView):
             context["Usuario"] = self.request.user
         return context
 
+# Vistas informativas simples
 class GaleriaView(ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/galeria.html"
 
@@ -69,11 +70,12 @@ class CafeView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
 class LoginnView(ThemeMixin, UsuarioContext, LoginView):
     template_name = "bowl/inicio_sesion1.html"
 
+# Página estática sin clases
 def nosotros(request):
     return render(request, 'bowl/nosotros.html')
 
 def toggle_theme_mode(request):
-    """Alterna entre light y dark"""
+    """Alterna entre modo claro y oscuro"""
     current_mode = request.session.get('theme_mode', 'light')
     request.session['theme_mode'] = 'dark' if current_mode == 'light' else 'light'
     return redirect(request.META.get('HTTP_REFERER', 'inicio'))
@@ -82,6 +84,7 @@ def toggle_theme_mode(request):
 # Vistas de Reservas
 # -------------------------
 class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
+    """Lista las reservas del cliente autenticado"""
     model = Reserva
     template_name = 'bowl/reserva.html'
     context_object_name = 'reservas'
@@ -91,42 +94,44 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
         user = self.request.user
         if user.is_authenticated:
             cliente = getattr(user, "cliente", None)
-        if cliente:
-            return Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
+            if cliente:
+                return Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
         return Reserva.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now().date()
         return context
+
+
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
+    """Permite crear una nueva reserva"""
     model = Reserva
     form_class = ReservaForm
     template_name = 'bowl/nueva_reserva1.html'
     login_url = reverse_lazy('iniciar_sesion')
 
     def get_context_data(self, **kwargs):
+        """Prepara horarios disponibles y pistas libres"""
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
-        hora_inicio = time(14, 0)
-        hora_fin = time(23, 0)
+
+        # Genera una lista de horarios cada 15 minutos entre 14:00 y 23:00
+        hora_inicio, hora_fin = time(14, 0), time(23, 0)
         horarios = []
         hora_actual = datetime.combine(today, hora_inicio)
-        hora_fin_dt = datetime.combine(today, hora_fin)
-        while hora_actual <= hora_fin_dt:
+        while hora_actual <= datetime.combine(today, hora_fin):
             horarios.append(hora_actual.strftime("%H:%M"))
             hora_actual += timedelta(minutes=15)
 
+        # Crea pistas por defecto si no existen
         if Pista.objects.count() < 10:
             tipo_normal, _ = TipoPista.objects.get_or_create(
-                tipo="Normal", defaults={'zona': 'General', 'precio': 10000}
-            )
+                tipo="Normal", defaults={'zona': 'General', 'precio': 10000})
             tipo_vip, _ = TipoPista.objects.get_or_create(
-                tipo="VIP", defaults={'zona': 'VIP', 'precio': 15000}
-            )
+                tipo="VIP", defaults={'zona': 'VIP', 'precio': 15000})
             tipo_ultra, _ = TipoPista.objects.get_or_create(
-                tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 20000}
-            )
+                tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 20000})
             for i in range(1, 5):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_normal})
             for i in range(5, 8):
@@ -134,6 +139,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
             for i in range(8, 11):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_ultra})
 
+        # Filtra las pistas disponibles según fecha y hora
         fecha = self.request.GET.get('fecha')
         hora = self.request.GET.get('hora')
         if fecha and hora:
@@ -147,44 +153,39 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         else:
             pistas_disponibles = Pista.objects.all()
 
-        context['today'] = today
-        context['horarios'] = horarios
-        context['pistas'] = pistas_disponibles
+        context.update({
+            'today': today,
+            'horarios': horarios,
+            'pistas': pistas_disponibles
+        })
         return context
 
     def form_valid(self, form):
-        print("Form cleaned data:", form.cleaned_data)
+        """Guarda la reserva asociándola al usuario y cliente"""
         user = self.request.user
         try:
             cliente = user.cliente
         except Cliente.DoesNotExist:
-            print("No cliente associated with user:", user.username)
             messages.error(self.request, "No tienes un cliente asociado.")
             return redirect('reserva')
 
         form.instance.cliente = cliente
         form.instance.usuario = user
+
+        # Asigna estado y precio
         try:
             form.instance.estado = Estado.objects.get(nombre="Pendiente")
-        except Estado.DoesNotExist:
-            print("Estado 'Pendiente' not found")
-            messages.error(self.request, "Error: Estado 'Pendiente' no encontrado.")
-            return redirect('nueva_reserva1')
-
-        try:
             form.instance.precio_total = form.instance.pista.tipo_pista.precio
-        except AttributeError:
-            print("Invalid pista or tipo_pista")
-            messages.error(self.request, "Error: Pista inválida o sin tipo asociado.")
+        except Exception:
+            messages.error(self.request, "Error al asignar estado o tipo de pista.")
             return redirect('nueva_reserva1')
 
-        # Conflict check is already in clean(), but keep for safety
+        # Verifica conflictos de horario
         if Reserva.objects.filter(
             pista=form.instance.pista,
             fecha=form.instance.fecha,
             hora=form.instance.hora
         ).exists():
-            print("Conflict detected for pista:", form.instance.pista, "fecha:", form.instance.fecha, "hora:", form.instance.hora)
             messages.error(self.request, "Esta pista ya está reservada en ese horario.")
             return redirect('nueva_reserva1')
 
@@ -192,7 +193,6 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        print("Form errors:", form.errors)
         messages.error(self.request, f"Error en el formulario: {form.errors}")
         return self.render_to_response(self.get_context_data(form=form))
 
@@ -206,11 +206,6 @@ class ListaPistasView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
     model = Pista
     template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['pistas'] = Pista.objects.all()
-        return context
 
 class CrearPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Pista
@@ -228,15 +223,15 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
 # Vistas de Cafetería
 # -------------------------
 class ListaComidaView(UsuarioContext, View):
+    """Lista los productos de la cafetería"""
     def get(self, request):
         comidas = comida.objects.all()
         return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
 class CrearComidaView(UsuarioContext, View):
+    """Crea nuevos productos de comida"""
     def get(self, request):
-        form = MenuForm()
-        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
-
+        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": MenuForm()})
     def post(self, request):
         form = MenuForm(request.POST)
         if form.is_valid():
@@ -257,13 +252,13 @@ class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Update
     success_url = reverse_lazy('lista_comida')
 
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
+    """Permite asignar o cambiar el rol de los usuarios"""
     template_name = "bowl/cositas_admin/asignar_admin.html"
 
     def get(self, request):
         if getattr(request.user, 'rol', None) != 'admin':
             messages.error(request, "No tienes permiso para acceder a esta página.")
             return redirect('inicio')
-
         usuarios = Usuario.objects.all().order_by('username')
         return render(request, self.template_name, {'usuarios': usuarios})
 
@@ -279,16 +274,17 @@ class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
             usuario = Usuario.objects.get(id=user_id)
             usuario.rol = nuevo_rol
             usuario.save()
-            messages.success(request, f"✅ El rol de {usuario.username} se actualizó correctamente.")
+            messages.success(request, f"✅ Rol de {usuario.username} actualizado correctamente.")
         except Usuario.DoesNotExist:
             messages.error(request, "❌ Usuario no encontrado.")
 
         return redirect('asignar')
 
 # -------------------------
-# VISTA DE CONTACTO
+# Vista de Contacto
 # -------------------------
 class ContactoView(UsuarioContext, View):
+    """Envía un mensaje al correo del administrador"""
     template_name = "bowl/contactos.html"
 
     def get(self, request):
@@ -306,34 +302,28 @@ class ContactoView(UsuarioContext, View):
         
         Mensaje:
         {mensaje_texto}
-        
         ---
         Enviado desde Space Bowling
         """
         try:
-            send_mail(
-                asunto,
-                cuerpo,
-                EMAIL_HOST_USER,
-                [EMAIL_HOST_USER],
-                fail_silently=False,
-            )
-            messages.success(request, '¡Mensaje enviado correctamente! Te responderemos a la brevedad.')
-            return redirect('contacto')
+            send_mail(asunto, cuerpo, EMAIL_HOST_USER, [EMAIL_HOST_USER], fail_silently=False)
+            messages.success(request, '¡Mensaje enviado correctamente!')
         except Exception as e:
-            messages.error(request, f'Error al enviar el mensaje. Por favor, intenta nuevamente. Error: {str(e)}')
-            return redirect('contacto')
+            messages.error(request, f'Error al enviar el mensaje: {str(e)}')
+        return redirect('contacto')
 
+# -------------------------
+# Vista de Registro
+# -------------------------
 def registro(request):
+    """Permite crear un nuevo usuario desde un formulario"""
     if request.method == "POST":
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
             user = form.save()
             messages.success(request, f"Usuario {user.username} registrado correctamente")
             return render(request, "bowl/inicio_sesion1.html")
-        else:
-            print(form.errors)
-            messages.error(request, "Hubo un error en el formulario")
+        messages.error(request, "Hubo un error en el formulario")
     else:
         form = RegistroUsuarioForm()
     return render(request, "bowl/registro.html", {"form": form})

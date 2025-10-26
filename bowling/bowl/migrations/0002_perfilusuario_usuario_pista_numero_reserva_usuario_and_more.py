@@ -7,29 +7,56 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
+    # Esta migración depende de la inicial (0001_initial)
     dependencies = [
         ('bowl', '0001_initial'),
     ]
 
+    # Operaciones de la migración
     operations = [
+        # Agrega un campo usuario a PerfilUsuario
         migrations.AddField(
             model_name='perfilusuario',
             name='usuario',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL
+            ),
         ),
+        
+        # Agrega un campo número a Pista
         migrations.AddField(
             model_name='pista',
             name='numero',
-            field=models.PositiveIntegerField(blank=True, null=True, unique=True),
+            field=models.PositiveIntegerField(
+                blank=True,
+                null=True,
+                unique=True
+            ),
         ),
+
+        # Agrega un campo usuario a Reserva
         migrations.AddField(
             model_name='reserva',
             name='usuario',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL
+            ),
         ),
+
+        # Modifica el campo rol del modelo Usuario
         migrations.AlterField(
             model_name='usuario',
             name='rol',
-            field=models.CharField(choices=[('admin', 'Administrador'), ('cliente', 'cliente')], default='empleado', max_length=20),
+            field=models.CharField(
+                choices=[('admin', 'Administrador'), ('cliente', 'cliente')],
+                default='empleado',
+                max_length=20
+            ),
         ),
     ]
