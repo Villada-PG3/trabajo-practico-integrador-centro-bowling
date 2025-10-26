@@ -6,62 +6,196 @@
     --tran-05: all 0.5s ease;
 }
 
-/* ELIMINA todo el body {} y los h1, h2 globales */
-
+/* Contenedor principal */
 .rules-content {
     max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 20px;
+    margin: 40px auto;
+    padding: 40px;
     background-color: var(--navbar-color);
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Shadow más pronunciado */
+    box-shadow: 0 3px 15px rgba(0,0,0,0.15); /* Shadow consistente */
+    transition: var(--tran-05);
+    border-left: 5px solid var(--primary-color); /* Acento izquierdo como reserva */
 }
 
+/* Títulos */
 .rules-title {
-    color: #000000;                      /* Negro puro */
+    color: var(--primary-color);
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     font-size: 2.2rem;
+    font-weight: 700;
+    transition: var(--tran-05);
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 15px;
+    display: inline-block;
+    width: 100%;
 }
 
 .rules-subtitle {
-    color: #000000;                      /* Negro puro */
+    color: var(--text-color);
     text-align: left;
-    margin: 30px 0 15px 0;
+    margin: 35px 0 20px 0;
     font-size: 1.5rem;
-    border-bottom: 2px solid #000000;    /* Negro puro */
-    padding-bottom: 8px;
+    font-weight: 600;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 15px;
+    transition: var(--tran-05);
 }
 
+/* Texto y párrafos */
 .rules-text {
-    line-height: 1.6;
-    margin-bottom: 20px;
+    line-height: 1.7;
+    margin-bottom: 25px;
     text-align: justify;
     color: var(--text-color);
+    transition: var(--tran-05);
+    opacity: 0.9;
 }
 
+.rules-text:last-child {
+    margin-bottom: 0;
+}
+
+/* Listas */
 .rules-list {
     padding-left: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     color: var(--text-color);
+    transition: var(--tran-05);
 }
 
 .rules-list li {
-    margin-bottom: 10px;
-    line-height: 1.5;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 10px;
 }
 
-.rules-bold {
-    color: #000000;                      /* Negro puro */
+.rules-list li::before {
+    content: "•";
+    color: var(--primary-color);
     font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    font-size: 1.2em;
 }
 
-/* Dark mode */
-body.dark .rules-content {
-    background-color: var(--navbar-color);
+/* Texto en negrita */
+.rules-bold {
+    color: var(--primary-color);
+    font-weight: 700;
+    transition: var(--tran-05);
 }
 
-body.dark .rules-text,
-body.dark .rules-list {
-    color: var(--text-color);
+/* Mejora para listas anidadas o con contenido especial */
+.rules-list strong {
+    color: var(--primary-color);
+    font-weight: 700;
 }
+
+/* Estilos para secciones específicas */
+.regla-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.regla-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Consejos especiales (para la sección 6) */
+.consejos-section {
+    background-color: rgba(0,0,0,0.03);
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    margin: 25px 0;
+    transition: var(--tran-05);
+}
+
+/* Efectos de hover para el contenedor principal */
+.rules-content:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .rules-content {
+        margin: 20px auto;
+        padding: 30px 25px;
+    }
+    
+    .rules-title {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+    
+    .rules-subtitle {
+        font-size: 1.3rem;
+        margin: 30px 0 18px 0;
+        padding-left: 12px;
+    }
+    
+    .rules-text {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
+    .rules-list {
+        padding-left: 15px;
+    }
+    
+    .rules-list li {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+    
+    .consejos-section {
+        padding: 15px;
+        margin: 20px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .rules-content {
+        padding: 25px 20px;
+        margin: 15px auto;
+    }
+    
+    .rules-title {
+        font-size: 1.6rem;
+        padding-bottom: 10px;
+    }
+    
+    .rules-subtitle {
+        font-size: 1.2rem;
+        margin: 25px 0 15px 0;
+        padding-left: 10px;
+    }
+    
+    .rules-text {
+        font-size: 0.9rem;
+        text-align: left; /* En móvil mejor left que justify */
+    }
+    
+    .rules-list {
+        padding-left: 10px;
+    }
+    
+    .rules-list li {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .consejos-section {
+        padding: 12px 15px;
+        margin: 15px 0;
+    }
+}
+
+/* No necesitamos dark mode manual - las variables CSS lo manejan automáticamente */
