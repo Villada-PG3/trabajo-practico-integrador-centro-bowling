@@ -43,11 +43,9 @@
                     <span class="subtotal">$0.00</span>
                     <span>Descuento por cupones aplicados:</span>
                     <span class="discount">$0.00</span>
-                    <span>Cargos de envío:</span>
-                    <span>$4.99</span>
                 </div>
                 <div class="checkout--footer">
-                    <label class="price"><sup>$</sup><span class="total">4.99</span></label>
+                    <label class="price"><sup>$</sup><span class="total">0</span></label>
                     <button class="checkout-btn">Checkout</button>
                 </div>
             </div>
@@ -73,29 +71,29 @@
                     <img src="{% static 'bowl/imagenes/hamburguesa.png' %}" alt="SpaceBowling Burger" class="product-img">
                     <h3>SpaceBowling Burger</h3>
                     <p>Clásica hamburguesa con carne jugosa, lechuga, queso y salsa especial.</p>
-                    <span class="price">$12.99</span>
-                    <button class="add-to-cart" data-name="SpaceBowling Burger" data-price="12.99" data-desc="Clásica con queso">Agregar al carrito</button>
+                    <span class="price">$15000</span>
+                    <button class="add-to-cart" data-name="SpaceBowling Burger" data-price="15000" data-desc="Clásica con queso">Agregar al carrito</button>
                 </div>
                 <div class="product-card">
                     <img src="{% static 'bowl/imagenes/nuggets.png' %}" alt="SpaceNuggets" class="product-img">
                     <h3>SpaceNuggets</h3>
                     <p>Deliciosos nuggets crujientes con salsa a elección.</p>
-                    <span class="price">$8.99</span>
-                    <button class="add-to-cart" data-name="SpaceNuggets" data-price="8.99" data-desc="6 piezas con salsa">Agregar al carrito</button>
+                    <span class="price">$11000</span>
+                    <button class="add-to-cart" data-name="SpaceNuggets" data-price="11000" data-desc="6 piezas con salsa">Agregar al carrito</button>
                 </div>
                 <div class="product-card">
                     <img src="{% static 'bowl/imagenes/papas.png' %}" alt="SpaceFries" class="product-img">
                     <h3>SpaceFries</h3>
                     <p>Papas doradas y crujientes, perfectas para compartir.</p>
-                    <span class="price">$4.99</span>
-                    <button class="add-to-cart" data-name="SpaceFries" data-price="4.99" data-desc="Tamaño mediano">Agregar al carrito</button>
+                    <span class="price">$6000</span>
+                    <button class="add-to-cart" data-name="SpaceFries" data-price="6000" data-desc="Tamaño mediano">Agregar al carrito</button>
                 </div>
                 <div class="product-card">
                     <img src="{% static 'bowl/imagenes/cafe.png' %}" alt="SpaceCafé" class="product-img">
                     <h3>SpaceCafé</h3>
                     <p>Café recién hecho con un toque especial.</p>
-                    <span class="price">$3.99</span>
-                    <button class="add-to-cart" data-name="SpaceCafé" data-price="3.99" data-desc="Capuchino">Agregar al carrito</button>
+                    <span class="price">$4500</span>
+                    <button class="add-to-cart" data-name="SpaceCafé" data-price="4500" data-desc="Capuchino">Agregar al carrito</button>
                 </div>
             </div>
             <button class="carousel-btn next">
@@ -110,15 +108,15 @@
     <section class="marketing-section">
         <div class="marketing-card">
             <h3>Horarios de Atención</h3>
-            <p>Lunes a Domingo: 14:00 - 00:00. ¡Vení a disfrutar en cualquier momento!</p>
+            <p>Lunes a Domingo: 10:00 AM - 12:00 AM. ¡Vení a disfrutar en cualquier momento!</p>
         </div>
         <div class="marketing-card">
             <h3>Ubicación</h3>
-            <p>Av. Siempreviva 742, Springfield.</p>
+            <p>Av. Espacial 123, Ciudad del Bowling. Encontranos cerca de las pistas principales.</p>
         </div>
         <div class="marketing-card">
             <h3>Contacto</h3>
-            <p>Llamanos al +54 9 351 1234 5678 o escribinos a spacebowling@gmail.com.</p>
+            <p>Llamanos al +54 9 11 1234-5678 o escribinos a info@spacebowling.com.</p>
         </div>
     </section>
 
@@ -281,8 +279,7 @@
 
             subtotalSpan.textContent = `$${subtotal.toFixed(2)}`;
             discountSpan.textContent = `$${discount.toFixed(2)}`;
-            const shipping = 4.99;
-            const total = subtotal - discount + shipping;
+            const total = subtotal - discount;
             totalSpan.textContent = total.toFixed(2);
 
             cartCount.textContent = totalItems;
