@@ -69,6 +69,7 @@ class JugadorPartidaAdmin(admin.ModelAdmin):
     list_display = ('id_jugador_partida', 'jugador', 'partida', 'puntaje_final', 'posicion') 
 
 # ---------------------------- MODELO TURNO -------------------------
+# ---------------------------- MODELO TURNO -------------------------
 @admin.register(Turno)
 class TurnoAdmin(admin.ModelAdmin):
     list_display = (  # Muestra todos los campos del turno en la lista
@@ -77,6 +78,23 @@ class TurnoAdmin(admin.ModelAdmin):
         'falta1', 'falta2', 'falta3', 'frame_final'
     )
     list_filter = ('partida', 'jugador_partida')  # Filtros laterales por partida o jugador
+    
+    # Agrega estos métodos para los campos que no existen en el modelo
+    def falta1(self, obj):
+        return "No"  # O el valor que corresponda
+    falta1.short_description = 'Falta 1'
+    
+    def falta2(self, obj):
+        return "No"
+    falta2.short_description = 'Falta 2'
+    
+    def falta3(self, obj):
+        return "No"
+    falta3.short_description = 'Falta 3'
+    
+    def frame_final(self, obj):
+        return "0"
+    frame_final.short_description = 'Frame Final'
 
 # --------------------------- MODELO CAFETERIA ----------------------
 @admin.register(Cafeteria)
