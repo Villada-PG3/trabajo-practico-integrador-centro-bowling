@@ -1,21 +1,14 @@
 :root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
-    --primary-color: #695CFE; /* Títulos siempre azules */
+    --primary-color: #695CFE;
     --text-color: #707070;
     --tran-05: all 0.5s ease;
 }
 
-body {
-    background-color: var(--body-color);
-    font-family: Arial, sans-serif;
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    transition: var(--tran-05);
-}
+/* ELIMINA todo el body {} y los h1, h2 globales */
 
-.content-container {
+.nosotros-content {
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
@@ -24,16 +17,27 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-h1, h2 {
-    color: var(--primary-color); /* Color fijo para títulos */
+.nosotros-title {
+    color: #695CFE;
     text-align: center;
     margin-bottom: 20px;
+    font-size: 2.2rem;
 }
 
-p {
+.nosotros-subtitle {
+    color: #695CFE;
+    text-align: left;
+    margin: 30px 0 15px 0;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #695CFE;
+    padding-bottom: 8px;
+}
+
+.nosotros-text {
     line-height: 1.6;
     margin-bottom: 20px;
     text-align: justify;
+    color: var(--text-color);
 }
 
 /* Galería del equipo */
@@ -46,11 +50,11 @@ p {
 }
 
 .nosotros-galeria img {
-    width: 150px;       /* tamaño final */
+    width: 150px;
     height: 150px;
-    object-fit: cover;  /* mantiene proporción y recorta si hace falta */
-    border-radius: 50%; /* círculos */
-    border: 3px solid var(--primary-color);
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #695CFE;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -60,15 +64,10 @@ p {
 }
 
 /* Dark mode */
-body.dark {
-    --body-color: #1c1c1c;
-    --navbar-color: #2a2a2a;
-    --text-color: #e1e1e1;
-    /* títulos y bordes de fotos siguen siendo azules */
+body.dark .nosotros-content {
+    background-color: var(--navbar-color);
 }
 
-h1, h2 {
-    color: #695CFE; /* títulos siempre azules, light y dark */
-    text-align: center;
-    margin-bottom: 20px;
+body.dark .nosotros-text {
+    color: var(--text-color);
 }

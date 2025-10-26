@@ -5,7 +5,7 @@ from django.urls import path,include
 from bowl.views import (
     InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
     CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, 
-    registro, nosotros, GaleriaView, ReglasView, ReservaCreateView
+    registro, GaleriaView, ReglasView, ReservaCreateView
 )
 from django.contrib.auth.views import LogoutView
 
@@ -17,9 +17,6 @@ urlpatterns = [
     path('', InicioView.as_view(), name="inicio"),
     path('cafe/', CafeView.as_view(), name="cafe"),
     path('iniciar_sesion/', LoginnView.as_view(), name="iniciar_sesion"),
-    path('nosotros/', nosotros, name='nosotros'),
-    path('galeria/', GaleriaView.as_view(), name='galeria'),
-    path('reglas/', ReglasView.as_view(), name='reglas'),
 
     # Reservas
     path('reserva/', ReservaListView.as_view(), name='reserva'),         # Ver todas las reservas
@@ -34,12 +31,12 @@ urlpatterns = [
     path('comidas/', ListaComidaView.as_view(), name='lista_comida'),
     path('comidas/crear/', CrearComidaView.as_view(), name='crear_comida'),
     path('comidas/editar/<int:pk>/', EditarCafeteriaView.as_view(), name='editar_comida'),
-  
     path('cafeteria/<int:pk>/editar/', EditarCafeteriaView.as_view(), name="editar_comida"),
 
     #LogOut
     path('cerrar_sesion/', LogoutView.as_view(next_page='inicio'), name='cerrar_sesion'),
      path('registro/', registro, name='registro'),
+
     #Asignar Admin
     path('asignar_admin/', AsignarAdminView.as_view(), name='asignar'),
 

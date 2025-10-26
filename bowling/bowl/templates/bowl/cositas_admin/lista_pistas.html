@@ -162,9 +162,9 @@
 
 <div class="container">
     <h1>Lista de Pistas</h1>
-
-    <a href="{% url 'crear_pista' %}" class="btn">Crear Nueva Pista</a>
-
+    {% if request.user.rol == "admin" %}
+        <a href="{% url 'crear_pista' %}" class="btn">Crear Nueva Pista</a>
+    {% endif%}
     </ul>
 
     <table>
