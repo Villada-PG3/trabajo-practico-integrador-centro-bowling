@@ -15,12 +15,12 @@ a {
 
 :root {
     /* ===== Colors ===== */
-    --body-color: #E4E9F7;
-    --navbar-color: #FFF;
-    --primary-color: #695CFE;
-    --primary-color-light: #F6F5FF;
-    --toggle-color: #DDD;
-    --text-color: #707070;
+    --body-color: #f8f8f8;           /* Gris claro de cafetería */
+    --navbar-color: #FFFFFF;         /* Blanco puro */
+    --primary-color: #000000;        /* Negro principal de cafetería */
+    --primary-color-light: #1a1a1a;  /* Gris oscuro */
+    --toggle-color: #e0e0e0;         /* Gris claro */
+    --text-color: #000000;           /* Negro para texto */
     --estado-logeo: 1;
     /* ====== Transition ====== */
     --tran-02: all 0.2s ease;
@@ -36,17 +36,17 @@ body {
 }
 
 ::selection {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary-color);  /* Negro puro */
+    color: #fff;                             /* Blanco puro */
 }
 
 body.dark {
-    --body-color: #18191a;
-    --navbar-color: #242526;
-    --primary-color: #3a3b3c;
-    --primary-color-light: #3a3b3c;
-    --toggle-color: #fff;
-    --text-color: #ccc;
+    --body-color: #0a0a0a;           /* Negro puro dark */
+    --navbar-color: #1a1a1a;         /* Gris oscuro de cafetería */
+    --primary-color: #ffffff;        /* Blanco para acentos en dark */
+    --primary-color-light: #333333;  /* Gris medio */
+    --toggle-color: #444444;         /* Gris oscuro */
+    --text-color: #ffffff;           /* Blanco para texto en dark */
 }
 
 /* ===== Navbar ===== */
@@ -63,7 +63,7 @@ body.dark {
     justify-content: space-between;
     z-index: 100;
     transition: var(--tran-05);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Shadow más pronunciado */
 }
 
 .navbar .image-text {
@@ -144,8 +144,8 @@ body.dark {
 }
 
 .menu-links a:hover {
-    background-color: var(--primary-color);
-    color: var(--navbar-color);
+    background-color: var(--primary-color);  /* Negro en light, blanco en dark */
+    color: var(--navbar-color);              /* Blanco en light, negro en dark */
 }
 
 .menu-links a .icon {    
@@ -176,12 +176,12 @@ body.dark {
 }
 
 .profile:hover {
-    background-color: var(--primary-color);
-    color: var(--navbar-color);
+    background-color: var(--primary-color);  /* Negro en light, blanco en dark */
+    color: var(--navbar-color);              /* Blanco en light, negro en dark */
 }
 
 .profile:hover .icon {
-    color: var(--primary---light);
+    color: var(--primary-color-light);
 }
 
 .profile .icon {
@@ -201,7 +201,7 @@ body.dark {
     right: 0;
     background: var(--navbar-color);
     border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* Shadow más pronunciado */
     padding: 10px 0;
     min-width: 150px;
     z-index: 1000;
@@ -222,8 +222,8 @@ body.dark {
 }
 
 .profile-dropdown a:hover {
-    background-color: var(--primary-color);
-    color: var(--navbar-color);
+    background-color: var(--primary-color);  /* Negro en light, blanco en dark */
+    color: var(--navbar-color);              /* Blanco en light, negro en dark */
 }
 
 .profile-dropdown a .icon {
@@ -296,11 +296,11 @@ body.dark .toggle-switch::before {
 /* Ajuste del ícono */
 .mode-switch .icon {
     font-size: 20px;
-    color: var(--primary-color);
+    color: var(--primary-color);  /* Negro en light, blanco en dark */
 }
 
 body.dark .mode-switch .icon {
-    color: #f5c542;
+    color: #ffffff;               /* Blanco en dark mode */
 }
 
 /* Ajuste del formulario dentro del dropdown */
@@ -343,11 +343,11 @@ body.dark .mode-switch .icon {
 }
 
 body .icon {
-    color: var(--primary-color);
+    color: var(--primary-color);  /* Negro en light */
 }
 
 body.dark .icon {
-    color: var(--text-color);
+    color: var(--text-color);     /* Blanco en dark */
 }
 
 body .nav-link:hover .icon {
@@ -355,10 +355,10 @@ body .nav-link:hover .icon {
 }
 
 #mode-icon {
-    color: var(--primary-color); /* color cuando está en light mode */
+    color: var(--primary-color); /* Negro cuando está en light mode */
     transition: var(--tran-05);
 }
 
 body.dark #mode-icon {
-    color: #f5c542; /* color visible en dark mode, tipo amarillo */
+    color: #ffffff; /* Blanco visible en dark mode */
 }

@@ -1,10 +1,10 @@
 :root {
-  --primary-color: #000000; /* fondo negro */
-  --secondary-color: #333333; /* secciones gris oscuro */
-  --accent-color: #ffffff; /* textos y detalles en blanco */
-  --btn-color: #666666; /* botones grises */
-  --btn-hover: #ffffff; /* hover blanco */
-  --card-bg: #111111; /* fondo de tarjetas */
+  --primary-color: #0a0a0a;           /* Negro puro de cafetería */
+  --secondary-color: #1a1a1a;         /* Gris oscuro de cafetería */
+  --accent-color: #ffffff;            /* Blanco puro */
+  --btn-color: #333333;               /* Gris medio */
+  --btn-hover: #ffffff;               /* Blanco puro */
+  --card-bg: #000000;                 /* Negro puro */
 }
 
 * {
@@ -141,7 +141,7 @@ body {
 }
 
 .service-card p {
-  color: #ccc;
+  color: #b0b0b0;                     /* Gris claro */
 }
 
 /* INFO SECTION */
@@ -158,7 +158,7 @@ body {
 
 .info-section p {
   margin-bottom: 1.5rem;
-  color: #ccc;
+  color: #b0b0b0;                     /* Gris claro */
 }
 
 .buttons {
@@ -187,7 +187,7 @@ body {
   text-align: center;
   padding: 2rem;
   font-size: 0.9rem;
-  color: #ccc;
+  color: #b0b0b0;                     /* Gris claro */
 }
 
 /* RESPONSIVE */
