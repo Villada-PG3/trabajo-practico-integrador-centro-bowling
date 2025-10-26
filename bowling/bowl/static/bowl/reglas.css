@@ -1,21 +1,14 @@
 :root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
-    --primary-color: #695CFE; /* Títulos siempre azules */
+    --primary-color: #695CFE;
     --text-color: #707070;
     --tran-05: all 0.5s ease;
 }
 
-body {
-    background-color: var(--body-color);
-    font-family: Arial, sans-serif;
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    transition: var(--tran-05);
-}
+/* ELIMINA todo el body {} y los h1, h2 globales */
 
-.rules-container {
+.rules-content {
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
@@ -24,30 +17,51 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-h1, h2 {
-    color: #695CFE; /* Color fijo para todos los títulos */
+.rules-title {
+    color: #695CFE;
     text-align: center;
     margin-bottom: 20px;
+    font-size: 2.2rem;
 }
 
-p, ul {
+.rules-subtitle {
+    color: #695CFE;
+    text-align: left;
+    margin: 30px 0 15px 0;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #695CFE;
+    padding-bottom: 8px;
+}
+
+.rules-text {
     line-height: 1.6;
     margin-bottom: 20px;
     text-align: justify;
+    color: var(--text-color);
 }
 
-ul {
+.rules-list {
     padding-left: 20px;
+    margin-bottom: 20px;
+    color: var(--text-color);
 }
 
-ul li {
+.rules-list li {
     margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.rules-bold {
+    color: #695CFE;
+    font-weight: bold;
 }
 
 /* Dark mode */
-body.dark {
-    --body-color: #1c1c1c;
-    --navbar-color: #2a2a2a;
-    --text-color: #e1e1e1;
-    /* los títulos siguen siendo azules, ya que fijamos el color */
+body.dark .rules-content {
+    background-color: var(--navbar-color);
+}
+
+body.dark .rules-text,
+body.dark .rules-list {
+    color: var(--text-color);
 }

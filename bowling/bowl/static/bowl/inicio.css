@@ -111,3 +111,20 @@ body.dark {
     margin-bottom: 15px;
     text-align: center;
 }
+/* Agrega esto al final de inicio.css */
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.feature-item {
+    background-color: var(--navbar-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 100%;
+}
