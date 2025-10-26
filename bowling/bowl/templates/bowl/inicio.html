@@ -4,6 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'bowl/inicio.css' %}">
 <link rel="stylesheet" href="{% static 'bowl/nosotros.css' %}">
+<link rel="stylesheet" href="{% static 'bowl/reglas.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -44,9 +45,50 @@
 
     <!-- Sección Reglas -->
     <div class="feature-item">
-        <a href="{% url 'reglas' %}" class="cta-button">Reglas del Bowling</a>
+        <h2 class="section-title">Reglas</h2>
         <i class="icon-big fas fa-book"></i>
-        <p>Conoce las reglas del deporte y el establecimiento.</p>
+    <h2>1. Objetivo del Juego</h2>
+    <p>El objetivo es derribar la mayor cantidad de pinos posible con la bola de bowling. Cada partida consta de 10 cuadros o “frames”. En cada cuadro, el jugador tiene dos lanzamientos para derribar los pinos.</p>
+    <p>Si derribás los 10 pinos en el primer lanzamiento se llama <b>strike</b>; si lo hacés en el segundo, es un <b>spare</b>.</p>
+
+    <h2>2. Puntuación</h2>
+    <ul>
+        <li>Cada pino derribado vale un punto.</li>
+        <li><b>Spare:</b> 10 puntos + los pinos del siguiente lanzamiento.</li>
+        <li><b>Strike:</b> 10 puntos + los pinos de los dos lanzamientos siguientes.</li>
+        <li>En el último cuadro, si lográs un strike o spare, tenés lanzamientos extra.</li>
+    </ul>
+
+    <h2>3. Normas Básicas de Conducta</h2>
+    <ul>
+        <li>Usá siempre los zapatos de bowling. No se permite calzado de calle en la pista.</li>
+        <li>Esperá tu turno. No lances mientras alguien en la pista de al lado está tirando.</li>
+        <li>No comas ni bebas en la zona de lanzamiento.</li>
+        <li>Mantené tus cosas fuera de los pasillos.</li>
+        <li>Respetá al personal y a otros jugadores. Nada de insultos o conductas agresivas.</li>
+    </ul>
+
+    <h2>4. Reglas del Establecimiento</h2>
+    <ul>
+        <li>Usá solo el equipamiento autorizado (bolas, zapatos, etc.).</li>
+        <li>No alteres ni modifiques el material del local.</li>
+        <li>El centro puede suspender tu partida si incumplís las normas.</li>
+        <li>No está permitido ingresar alimentos o bebidas externas sin autorización.</li>
+    </ul>
+
+    <h2>5. Seguridad</h2>
+    <ul>
+        <li>No cruces la línea de falta; la pista está lubricada y podés resbalarte.</li>
+        <li>No pongas las manos en el retorno de bolas.</li>
+        <li>Informá cualquier derrame o problema al personal. No intentes arreglarlo vos.</li>
+    </ul>
+
+    <h2>6. Consejos para Principiantes</h2>
+    <ul>
+        <li>Elegí una bola acorde a tu fuerza.</li>
+        <li>Mantené limpias las suelas de los zapatos.</li>
+        <li>Disfrutá el juego y respetá a los demás jugadores.</li>
+    </ul>
     </div>
 </div>
 {% endblock %}
