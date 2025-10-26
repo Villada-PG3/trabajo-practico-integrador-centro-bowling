@@ -45,7 +45,7 @@ Correr el servidor local:
 python manage.py runserver
 
 👤 Superusuario
-Ya creado en la inicialización del proyecto. El usuario es admin, la contraseña es 1234
+Ya creado en la inicialización del proyecto. El usuario es admin_local, la contraseña es admin123
 Acceder al panel de administración: http://127.0.0.1:8000/admin
 
 📜 Licencia:
