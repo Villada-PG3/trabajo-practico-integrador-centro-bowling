@@ -1,20 +1,32 @@
 {% extends 'bowl/navbar.html' %}
+<!-- 
+Extiende la plantilla 'navbar.html', heredando la barra de navegación y la estructura general de la página. 
+Esto permite reutilizar código y mantener un diseño consistente en todas las páginas.
+-->
+
 {% load static %}
+<!-- 
+Carga la etiqueta {% static %} de Django, necesaria para usar archivos estáticos (CSS, JS, imágenes) con 
+la ruta correcta en el proyecto.
+-->
 
 {% block extra_css %}
+<!-- CSS específico para la página de reservas -->
 <link rel="stylesheet" href="{% static 'bowl/reserva.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="reserva-container">
-    <!-- Bloque de información / botón -->
+    
+    <!-- Bloque de información principal con título, descripción y botón -->
     <div class="reserva-info">
         <h2>Reserva tu pista</h2>
         <p>¡Reserva ahora y asegura tu turno!</p>
+        <!-- Botón que lleva al formulario de nueva reserva -->
         <a href="{% url 'nueva_reserva1' %}" class="btn-reservar">Nueva Reserva</a>
     </div>
 
-    <!-- Tabla de reservas -->
+    <!-- Tabla que muestra las reservas existentes -->
     <div class="tabla-reservas">
         <table>
             <thead>
@@ -28,6 +40,7 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Itera sobre las reservas enviadas desde la vista -->
                 {% for reserva in reservas %}
                 <tr>
                     <td>{{ reserva.cliente.nombre }}</td>
@@ -38,6 +51,7 @@
                     <td>{{ reserva.estado.nombre }}</td>
                 </tr>
                 {% empty %}
+                <!-- Mensaje cuando no hay reservas -->
                 <tr>
                     <td colspan="6" style="text-align:center;">No hay reservas aún</td>
                 </tr>
@@ -45,5 +59,6 @@
             </tbody>
         </table>
     </div>
+
 </div>
 {% endblock %}

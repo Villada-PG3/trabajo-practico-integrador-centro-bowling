@@ -5,25 +5,30 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
+    <!-- CSS principal del navbar -->
     <link rel="stylesheet" href="{% static 'bowl/navbar.css' %}">
     
     {% block extra_css %}
     {% endblock %}
     
+    <!-- Iconos Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     
     <title>Dashboard Top Menu</title>
 </head>
-<body class="dark"> <!-- Agregamos la clase dark por defecto -->
+<body>
+    <!-- Barra de navegación lateral -->
     <nav class="navbar">
+        <!-- Logo e imagen -->
         <div class="image-text">
             <span class="image"></span>
-            <div class="logo-text">
-            </div>
+            <div class="logo-text"></div>
         </div>
 
+        <!-- Menú principal -->
         <div class="menu">
             <ul class="menu-links">
+                <!-- Enlace a Inicio -->
                 <li class="nav-link">
                     <a href="{% url 'inicio' %}">
                         <i class='bx bx-home-alt icon'></i>
@@ -31,6 +36,7 @@
                     </a>
                 </li>
 
+                <!-- Enlace a Pistas -->
                 <li class="nav-link">
                     <a href="{% url 'lista_pistas' %}">
                         <i class='bx bx-bowling-ball icon'></i>
@@ -38,6 +44,7 @@
                     </a>
                 </li>
 
+                <!-- Enlace a Cafetería -->
                 <li class="nav-link">
                     <a href="{% url 'cafe' %}">
                         <i class='bx bx-coffee-togo icon'></i>
@@ -45,6 +52,7 @@
                     </a>
                 </li>
 
+                <!-- Enlace a Reservas -->
                 <li class="nav-link">
                     <a href="{% url 'reserva' %}">
                         <i class='bx bx-calendar icon'></i>
@@ -52,6 +60,7 @@
                     </a>
                 </li>
 
+                <!-- Enlaces exclusivos para admin -->
                 {% if request.user.rol == "admin" %}
                     <li class="nav-link">
                         <a href="{% url 'asignar' %}">
@@ -68,6 +77,7 @@
                     </li>
                 {% endif %}
 
+                <!-- Enlace a Contacto -->
                 <li class="nav-link">
                     <a href="{% url 'contacto' %}">
                         <i class='bx bx-envelope icon'></i>
@@ -77,12 +87,19 @@
             </ul>
         </div>
 
+        <!-- Perfil y modo oscuro -->
         <div class="bottom-content">
             {% if request.user.is_authenticated %}
                 <div class="profile">   
                     <i class='bx bx-user icon'></i>
                     <span class="text nav-text">Perfil</span>
                     <div class="profile-dropdown">
+                        <!-- Interruptor modo oscuro -->
+                        <div class="mode-switch">
+                            <i class='bx bx-moon icon' id="mode-icon"></i>
+                            <div class="toggle-switch"></div>
+                        </div>
+                        <!-- Formulario para cerrar sesión -->
                         <form method="post" action="{% url 'cerrar_sesion' %}">
                             {% csrf_token %}
                             <button type="submit" class="logout-btn">
@@ -98,17 +115,52 @@
                         <a href="{% url 'iniciar_sesion' %}">
                             <span class="text nav-text">Iniciar Sesión</span>
                         </a>
+                        <div class="profile-dropdown">
+                            <!-- Modo oscuro incluso antes de iniciar sesión -->
+                            <div class="mode-switch">
+                                <i class='bx bx-moon icon' id="mode-icon"></i>
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>  
                     </div>
                 </div>
             {% endif %}
         </div>
     </nav>
     
+    <!-- Contenido principal de la página -->
     <section class="home">
         {% block content %}
         {% endblock %}
     </section>
 
-    <!-- Script eliminado completamente -->
+    <!-- Script de modo oscuro -->
+    <script>
+        const body = document.querySelector('body'),
+              modeSwitch = document.querySelector('.mode-switch'),
+              modeIcon = document.getElementById('mode-icon');
+
+        // Función para cambiar tema
+        const setTheme = (theme) => {
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                modeIcon.classList.replace('bx-moon', 'bx-sun');
+            } else {
+                body.classList.remove('dark');
+                modeIcon.classList.replace('bx-sun', 'bx-moon');
+            }
+        };
+
+        // Aplicar tema guardado o por defecto
+        const savedTheme = localStorage.getItem('theme');
+        setTheme(savedTheme || 'light');
+
+        // Cambiar tema al hacer click
+        modeSwitch.addEventListener('click', () => {
+            const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            setTheme(newTheme);
+        });
+    </script>
 </body>
 </html>
