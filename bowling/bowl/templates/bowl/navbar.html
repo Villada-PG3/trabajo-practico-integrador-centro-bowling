@@ -14,7 +14,7 @@
     
     <title>Dashboard Top Menu</title>
 </head>
-<body>
+<body class="dark"> <!-- Agregamos la clase dark por defecto -->
     <nav class="navbar">
         <div class="image-text">
             <span class="image"></span>
@@ -83,10 +83,6 @@
                     <i class='bx bx-user icon'></i>
                     <span class="text nav-text">Perfil</span>
                     <div class="profile-dropdown">
-                        <div class="mode-switch">
-                            <i class='bx bx-moon icon' id="mode-icon"></i>
-                            <div class="toggle-switch"></div>
-                        </div>
                         <form method="post" action="{% url 'cerrar_sesion' %}">
                             {% csrf_token %}
                             <button type="submit" class="logout-btn">
@@ -102,12 +98,6 @@
                         <a href="{% url 'iniciar_sesion' %}">
                             <span class="text nav-text">Iniciar Sesión</span>
                         </a>
-                        <div class="profile-dropdown">
-                            <div class="mode-switch">
-                                <i class='bx bx-moon icon' id="mode-icon"></i>
-                                <div class="toggle-switch"></div>
-                            </div>
-                        </div>  
                     </div>
                 </div>
             {% endif %}
@@ -119,35 +109,6 @@
         {% endblock %}
     </section>
 
-    <script>
-        const body = document.querySelector('body'),
-              modeSwitch = document.querySelector('.mode-switch'),
-              modeIcon = document.getElementById('mode-icon');
-        
-        const setTheme = (theme) => {
-            if (theme === 'dark') {
-                body.classList.add('dark');
-                modeIcon.classList.remove('bx-moon');
-                modeIcon.classList.add('bx-sun');
-            } else {
-                body.classList.remove('dark');
-                modeIcon.classList.remove('bx-sun');
-                modeIcon.classList.add('bx-moon');
-            }
-        };
-
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme);
-        } else {
-            setTheme('light');
-        }
-
-        modeSwitch.addEventListener('click', () => {
-            const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            setTheme(newTheme);
-        });
-    </script>
+    <!-- Script eliminado completamente -->
 </body>
 </html>
