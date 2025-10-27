@@ -77,7 +77,15 @@ class PartidaAdmin(admin.ModelAdmin):
 class JugadorPartidaAdmin(admin.ModelAdmin):
     list_display = ('id_jugador_partida', 'jugador', 'partida', 'puntaje_final', 'posicion') 
 
-
+# === ADMIN DE TURNO ===
+@admin.register(Turno)
+class TurnoAdmin(admin.ModelAdmin):
+    list_display = (  # Muestra todos los campos del turno en la lista
+        'id_turno', 'numero_turno', 'partida', 'jugador_partida', 'lanzamiento1', 'lanzamiento2',
+        'lanzamiento3', 'puntaje_turno', 'bonus', 'strike', 'spare',
+        'falta1', 'falta2', 'falta3', 'frame_final'
+    )
+    list_filter = ('partida', 'jugador_partida')
 
 # === ADMIN DE CAFETERÍA ===
 @admin.register(Cafeteria)
