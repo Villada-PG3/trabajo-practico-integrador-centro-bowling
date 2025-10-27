@@ -28,6 +28,7 @@ ALLOWED_HOSTS = []  # Dominios permitidos para producción
 # Aplicaciones instaladas
 # -------------------------
 INSTALLED_APPS = [
+    'jazzmin',                       # Interfaz de administración mejorada
     'django.contrib.admin',           # Admin de Django
     'django.contrib.auth',            # Sistema de autenticación
     'django.contrib.contenttypes',    # Tipos de contenido
