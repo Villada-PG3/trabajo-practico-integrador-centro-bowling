@@ -1,10 +1,6 @@
 from django import forms
-<<<<<<< HEAD
 
 from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario, PuntajeJugador, Jugador
-=======
-from .models import Pista, Cafeteria, Menu, Reserva, Mensaje, Usuario
->>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 from django.utils import timezone
 from datetime import time, datetime
 from django.contrib.auth.forms import UserCreationForm
@@ -116,7 +112,6 @@ class MenuForm(forms.ModelForm):
     class Meta:
         model = Menu
         fields = ['nombre', 'descripcion', 'precio']
-<<<<<<< HEAD
 class JugadorForm(forms.ModelForm):
     class Meta:
         model = Jugador
@@ -141,5 +136,3 @@ class PuntajeForm(forms.ModelForm):
                 'style': 'width: 50px; text-align: center;'
             })
         }
-=======
->>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d

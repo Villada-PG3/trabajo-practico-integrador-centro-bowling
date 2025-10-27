@@ -5,11 +5,7 @@ from django.urls import path,include
 from bowl.views import (
     InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
     CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, 
-<<<<<<< HEAD
     registro, nosotros, GaleriaView, ReglasView, ReservaCreateView, TableroPuntuacionesView, NuevoJugadorView
-=======
-    registro, GaleriaView, ReglasView, ReservaCreateView
->>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 )
 from django.contrib.auth.views import LogoutView
 

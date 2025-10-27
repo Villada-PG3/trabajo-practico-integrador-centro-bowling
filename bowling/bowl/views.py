@@ -14,7 +14,7 @@ from django.conf import settings
 from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, Comida, Partida,Jugador, PuntajeJugador
 from .forms import (
     PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
-    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm, PuntajeForm
+    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm, PuntajeForm, JugadorForm
 )
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
