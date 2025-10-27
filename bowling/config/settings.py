@@ -28,13 +28,13 @@ ALLOWED_HOSTS = []  # Dominios permitidos para producción
 # Aplicaciones instaladas
 # -------------------------
 INSTALLED_APPS = [
-    'django.contrib.admin',           # Admin de Django
-    'django.contrib.auth',            # Sistema de autenticación
-    'django.contrib.contenttypes',    # Tipos de contenido
-    'django.contrib.sessions',        # Manejo de sesiones
-    'django.contrib.messages',        # Mensajes flash
-    'django.contrib.staticfiles',     # Archivos estáticos
-    'bowl.apps.BowlConfig',           # Nuestra app principal
+    'django.contrib.admin',
+    'django.contrib.auth', 
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'bowl',  # ← AGREGA ESTA LÍNEA
 ]
 
 
