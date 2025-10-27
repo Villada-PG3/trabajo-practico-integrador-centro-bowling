@@ -32,7 +32,7 @@ registrar reservas, partidas, jugadores y turnos, y controlar pedidos en la cafe
 
 1. Clonar el repositorio y crear entorno virtual:
 git clone https://github.com/Villada-PG3/trabajo-practico-integrador-centro-bowling.git
-cd trabajo-practico-integrador-centro-bowling
+cd trabajo-practico-integrador-centro-bowling/bowling
 python -m venv venv
 .\venv\Scripts\activate   (en caso de usar windows=
 pip install -r requirements.txt
@@ -45,7 +45,7 @@ Correr el servidor local:
 python manage.py runserver
 
 👤 Superusuario
-Ya creado en la inicialización del proyecto. El usuario es admin_local, la contraseña es admin123
+Ya creado en la inicialización del proyecto. El usuario es Nico_bolos, la contraseña es 1234
 Acceder al panel de administración: http://127.0.0.1:8000/admin
 
 📜 Licencia:
