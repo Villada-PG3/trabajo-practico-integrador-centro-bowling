@@ -11,7 +11,12 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 
+<<<<<<< HEAD
 from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, Comida, Partida,Jugador, PuntajeJugador
+=======
+# Importación de modelos y formularios
+from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, comida
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 from .forms import (
     PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
     ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm, PuntajeForm
@@ -101,7 +106,12 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now().date()
         return context
+<<<<<<< HEAD
     
+=======
+
+
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     """Permite crear una nueva reserva"""
     model = Reserva
@@ -159,8 +169,12 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         return context
 
     def form_valid(self, form):
+<<<<<<< HEAD
         print("Form:", form)       
         print("Form cleaned data:", form.cleaned_data)
+=======
+        """Guarda la reserva asociándola al usuario y cliente"""
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
         user = self.request.user
         try:
             cliente = user.cliente
