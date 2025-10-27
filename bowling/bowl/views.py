@@ -11,10 +11,10 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, comida
+from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, Comida, Partida,Jugador, PuntajeJugador
 from .forms import (
     PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
-    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm
+    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm, PuntajeForm
 )
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -99,6 +99,7 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
         context = super().get_context_data(**kwargs)
         context['today'] = timezone.now().date()
         return context
+    
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Reserva
     form_class = ReservaForm
@@ -153,6 +154,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         return context
 
     def form_valid(self, form):
+        print("Form:", form)       
         print("Form cleaned data:", form.cleaned_data)
         user = self.request.user
         try:
@@ -229,7 +231,7 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
 # -------------------------
 class ListaComidaView(UsuarioContext, View):
     def get(self, request):
-        comidas = comida.objects.all()
+        comidas = Comida.objects.all()
         return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
 class CrearComidaView(UsuarioContext, View):
@@ -255,6 +257,149 @@ class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Update
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/editar_comida.html"
     success_url = reverse_lazy('lista_comida')
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from .models import Cliente, Reserva, Partida, Jugador, PuntajeJugador
+from .forms import PuntajeForm, JugadorForm
+
+class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
+    template_name = "bowl/tabla_puntuaciones.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            cliente = Cliente.objects.get(user=self.request.user)
+        except Cliente.DoesNotExist:
+            context['jugadores_puntajes'] = []
+            context['partida_id'] = None
+            context['jugador_form'] = JugadorForm()
+            return context
+
+        reservas = Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
+        if reservas.exists():
+            reserva_actual = reservas[0]
+            partida = Partida.objects.filter(reserva=reserva_actual).last()
+            
+            if partida is None:
+                partida = Partida.objects.create(
+                    cliente=cliente,
+                    pista=reserva_actual.pista,
+                    reserva=reserva_actual
+                )
+
+            jugadores_puntajes = []
+            jugadores = Jugador.objects.filter(partida=partida)
+
+            for jugador in jugadores:
+                # Obtener o crear puntajes para cada set
+                puntajes_data = []
+                for set_num in range(1, 11):
+                    puntaje_obj, created = PuntajeJugador.objects.get_or_create(
+                        partida=partida,
+                        jugador=jugador,
+                        set=set_num,
+                        defaults={'puntaje': 0}
+                    )
+                    puntajes_data.append({
+                        'id_puntaje': puntaje_obj.id_puntaje,
+                        'valor': puntaje_obj.puntaje,
+                    })
+                
+                total = sum(p['valor'] for p in puntajes_data)
+                
+                jugadores_puntajes.append({
+                    'id': jugador.id_jugador,
+                    'nombre': jugador.nombre,
+                    'puntajes': puntajes_data,
+                    'total': total
+                })
+
+            context['jugadores_puntajes'] = jugadores_puntajes
+            context['partida_id'] = partida.id_partida
+            context['jugador_form'] = JugadorForm()
+        else:
+            context['jugadores_puntajes'] = []
+            context['partida_id'] = None
+            context['jugador_form'] = JugadorForm()
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        # Verificar si es para agregar jugador o guardar puntajes
+        if 'agregar_jugador' in request.POST:
+            # Procesar agregar jugador
+            return self.agregar_jugador(request)
+        else:
+            # Procesar guardar puntajes
+            return self.guardar_puntajes(request)
+
+    def agregar_jugador(self, request):
+        try:
+            cliente = Cliente.objects.get(user=request.user)
+            reservas = Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
+            
+            if reservas.exists():
+                reserva_actual = reservas[0]
+                partida = Partida.objects.filter(reserva=reserva_actual).last()
+                
+                if partida is None:
+                    partida = Partida.objects.create(
+                        cliente=cliente,
+                        pista=reserva_actual.pista,
+                        reserva=reserva_actual
+                    )
+
+                form = JugadorForm(request.POST)
+                if form.is_valid():
+                    jugador = form.save(commit=False)
+                    jugador.partida = partida
+                    jugador.save()
+                    
+                    # Crear puntajes iniciales para el nuevo jugador
+                    for set_num in range(1, 11):
+                        PuntajeJugador.objects.create(
+                            partida=partida,
+                            jugador=jugador,
+                            set=set_num,
+                            puntaje=0
+                        )
+                    
+                    messages.success(request, f'Jugador {jugador.nombre} agregado correctamente!')
+                else:
+                    messages.error(request, 'Error al agregar jugador. Verifica los datos.')
+            
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+        
+        return redirect('tablero_puntuaciones')
+
+    def guardar_puntajes(self, request):
+        # Procesar todos los forms de puntajes
+        for key, value in request.POST.items():
+            if key.startswith('puntaje-'):
+                if '-puntaje' in key:
+                    # Extraer el ID del puntaje del nombre del campo
+                    try:
+                        puntaje_id = key.split('-')[1]
+                        puntaje_id = int(puntaje_id)
+                        puntaje_obj = get_object_or_404(PuntajeJugador, id_puntaje=puntaje_id)
+                        
+                        # Verificar permisos
+                        if puntaje_obj.partida.cliente.user == request.user:
+                            nuevo_valor = int(value) if value else 0
+                            if 0 <= nuevo_valor <= 300:
+                                puntaje_obj.puntaje = nuevo_valor
+                                puntaje_obj.save()
+                    except (ValueError, PuntajeJugador.DoesNotExist):
+                        continue
+        
+        messages.success(request, 'Puntajes guardados correctamente!')
+        return redirect('tablero_puntuaciones')
+
 
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
     template_name = "bowl/cositas_admin/asignar_admin.html"
@@ -337,3 +482,24 @@ def registro(request):
     else:
         form = RegistroUsuarioForm()
     return render(request, "bowl/registro.html", {"form": form})
+
+
+class NuevoJugadorView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
+    template_name = "bowl/nuevo_jugador.html"
+
+    def get(self, request, partida_id):
+        form = AgregarJugadorForm()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, partida_id):
+        form = AgregarJugadorForm(request.POST)
+        if form.is_valid():
+            nombre_jugador = form.cleaned_data['nombre_jugador']
+            jugador = Jugador.objects.create(nombre=nombre_jugador, partida = partida_id)
+            for set in range(1, 11):
+                PuntajeJugador.objects.create(jugador=jugador, partida_id=partida_id, puntaje=0, set=set)
+            
+            messages.success(request, f"Jugador {jugador.nombre} agregado correctamente.")
+
+            return redirect('lista_jugadores')
+        return render(request, self.template_name, {"form": form})

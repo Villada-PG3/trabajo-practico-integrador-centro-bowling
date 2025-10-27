@@ -5,4 +5,4 @@ class BowlConfig(AppConfig):
     name = 'bowl'
 
     def ready(self):
-        import bowl.signals  # 👈 Esto conecta las señales al iniciar Django
+        pass  # 👈 Esto conecta las señales al iniciar Django

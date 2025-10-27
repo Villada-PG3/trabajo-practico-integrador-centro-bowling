@@ -1,5 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+
+class Usuario(AbstractUser):
+    ROLE_CHOICES = (
+        ('admin', 'Administrador'),
+        ('cliente', 'Cliente'),
+    )
+    rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='cliente')
+
+    def __str__(self):
+        return self.username
 
 class TipoPista(models.Model):
     tipo = models.CharField(max_length=100, unique=True)
@@ -22,15 +33,12 @@ class Pista(models.Model):
     capacidad_maxima = models.IntegerField()
     tipo_pista = models.ForeignKey(TipoPista, on_delete=models.CASCADE, null=True, blank=True)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
-    numero = models.PositiveIntegerField(unique=True, null = True, blank = True )
+    numero = models.PositiveIntegerField(unique=True, null=True, blank=True)
 
     def __str__(self):
         tipo = self.tipo_pista.tipo if self.tipo_pista else "Sin tipo"
         precio = self.tipo_pista.precio if self.tipo_pista else "?"
         return f"Pista {self.numero} - {tipo} (${precio})"
-
-
-from django.conf import settings
 
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
@@ -39,21 +47,9 @@ class Cliente(models.Model):
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20)
     email = models.EmailField()
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.nombre
-
-class Usuario(AbstractUser):
-    ROLE_CHOICES = (
-        ('admin', 'Administrador'),
-        ('cliente', 'cliente'),
-    )
-    rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='empleado')
-    REQUIRED_FIELDS = []
-
-
-# RESERVA debe estar ANTES de Partida
 
 class Reserva(models.Model):
     id_reserva = models.AutoField(primary_key=True)
@@ -62,52 +58,31 @@ class Reserva(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
     precio_total = models.FloatField(default=0.0)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True) 
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Reserva {self.id_reserva}"
 
-# AHORA Partida puede referenciar a Reserva
-class Partida(models.Model):
-    id_partida = models.AutoField(primary_key=True)
-    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
-    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
-    duracion = models.TimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Partida {self.id_partida}"
-
-class PerfilUsuario(models.Model):
-    id_usuario = models.AutoField(primary_key=True)
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
-    nombre_usuario = models.CharField(max_length=50)
-    email = models.EmailField()
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    activo = models.BooleanField(default=True)
-    contraseña = models.CharField(max_length=100, default='1234')
-
-    def __str__(self):
-        return self.nombre_usuario
-
 class Jugador(models.Model):
     id_jugador = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    edad = models.IntegerField(null=True, blank=True)
-    email = models.EmailField(blank=True, null=True)
-
+    partida = models.ForeignKey('Partida', on_delete=models.CASCADE, null=True, blank=True)
+   
     def __str__(self):
         return self.nombre
 
-class comida (models.Model):
-    id_comida = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    precio = models.FloatField()
+class Partida(models.Model):
+    id_partida = models.AutoField(primary_key=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+    #jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, default=None)
+    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
+    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
+    duracion = models.TimeField(null=True, blank=True)
+    puntaje_final = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.nombre
+        return f"{self.jugador.nombre} - Partida {self.id_partida}"
 
 class EstadisticasJugador(models.Model):
     id_estadistica = models.AutoField(primary_key=True)
@@ -118,7 +93,7 @@ class EstadisticasJugador(models.Model):
     total_spares = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Estadisticas {self.jugador.nombre}"
+        return f"Estadísticas {self.jugador.nombre}"
 
 class JugadorPartida(models.Model):
     id_jugador_partida = models.AutoField(primary_key=True)
@@ -149,6 +124,15 @@ class Turno(models.Model):
 
     def __str__(self):
         return f"Turno {self.numero_turno} - {self.jugador_partida}"
+
+class Comida(models.Model):
+    id_comida = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.FloatField()
+
+    def __str__(self):
+        return self.nombre
 
 class Cafeteria(models.Model):
     id_cafeteria = models.AutoField(primary_key=True)
@@ -192,7 +176,7 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.menu.nombre} para {self.cliente.nombre}"
-    
+
 class Mensaje(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
@@ -201,3 +185,11 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"{self.nombre} - {self.email}"
+class PuntajeJugador(models.Model):
+    id_puntaje = models.AutoField(primary_key=True)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+    partida = models.ForeignKey(Partida, on_delete=models.CASCADE)
+    puntaje = models.IntegerField()
+    set = models.IntegerField()
+    def __str__(self):
+        return f"{self.jugador.nombre} - Puntaje: {self.puntaje}"
