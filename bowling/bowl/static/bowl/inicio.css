@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 :root {
     --body-color: #E4E9F7;
     --navbar-color: #FFF;
@@ -111,3 +112,272 @@ body.dark {
     margin-bottom: 15px;
     text-align: center;
 }
+=======
+:root {
+    --body-color: #f8f8f8;           /* Gris claro de cafetería */
+    --navbar-color: #FFFFFF;         /* Blanco puro */
+    --primary-color: #000000;        /* Negro principal de cafetería */
+    --text-color: #000000;           /* Negro para texto */
+    --tran-05: all 0.5s ease;
+}
+
+body.dark {
+    --body-color: #0a0a0a;           /* Negro puro dark */
+    --navbar-color: #1a1a1a;         /* Gris oscuro de cafetería */
+    --text-color: #ffffff;           /* Blanco para texto en dark */
+}
+
+/* ===== Sección principal ===== */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 80px 20px;
+    background-color: var(--navbar-color);
+    box-shadow: 0 3px 15px rgba(0,0,0,0.15); /* Shadow consistente con reserva */
+    margin-bottom: 30px;
+    transition: var(--tran-05);
+    border-radius: 10px;              /* Bordes redondeados como reserva */
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    transition: var(--tran-05);
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    max-width: 600px;
+    opacity: 0.8;                     /* Texto más suave como en reserva */
+    transition: var(--tran-05);
+}
+
+/* ===== Botones ===== */
+.cta-button {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-color); /* Borde consistente */
+    display: inline-block;
+}
+
+.cta-button:hover {
+    background-color: transparent;
+    color: var(--primary-color);
+    transform: translateY(-2px);      /* Efecto hover como reserva */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ===== Features grid ===== */
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.feature-item {
+    background-color: var(--navbar-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Shadow consistente */
+    padding: 40px;
+    width: 100%;
+    transition: var(--tran-05);       /* Transición suave como reserva */
+    border-left: 5px solid var(--primary-color); /* Acento izquierdo como reserva */
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2); /* Shadow más pronunciado */
+}
+
+.feature-item h2 {
+    color: var(--text-color);
+    transition: var(--tran-05);
+    margin-bottom: 20px;
+}
+
+.feature-item p {
+    color: var(--text-color);
+    transition: var(--tran-05);
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.feature-item ul {
+    color: var(--text-color);
+    transition: var(--tran-05);
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.feature-item li {
+    margin-bottom: 8px;
+}
+
+.icon-big {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    transition: var(--tran-05);
+}
+
+/* ===== Galería del equipo ===== */
+.nosotros-galeria {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+.nosotros-galeria img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15); /* Shadow consistente */
+}
+
+.nosotros-galeria img:hover {
+    transform: scale(1.1);            /* Efecto más suave */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* ===== Título de sección ===== */
+.section-title {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    text-align: center;
+    transition: var(--tran-05);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+/* Estilos para subtítulos dentro de feature-item */
+.feature-item h2:not(.section-title) {
+    color: var(--text-color);
+    font-size: 1.4rem;
+    margin: 25px 0 15px 0;
+    padding-left: 10px;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Mejoras para listas */
+.feature-item ul {
+    padding-left: 20px;
+}
+
+.feature-item li {
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.feature-item li::before {
+    content: "•";
+    color: var(--primary-color);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* Texto en negrita dentro del contenido */
+.feature-item b {
+    color: var(--primary-color);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 15px;
+        margin: 20px auto;
+    }
+    
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero-section p {
+        font-size: 1.1rem;
+    }
+    
+    .features-grid {
+        padding: 20px 15px;
+        gap: 25px;
+    }
+    
+    .feature-item {
+        padding: 25px;
+    }
+    
+    .icon-big {
+        font-size: 3rem;
+    }
+    
+    .nosotros-galeria {
+        gap: 20px;
+    }
+    
+    .nosotros-galeria img {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero-section p {
+        font-size: 1rem;
+    }
+    
+    .feature-item {
+        padding: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .feature-item h2:not(.section-title) {
+        font-size: 1.2rem;
+    }
+    
+    .nosotros-galeria {
+        gap: 15px;
+    }
+    
+    .nosotros-galeria img {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .cta-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d

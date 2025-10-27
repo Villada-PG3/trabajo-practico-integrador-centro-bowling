@@ -1,21 +1,25 @@
-{% extends "bowl/navbar.html" %}
-{% load static %}
+{% extends "bowl/navbar.html" %}  {# Usa la barra de navegación y la estructura base #}
+{% load static %}  {# Permite usar {% static %} para CSS o imágenes #}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/nueva_reserva1.css' %}">
+<link rel="stylesheet" href="{% static 'bowl/nueva_reserva1.css' %}">  {# Estilos específicos de esta página #}
 {% endblock %}
 
 {% block content %}
 <div class="reserva-form-container">
   <h1>Nueva Reserva</h1>
-  <form method="post">
-    {% csrf_token %}
 
+  <form method="post">  
+    {% csrf_token %}  {# Protección contra ataques CSRF #}
+
+    <!-- Fecha -->
     <div class="form-group">
       <label for="id_fecha">Fecha:</label>
       <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
+      {# Solo fechas a partir de hoy #}
     </div>
 
+    <!-- Hora -->
     <div class="form-group">
       <label for="id_hora">Hora:</label>
       <select id="id_hora" name="hora" required>
@@ -26,6 +30,7 @@
       </select>
     </div>
 
+    <!-- Pista -->
     <div class="form-group">
       <label for="id_pista">Pista:</label>
       <select id="id_pista" name="pista" required>
@@ -38,7 +43,9 @@
       </select>
     </div>
 
+    <!-- Botón -->
     <button type="submit" class="cta-button">Reservar</button>
+
   </form>
 </div>
 {% endblock %}

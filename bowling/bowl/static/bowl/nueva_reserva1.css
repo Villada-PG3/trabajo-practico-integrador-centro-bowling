@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Variables de color */
 :root {
     --reserva-color-primario: #007bff;
@@ -110,3 +111,117 @@
         text-align: center;
     }
 }
+=======
+/* Variables de color */
+:root {
+    --reserva-color-primario: #000000;        /* Negro puro de cafetería */
+    --reserva-color-hover: #1a1a1a;           /* Gris oscuro */
+    --reserva-color-fondo: #ffffff;           /* Blanco puro */
+    --reserva-color-texto: #000000;           /* Negro puro */
+    --reserva-color-borde: #e0e0e0;           /* Gris claro */
+    --reserva-color-shadow: rgba(0, 0, 0, 0.15); /* Shadow más pronunciado */
+    --reserva-input-bg: #f8f8f8;              /* Gris claro de cafetería */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --reserva-color-fondo: #1a1a1a;       /* Gris oscuro de cafetería */
+        --reserva-color-texto: #ffffff;       /* Blanco puro */
+        --reserva-color-borde: #444444;       /* Gris medio */
+        --reserva-color-shadow: rgba(0, 0, 0, 0.4); /* Shadow más pronunciado */
+        --reserva-input-bg: #2a2a2a;          /* Gris medio oscuro */
+        --reserva-color-primario: #ffffff;    /* Blanco para acentos en dark */
+        --reserva-color-hover: #e0e0e0;       /* Gris claro */
+    }
+}
+
+/* Contenedor principal */
+.reserva-form-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--reserva-color-fondo);
+    border-left: 5px solid var(--reserva-color-primario);  /* Negro en light, blanco en dark */
+    border-radius: 10px;
+    box-shadow: 0 4px 16px var(--reserva-color-shadow);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Título */
+.reserva-form-container h1 {
+    font-size: 26px;
+    margin-bottom: 25px;
+    color: var(--reserva-color-primario);      /* Negro en light, blanco en dark */
+    text-align: center;
+}
+
+/* Formulario */
+.reserva-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Grupo de inputs */
+.reserva-form-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reserva-form-container .form-group label {
+    font-weight: 600;
+    color: var(--reserva-color-texto);         /* Negro en light, blanco en dark */
+    font-size: 15px;
+}
+
+.reserva-form-container .form-group input,
+.reserva-form-container .form-group select {
+    padding: 10px 14px;
+    border: 1px solid var(--reserva-color-borde);
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: var(--reserva-input-bg);
+    color: var(--reserva-color-texto);         /* Negro en light, blanco en dark */
+    transition: all 0.3s ease;
+}
+
+.reserva-form-container .form-group input:focus,
+.reserva-form-container .form-group select:focus {
+    border-color: var(--reserva-color-primario);  /* Negro en light, blanco en dark */
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);   /* Shadow negro */
+    outline: none;
+}
+
+/* Botón de acción */
+.reserva-form-container .cta-button {
+    align-self: flex-start;
+    padding: 12px 28px;
+    background-color: var(--reserva-color-primario);  /* Negro en light, blanco en dark */
+    color: var(--reserva-color-fondo);         /* Blanco en light, negro en dark */
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.reserva-form-container .cta-button:hover {
+    background-color: var(--reserva-color-hover);  /* Gris oscuro en light, gris claro en dark */
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .reserva-form-container {
+        padding: 20px;
+    }
+
+    .reserva-form-container .cta-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d

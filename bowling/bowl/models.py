@@ -12,6 +12,7 @@ class Usuario(AbstractUser):
     def __str__(self):
         return self.username
 
+# ----- Tipo de pista de bowling -----
 class TipoPista(models.Model):
     tipo = models.CharField(max_length=100, unique=True)
     zona = models.CharField(max_length=50)
@@ -22,12 +23,16 @@ class TipoPista(models.Model):
     def __str__(self):
         return self.tipo
 
+
+# ----- Estado general de una pista o reserva -----
 class Estado(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.nombre
 
+
+# ----- Representa una pista física -----
 class Pista(models.Model):
     id_pista = models.AutoField(primary_key=True)
     capacidad_maxima = models.IntegerField()
@@ -40,6 +45,13 @@ class Pista(models.Model):
         precio = self.tipo_pista.precio if self.tipo_pista else "?"
         return f"Pista {self.numero} - {tipo} (${precio})"
 
+<<<<<<< HEAD
+=======
+
+from django.conf import settings
+
+# ----- Representa al cliente que realiza reservas -----
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
@@ -51,6 +63,22 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
+<<<<<<< HEAD
+=======
+
+# ----- Usuario del sistema (admin o cliente) -----
+class Usuario(AbstractUser):
+    ROLE_CHOICES = (
+        ('admin', 'Administrador'),
+        ('cliente', 'Cliente'),
+    )
+    # Campo personalizado para definir el rol
+    rol = models.CharField(max_length=20, choices=ROLE_CHOICES, default='cliente')
+    REQUIRED_FIELDS = []
+
+
+# ----- Registro de reservas de pistas -----
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class Reserva(models.Model):
     id_reserva = models.AutoField(primary_key=True)
     fecha = models.DateField()
@@ -59,11 +87,46 @@ class Reserva(models.Model):
     pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
     precio_total = models.FloatField(default=0.0)
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
+<<<<<<< HEAD
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+=======
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 
     def __str__(self):
         return f"Reserva {self.id_reserva}"
 
+<<<<<<< HEAD
+=======
+
+# ----- Partida de bowling asociada a una reserva -----
+class Partida(models.Model):
+    id_partida = models.AutoField(primary_key=True)
+    pista = models.ForeignKey(Pista, on_delete=models.CASCADE, null=True, blank=True)
+    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
+    duracion = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Partida {self.id_partida}"
+
+
+# ----- Perfil extendido del usuario -----
+class PerfilUsuario(models.Model):
+    id_usuario = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+    nombre_usuario = models.CharField(max_length=50)
+    email = models.EmailField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+    contraseña = models.CharField(max_length=100, default='1234')
+
+    def __str__(self):
+        return self.nombre_usuario
+
+
+# ----- Jugador de las partidas -----
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class Jugador(models.Model):
     id_jugador = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -72,6 +135,7 @@ class Jugador(models.Model):
     def __str__(self):
         return self.nombre
 
+<<<<<<< HEAD
 class Partida(models.Model):
     id_partida = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
@@ -80,10 +144,21 @@ class Partida(models.Model):
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, null=True, blank=True)
     duracion = models.TimeField(null=True, blank=True)
     puntaje_final = models.IntegerField(default=0)
+=======
+
+# ----- Comidas disponibles en la cafetería -----
+class comida(models.Model):
+    id_comida = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.FloatField()
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 
     def __str__(self):
         return f"{self.jugador.nombre} - Partida {self.id_partida}"
 
+
+# ----- Estadísticas de rendimiento del jugador -----
 class EstadisticasJugador(models.Model):
     id_estadistica = models.AutoField(primary_key=True)
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
@@ -95,6 +170,8 @@ class EstadisticasJugador(models.Model):
     def __str__(self):
         return f"Estadísticas {self.jugador.nombre}"
 
+
+# ----- Relación entre jugadores y partidas -----
 class JugadorPartida(models.Model):
     id_jugador_partida = models.AutoField(primary_key=True)
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
@@ -105,6 +182,8 @@ class JugadorPartida(models.Model):
     def __str__(self):
         return f"{self.jugador.nombre} - Partida {self.partida.id_partida}"
 
+
+# ----- Turnos de cada jugador en una partida -----
 class Turno(models.Model):
     id_turno = models.AutoField(primary_key=True)
     numero_turno = models.IntegerField()
@@ -115,16 +194,13 @@ class Turno(models.Model):
     bonus = models.IntegerField(default=0)
     strike = models.BooleanField(default=False)
     spare = models.BooleanField(default=False)
-    falta1 = models.BooleanField(default=False)
-    falta2 = models.BooleanField(default=False)
-    falta3 = models.BooleanField(default=False)
-    frame_final = models.BooleanField(default=False)
     partida = models.ForeignKey(Partida, on_delete=models.CASCADE, null=True, blank=True)
     jugador_partida = models.ForeignKey(JugadorPartida, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Turno {self.numero_turno} - {self.jugador_partida}"
 
+<<<<<<< HEAD
 class Comida(models.Model):
     id_comida = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -134,6 +210,10 @@ class Comida(models.Model):
     def __str__(self):
         return self.nombre
 
+=======
+
+# ----- Cafetería asociada al bowling -----
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class Cafeteria(models.Model):
     id_cafeteria = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -146,6 +226,8 @@ class Cafeteria(models.Model):
     def __str__(self):
         return self.nombre
 
+
+# ----- Menú disponible en la cafetería -----
 class Menu(models.Model):
     id_menu = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -155,6 +237,8 @@ class Menu(models.Model):
     def __str__(self):
         return self.nombre
 
+
+# ----- Pedido realizado por un cliente -----
 class Pedido(models.Model):
     id_pedido = models.AutoField(primary_key=True)
     horario = models.DateTimeField()
@@ -166,6 +250,8 @@ class Pedido(models.Model):
     def __str__(self):
         return f"Pedido {self.id_pedido}"
 
+
+# ----- Detalle de los ítems de cada pedido -----
 class DetallePedido(models.Model):
     id_detalle_pedido = models.AutoField(primary_key=True)
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
@@ -177,6 +263,11 @@ class DetallePedido(models.Model):
     def __str__(self):
         return f"{self.cantidad} x {self.menu.nombre} para {self.cliente.nombre}"
 
+<<<<<<< HEAD
+=======
+
+# ----- Mensajes enviados desde el formulario de contacto -----
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
 class Mensaje(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
@@ -185,6 +276,7 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"{self.nombre} - {self.email}"
+<<<<<<< HEAD
 class PuntajeJugador(models.Model):
     id_puntaje = models.AutoField(primary_key=True)
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
@@ -193,3 +285,5 @@ class PuntajeJugador(models.Model):
     set = models.IntegerField()
     def __str__(self):
         return f"{self.jugador.nombre} - Puntaje: {self.puntaje}"
+=======
+>>>>>>> f15d8a83d7642d7c398b0061ff5b68592723d23d
