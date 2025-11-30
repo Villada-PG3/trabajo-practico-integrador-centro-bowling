@@ -1,51 +1,106 @@
-{% extends "bowl/navbar.html" %}  {# Usa la barra de navegación y la estructura base #}
-{% load static %}  {# Permite usar {% static %} para CSS o imágenes #}
+{% extends 'bowl/navbar.html' %}
+{% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/nueva_reserva1.css' %}">  {# Estilos específicos de esta página #}
-{% endblock %}
+{% block title %}Nueva Reserva - Calendario{% endblock %}
 
 {% block content %}
-<div class="reserva-form-container">
-  <h1>Nueva Reserva</h1>
+<div class="container mt-4">
+    <h2 class="mb-4">Reservar Pista de Bowling</h2>
 
-  <form method="post">  
-    {% csrf_token %}  {# Protección contra ataques CSRF #}
-
-    <!-- Fecha -->
-    <div class="form-group">
-      <label for="id_fecha">Fecha:</label>
-      <input type="date" id="id_fecha" name="fecha" required min="{{ today }}">
-      {# Solo fechas a partir de hoy #}
+    <!-- Calendario simple (puedes usar flatpickr o un widget más bonito) -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <label>Selecciona un día:</label>
+            <input type="date" id="selector-fecha" class="form-control" value="{{ fecha_seleccionada|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+        </div>
     </div>
 
-    <!-- Hora -->
-    <div class="form-group">
-      <label for="id_hora">Hora:</label>
-      <select id="id_hora" name="hora" required>
-        <option value="">Seleccionar hora</option>
-        {% for hora in horarios %}
-          <option value="{{ hora }}">{{ hora }}</option>
+    <h4>Horarios disponibles el <strong>{{ fecha_seleccionada|date:"d/m/Y" }}</strong></h4>
+
+    <div class="row">
+        {% for disp in disponibilidad %}
+            <div class="col-md-4 mb-3">
+                <div class="card {% if not disp.disponible %}bg-danger text-white{% else %}bg-success text-white{% endif %}">
+                    <div class="card-body text-center">
+                        <h5>{{ disp.hora }}</h5>
+                        {% if disp.disponible %}
+                            <p class="mb-2">{{ disp.pistas|length }} pista{{ disp.pistas|length|pluralize }} disponible{{ disp.pistas|length|pluralize }}</p>
+                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalReserva"
+                                    data-hora="{{ disp.hora }}" data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}">
+                                Reservar
+                            </button>
+                        {% else %}
+                            <p class="mb-0">No hay pistas disponibles</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay horarios disponibles para esta fecha.</p>
         {% endfor %}
-      </select>
     </div>
-
-    <!-- Pista -->
-    <div class="form-group">
-      <label for="id_pista">Pista:</label>
-      <select id="id_pista" name="pista" required>
-        <option value="">Seleccionar pista</option>
-        {% for pista in pistas %}
-          <option value="{{ pista.id_pista }}">
-            Pista {{ pista.numero }} - {{ pista.tipo_pista.tipo }} (${{ pista.tipo_pista.precio }})
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Botón -->
-    <button type="submit" class="cta-button">Reservar</button>
-
-  </form>
 </div>
+
+<!-- Modal para elegir pista -->
+<div class="modal fade" id="modalReserva" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="fecha" id="modal-fecha">
+                    <input type="hidden" name="hora" id="modal-hora">
+
+                    <p>Fecha: <strong id="texto-fecha"></strong></p>
+                    <p>Hora: <strong id="texto-hora"></strong></p>
+
+                    <label>Elegir pista:</label>
+                    <select name="pista" class="form-select" required>
+                        <option value="">-- Selecciona una pista --</option>
+                        <!-- Se llenará con JS -->
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('selector-fecha').addEventListener('change', function() {
+    window.location = '?fecha=' + this.value;
+});
+
+const modal = document.getElementById('modalReserva');
+modal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const hora = button.getAttribute('data-hora');
+    const fecha = button.getAttribute('data-fecha');
+
+    document.getElementById('modal-fecha').value = fecha;
+    document.getElementById('modal-hora').value = hora;
+    document.getElementById('texto-fecha').textContent = new Date(fecha).toLocaleDateString('es-ES');
+    document.getElementById('texto-hora').textContent = hora;
+
+    // Limpiar opciones anteriores
+    const select = modal.querySelector('select[name="pista"]');
+    select.innerHTML = '<option value="">-- Selecciona una pista --</option>';
+
+    // Llenar pistas disponibles (puedes pasarlas como JSON desde el contexto)
+    const pistasDisponibles = {{ pistas_json|safe }};
+    const horaSeleccionada = hora;
+
+    // Filtrar por hora (opcional si ya vienes filtrado)
+    pistasDisponibles.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.numero} - ${p.tipo} ({{ p.precio }} CLP)</option>`;
+    });
+});
+</script>
 {% endblock %}
