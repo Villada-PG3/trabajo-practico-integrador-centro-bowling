@@ -11,6 +11,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime, time, timedelta
+from django.core.serializers import serialize
+import json
 
 from .models import (
     Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado,
@@ -108,12 +110,10 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
             estado__nombre="Pendiente"       # ¡Solo las pendientes!
         ).order_by('-fecha', '-hora')
 
-# bowl/views.py (reemplaza la clase ReservaCreateView completa)
-
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Reserva
     form_class = ReservaForm
-    template_name = 'bowl/nueva_reserva_calendario.html'  # nueva plantilla
+    template_name = 'bowl/nueva_reserva1.html'
     success_url = reverse_lazy('reserva')
     login_url = reverse_lazy('iniciar_sesion')
 
@@ -121,21 +121,16 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
 
-        # Generar horarios cada hora: 14:00, 15:00, ..., 23:00
+        # === Generar horarios cada 1 hora: 14:00 a 23:00 ===
         horarios = []
-        hora = time(14, 0)
-        while hora <= time(23, 0):
-            horarios.append(hora.strftime("%H:%M"))
-            hora = (datetime.combine(today, hora) + timedelta(hours=1)).time()
+        for hora in range(14, 24):  # 14 a 23 inclusive
+            horarios.append(f"{hora:02d}:00")
 
-        # Crear pistas por defecto si no existen
+        # === Crear pistas por defecto si no existen ===
         if Pista.objects.count() < 10:
-            tipo_normal, _ = TipoPista.objects.get_or_create(
-                tipo="Normal", defaults={'zona': 'General', 'precio': 12000})
-            tipo_vip, _ = TipoPista.objects.get_or_create(
-                tipo="VIP", defaults={'zona': 'VIP', 'precio': 18000})
-            tipo_ultra, _ = TipoPista.objects.get_or_create(
-                tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 25000})
+            tipo_normal, _ = TipoPista.objects.get_or_create(tipo="Normal", defaults={'zona': 'General', 'precio': 10000})
+            tipo_vip, _ = TipoPista.objects.get_or_create(tipo="VIP", defaults={'zona': 'VIP', 'precio': 15000})
+            tipo_ultra, _ = TipoPista.objects.get_or_create(tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 20000})
 
             for i in range(1, 5):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_normal})
@@ -144,7 +139,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
             for i in range(8, 11):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_ultra})
 
-        # Fecha seleccionada (por GET)
+        # === Fecha seleccionada (por GET o hoy por defecto) ===
         fecha_str = self.request.GET.get('fecha')
         if fecha_str:
             try:
@@ -154,76 +149,101 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         else:
             fecha_seleccionada = today
 
-        # Obtener horarios ocupados para la fecha seleccionada
-        reservas_del_dia = Reserva.objects.filter(
-            fecha=fecha_seleccionada,
-            estado__nombre="Pendiente"
-        ).values('hora', 'pista_id')
-
-        # Mapa: hora -> pistas ocupadas
-        horarios_ocupados = {}
-        for reserva in reservas_del_dia:
-            hora_str = reserva['hora'].strftime("%H:%M")
-            horarios_ocupados.setdefault(hora_str, []).append(reserva['pista_id'])
-
-        # Disponibilidad por horario
-        disponibilidad = []
-        todas_las_pistas = list(Pista.objects.values('id', 'numero', 'tipo_pista__tipo', 'tipo_pista__precio'))
-
+        # === Obtener disponibilidad para el día seleccionado ===
+        horarios_disponibilidad = []
         for hora_str in horarios:
-            pistas_ocupadas = horarios_ocupados.get(hora_str, [])
-            pistas_disponibles = [
-                p for p in todas_las_pistas if p['id'] not in pistas_ocupadas
-            ]
-            disponibilidad.append({
+            hora = datetime.strptime(hora_str, '%H:%M').time()
+            
+            # IDs de pistas YA RESERVADAS en ese horario (estado "Pendiente", case-insensitive)
+            ocupadas_ids = Reserva.objects.filter(
+                fecha=fecha_seleccionada,
+                hora=hora,
+                estado__nombre__iexact="Pendiente"
+            ).values_list('pista_id', flat=True)
+
+            # Excluir por la PK real de Pista (el modelo Pista tiene primary_key=id_pista)
+            # pero .pk funciona igual; ocupadas_ids contiene ints que comparan bien
+            pistas_disponibles_qs = Pista.objects.exclude(id_pista__in=ocupadas_ids)
+
+            # Construimos un JSON simple con los campos que necesitamos en el cliente (JS)
+            pistas_simple = []
+            for p in pistas_disponibles_qs:
+                pistas_simple.append({
+                    'pk': p.pk,
+                    'numero': p.numero,
+                    'tipo': p.tipo_pista.tipo if p.tipo_pista else None,
+                    'precio': p.tipo_pista.precio if p.tipo_pista else None,
+                })
+
+            horarios_disponibilidad.append({
                 'hora': hora_str,
-                'disponible': len(pistas_disponibles) > 0,
-                'pistas': pistas_disponibles,
-                'total_pistas': len(todas_las_pistas),
-                'ocupadas': len(pistas_ocupadas),
+                'disponible': pistas_disponibles_qs.exists(),
+                'pistas': pistas_disponibles_qs,
+                'cantidad': pistas_disponibles_qs.count(),
+                # pasamos string JSON ya listo para el template (evita repr de Python)
+                'pistas_json': json.dumps(pistas_simple, ensure_ascii=False),
             })
 
         context.update({
             'horarios': horarios,
-            'disponibilidad': disponibilidad,
+            'horarios_disponibilidad': horarios_disponibilidad,
             'fecha_seleccionada': fecha_seleccionada,
-            'today':(today),
-            'pistas': Pista.objects.all().order_by('numero'),
+            'today': today,
+            'pistas_totales': Pista.objects.all(),
         })
-
+       
         return context
 
     def form_valid(self, form):
         user = self.request.user
-        cliente = getattr(user, "cliente", None)
+        # Obtener el cliente asociado (más robusto que getattr)
+        try:
+            cliente = Cliente.objects.get(user=user)
+        except Cliente.DoesNotExist:
+            cliente = None
+
         if not cliente:
             messages.error(self.request, "No tienes un perfil de cliente asociado.")
-            return redirect('reserva')
+            return redirect('nueva_reserva1')
 
-        form.instance.cliente = cliente
-        form.instance.usuario = user
-        form.instance.estado = Estado.objects.get(nombre="Pendiente")
-        form.instance.precio_total = form.instance.pista.tipo_pista.precio
+        # Validar que la pista y horario estén libres
+        pista = form.cleaned_data.get('pista')
+        fecha = form.cleaned_data.get('fecha')
+        hora = form.cleaned_data.get('hora')
 
-        # Verificar conflicto
+        if not pista or not fecha or not hora:
+            messages.error(self.request, "Faltan datos para crear la reserva.")
+            return redirect('nueva_reserva1')
+
         conflicto = Reserva.objects.filter(
-            pista=form.instance.pista,
-            fecha=form.instance.fecha,
-            hora=form.instance.hora
+            pista=pista,
+            fecha=fecha,
+            hora=hora,
+            estado__nombre__iexact="Pendiente"
         ).exists()
 
         if conflicto:
-            messages.error(self.request, "Esa pista ya está reservada en ese horario.")
-            return redirect(f"{reverse_lazy('nueva_reserva_calendario')}?fecha={form.instance.fecha}")
+            messages.error(self.request, "Esta pista ya está reservada en ese horario.")
+            return redirect('nueva_reserva1')
 
-        messages.success(self.request, f"¡Reserva creada! Pista {form.instance.pista.numero} el {form.instance.fecha} a las {form.instance.hora.strftime('%H:%M')}.")
+        # Rellenamos campos necesarios antes de guardar
+        form.instance.cliente = cliente
+        form.instance.usuario = user
+        # Asegúrate de que exista el Estado "Pendiente" en la BD
+        estado_pendiente, _ = Estado.objects.get_or_create(nombre="Pendiente")
+        form.instance.estado = estado_pendiente
+        # precio desde tipo_pista
+        if pista.tipo_pista:
+            form.instance.precio_total = pista.tipo_pista.precio
+        else:
+            form.instance.precio_total = 0.0
+
+        messages.success(self.request, f"Reserva creada para el {fecha} a las {hora.strftime('%H:%M')} en pista {pista.numero}.")
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Por favor corrige los errores en el formulario.")
-        fecha = form.data.get('fecha')
-        url = f"{reverse_lazy('nueva_reserva_calendario')}?fecha={fecha}" if fecha else reverse_lazy('nueva_reserva_calendario')
-        return redirect(url)
+        messages.error(self.request, "Por favor corrige los errores del formulario.")
+        return self.render_to_response(self.get_context_data(form=form))
 
 # ---------------------------------------------------------
 # Pistas
