@@ -1,29 +1,35 @@
 # bowl/views.py
-from django.shortcuts import redirect, render
+
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from datetime import datetime, time, timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
+from datetime import datetime, time, timedelta
 
-from .models import Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado, Comida, Partida,Jugador, PuntajeJugador
+from .models import (
+    Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado,
+    Comida, Partida, Jugador, PuntajeJugador
+)
 from .forms import (
     PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
-    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm, PuntajeForm
+    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm,
+    PuntajeForm, JugadorForm
 )
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
 
-# -------------------------
-# Mixins: clases reutilizables para compartir lógica entre vistas
-# -------------------------
+# ---------------------------------------------------------
+# Mixins
+# ---------------------------------------------------------
+
 class ThemeMixin:
-    """Agrega el modo de tema (oscuro/claro) al contexto"""
+    """Agrega modo oscuro/claro al contexto."""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['theme_mode'] = self.request.session.get('theme_mode', 'light')
@@ -31,59 +37,60 @@ class ThemeMixin:
 
 
 class UsuarioContext:
-    """Agrega información del usuario y su rol al contexto"""
+    """Agrega usuario y rol al contexto."""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        request = self.request
-        if hasattr(request, 'user') and getattr(request.user, 'is_authenticated', False):
-            context['usuario'] = request.user
-            context['Usuario'] = getattr(request.user, 'rol', '') == 'admin'
-        else:
-            context['usuario'] = None
-            context['Usuario'] = False
+        user = self.request.user
+
+        context['usuario'] = user if user.is_authenticated else None
+        context['Usuario'] = getattr(user, 'rol', '') == 'admin'
         return context
 
-# -------------------------
-# Vistas de Inicio y Tema
-# -------------------------
+
+# ---------------------------------------------------------
+# Inicio y páginas informativas
+# ---------------------------------------------------------
+
 class InicioView(ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/inicio.html"
-    # Agrega información del usuario al contexto de la página principal
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['estado_logueo'] = 0
-        if self.request.user.is_authenticated:
-            context["Usuario"] = self.request.user
         return context
 
-# Vistas informativas simples
+
 class GaleriaView(ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/galeria.html"
+
 
 class ReglasView(ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/reglas.html"
 
+
 class CafeView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/cafe.html"
+
 
 class LoginnView(ThemeMixin, UsuarioContext, LoginView):
     template_name = "bowl/inicio_sesion1.html"
 
-# Página estática sin clases
+
 def nosotros(request):
     return render(request, 'bowl/nosotros.html')
 
+
 def toggle_theme_mode(request):
-    """Alterna entre modo claro y oscuro"""
-    current_mode = request.session.get('theme_mode', 'light')
-    request.session['theme_mode'] = 'dark' if current_mode == 'light' else 'light'
+    modo_actual = request.session.get('theme_mode', 'light')
+    request.session['theme_mode'] = 'dark' if modo_actual == 'light' else 'light'
     return redirect(request.META.get('HTTP_REFERER', 'inicio'))
 
-# -------------------------
-# Vistas de Reservas
-# -------------------------
+
+# ---------------------------------------------------------
+# Reservas
+# ---------------------------------------------------------
+
 class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
-    """Lista las reservas del cliente autenticado"""
     model = Reserva
     template_name = 'bowl/reserva.html'
     context_object_name = 'reservas'
@@ -91,38 +98,36 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated:
-            cliente = getattr(user, "cliente", None)
-            if cliente:
-                return Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
-        return Reserva.objects.none()
+        cliente = getattr(user, "cliente", None)
+        if not cliente:
+            return Reserva.objects.none()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['today'] = timezone.now().date()
-        return context
-    
+        # Solo mostrar reservas que aún están pendientes (es decir, activas)
+        return Reserva.objects.filter(
+            cliente=cliente,
+            estado__nombre="Pendiente"       # ¡Solo las pendientes!
+        ).order_by('-fecha', '-hora')
+
+
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
-    """Permite crear una nueva reserva"""
     model = Reserva
     form_class = ReservaForm
     template_name = 'bowl/nueva_reserva1.html'
     login_url = reverse_lazy('iniciar_sesion')
 
     def get_context_data(self, **kwargs):
-        """Prepara horarios disponibles y pistas libres"""
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
 
-        # Genera una lista de horarios cada 15 minutos entre 14:00 y 23:00
-        hora_inicio, hora_fin = time(14, 0), time(23, 0)
+        # Horarios 14:00 - 23:00 cada 15 min
+        h_inicio, h_fin = time(14, 0), time(23, 0)
+        hora = datetime.combine(today, h_inicio)
         horarios = []
-        hora_actual = datetime.combine(today, hora_inicio)
-        while hora_actual <= datetime.combine(today, hora_fin):
-            horarios.append(hora_actual.strftime("%H:%M"))
-            hora_actual += timedelta(minutes=15)
+        while hora <= datetime.combine(today, h_fin):
+            horarios.append(hora.strftime("%H:%M"))
+            hora += timedelta(minutes=15)
 
-        # Crea pistas por defecto si no existen
+        # Crea pistas por defecto si faltan
         if Pista.objects.count() < 10:
             tipo_normal, _ = TipoPista.objects.get_or_create(
                 tipo="Normal", defaults={'zona': 'General', 'precio': 10000})
@@ -130,6 +135,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
                 tipo="VIP", defaults={'zona': 'VIP', 'precio': 15000})
             tipo_ultra, _ = TipoPista.objects.get_or_create(
                 tipo="UltraVIP", defaults={'zona': 'Ultra', 'precio': 20000})
+
             for i in range(1, 5):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_normal})
             for i in range(5, 8):
@@ -137,55 +143,53 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
             for i in range(8, 11):
                 Pista.objects.get_or_create(numero=i, defaults={'tipo_pista': tipo_ultra})
 
-        # Filtra las pistas disponibles según fecha y hora
         fecha = self.request.GET.get('fecha')
-        hora = self.request.GET.get('hora')
-        if fecha and hora:
+        hora_sel = self.request.GET.get('hora')
+
+        if fecha and hora_sel:
             try:
                 fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
-                hora_obj = datetime.strptime(hora, '%H:%M').time()
+                hora_obj = datetime.strptime(hora_sel, '%H:%M').time()
                 ocupadas = Reserva.objects.filter(fecha=fecha_obj, hora=hora_obj).values_list('pista_id', flat=True)
-                pistas_disponibles = Pista.objects.exclude(id__in=ocupadas)
-            except ValueError:
-                pistas_disponibles = Pista.objects.all()
+                pistas = Pista.objects.exclude(id__in=ocupadas)
+            except:
+                pistas = Pista.objects.all()
         else:
-            pistas_disponibles = Pista.objects.all()
+            pistas = Pista.objects.all()
 
         context.update({
-            'today': today,
-            'horarios': horarios,
-            'pistas': pistas_disponibles
+            "today": today,
+            "horarios": horarios,
+            "pistas": pistas
         })
         return context
 
     def form_valid(self, form):
-        print("Form:", form)       
-        print("Form cleaned data:", form.cleaned_data)
         user = self.request.user
-        try:
-            cliente = user.cliente
-        except Cliente.DoesNotExist:
+        cliente = getattr(user, "cliente", None)
+
+        if not cliente:
             messages.error(self.request, "No tienes un cliente asociado.")
             return redirect('reserva')
 
         form.instance.cliente = cliente
         form.instance.usuario = user
 
-        # Asigna estado y precio
         try:
             form.instance.estado = Estado.objects.get(nombre="Pendiente")
             form.instance.precio_total = form.instance.pista.tipo_pista.precio
-        except Exception:
-            messages.error(self.request, "Error al asignar estado o tipo de pista.")
+        except:
+            messages.error(self.request, "Error al asignar estado o precio.")
             return redirect('nueva_reserva1')
 
-        # Verifica conflictos de horario
-        if Reserva.objects.filter(
+        conflicto = Reserva.objects.filter(
             pista=form.instance.pista,
             fecha=form.instance.fecha,
             hora=form.instance.hora
-        ).exists():
-            messages.error(self.request, "Esta pista ya está reservada en ese horario.")
+        ).exists()
+
+        if conflicto:
+            messages.error(self.request, "La pista ya está reservada en ese horario.")
             return redirect('nueva_reserva1')
 
         messages.success(self.request, "Reserva creada correctamente.")
@@ -198,13 +202,16 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
     def get_success_url(self):
         return reverse_lazy('reserva')
 
-# -------------------------
-# Vistas de Pistas
-# -------------------------
+
+# ---------------------------------------------------------
+# Pistas
+# ---------------------------------------------------------
+
 class ListaPistasView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
     model = Pista
     template_name = "bowl/cositas_admin/lista_pistas.html"
     context_object_name = "pistas"
+
 
 class CrearPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Pista
@@ -212,25 +219,28 @@ class CrearPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView)
     template_name = "bowl/cositas_admin/crear_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
+
 class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView):
     model = Pista
     form_class = EditarPistaForm
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
-# -------------------------
-# Vistas de Cafetería
-# -------------------------
+
+# ---------------------------------------------------------
+# Cafetería
+# ---------------------------------------------------------
+
 class ListaComidaView(UsuarioContext, View):
-    """Lista los productos de la cafetería"""
     def get(self, request):
         comidas = Comida.objects.all()
         return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
+
 class CrearComidaView(UsuarioContext, View):
-    """Crea nuevos productos de comida"""
     def get(self, request):
         return render(request, "bowl/cositas_admin/crear_comida.html", {"form": MenuForm()})
+
     def post(self, request):
         form = MenuForm(request.POST)
         if form.is_valid():
@@ -238,11 +248,13 @@ class CrearComidaView(UsuarioContext, View):
             return redirect("lista_comida")
         return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
 
+
 class CrearCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Cafeteria
     form_class = CafeteriaForm
     template_name = "bowl/cositas_admin/crear_comida.html"
     success_url = reverse_lazy('lista_comida')
+
 
 class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView):
     model = Cafeteria
@@ -250,12 +262,10 @@ class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Update
     template_name = "bowl/cositas_admin/editar_comida.html"
     success_url = reverse_lazy('lista_comida')
 
-# views.py
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from .models import Cliente, Reserva, Partida, Jugador, PuntajeJugador
-from .forms import PuntajeForm, JugadorForm
+
+# ---------------------------------------------------------
+# Tablero de puntuaciones
+# ---------------------------------------------------------
 
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     template_name = "bowl/tabla_puntuaciones.html"
@@ -263,146 +273,104 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        try:
-            cliente = Cliente.objects.get(user=self.request.user)
-        except Cliente.DoesNotExist:
-            context['jugadores_puntajes'] = []
-            context['partida_id'] = None
-            context['jugador_form'] = JugadorForm()
-            return context
+        pk = self.kwargs.get('pk')
+        reserva_actual = get_object_or_404(Reserva, pk=pk)
+        
+        partida, _ = Partida.objects.get_or_create(
+            reserva=reserva_actual,
+            defaults={'cliente': self.request.user.cliente, 'pista': reserva_actual.pista}
+        )
 
-        reservas = Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
-        if reservas.exists():
-            reserva_actual = reservas[0]
-            partida = Partida.objects.filter(reserva=reserva_actual).last()
-            
-            if partida is None:
-                partida = Partida.objects.create(
-                    cliente=cliente,
-                    pista=reserva_actual.pista,
-                    reserva=reserva_actual
-                )
+        jugadores_puntajes = []
 
-            jugadores_puntajes = []
-            jugadores = Jugador.objects.filter(partida=partida)
+        for jugador in Jugador.objects.filter(partida=partida):
+            puntajes = [
+                PuntajeJugador.objects.get_or_create(
+                    partida=partida, jugador=jugador, set=i, defaults={'puntaje': 0}
+                )[0]
+                for i in range(1, 11)
+            ]
 
-            for jugador in jugadores:
-                # Obtener o crear puntajes para cada set
-                puntajes_data = []
-                for set_num in range(1, 11):
-                    puntaje_obj, created = PuntajeJugador.objects.get_or_create(
-                        partida=partida,
-                        jugador=jugador,
-                        set=set_num,
-                        defaults={'puntaje': 0}
-                    )
-                    puntajes_data.append({
-                        'id_puntaje': puntaje_obj.id_puntaje,
-                        'valor': puntaje_obj.puntaje,
-                    })
-                
-                total = sum(p['valor'] for p in puntajes_data)
-                
-                jugadores_puntajes.append({
-                    'id': jugador.id_jugador,
-                    'nombre': jugador.nombre,
-                    'puntajes': puntajes_data,
-                    'total': total
-                })
+            jugadores_puntajes.append({
+                'id': jugador.id_jugador,
+                'nombre': jugador.nombre,
+                'puntajes': [{'id_puntaje': p.id_puntaje, 'valor': p.puntaje} for p in puntajes],
+                'total': sum(p.puntaje for p in puntajes)
+            })
 
-            context['jugadores_puntajes'] = jugadores_puntajes
-            context['partida_id'] = partida.id_partida
-            context['jugador_form'] = JugadorForm()
-        else:
-            context['jugadores_puntajes'] = []
-            context['partida_id'] = None
-            context['jugador_form'] = JugadorForm()
+        context.update({
+            'jugadores_puntajes': jugadores_puntajes,
+            'partida_id': partida.id_partida,
+            'jugador_form': JugadorForm()
+        })
 
         return context
 
     def post(self, request, *args, **kwargs):
-        # Verificar si es para agregar jugador o guardar puntajes
-        if 'agregar_jugador' in request.POST:
-            # Procesar agregar jugador
-            return self.agregar_jugador(request)
-        else:
-            # Procesar guardar puntajes
-            return self.guardar_puntajes(request)
+        return (
+            self.agregar_jugador(request)
+            if 'agregar_jugador' in request.POST
+            else self.guardar_puntajes(request)
+        )
 
     def agregar_jugador(self, request):
         try:
-            print("Agregar jugador POST data:", request.POST)
             cliente = Cliente.objects.get(user=request.user)
-            print("Cliente encontrado:", cliente)
-            reservas = Reserva.objects.filter(cliente=cliente).order_by('-fecha', '-hora')
-            print("Reservas del cliente:", reservas)
-            if reservas.exists():
-                reserva_actual = reservas[0]
-                partida = Partida.objects.filter(reserva=reserva_actual).last()
-                
-                if partida is None:
-                    partida = Partida.objects.create(
-                        cliente=cliente,
-                        pista=reserva_actual.pista,
-                        reserva=reserva_actual
+            reserva_actual = Reserva.objects.filter(cliente=cliente).order_by('-fecha').first()
+            partida, _ = Partida.objects.get_or_create(
+                reserva=reserva_actual,
+                defaults={'cliente': cliente, 'pista': reserva_actual.pista}
+            )
+
+            form = JugadorForm(request.POST)
+            if form.is_valid():
+                jugador = form.save(commit=False)
+                jugador.partida = partida
+                jugador.save()
+
+                for i in range(1, 11):
+                    PuntajeJugador.objects.create(
+                        partida=partida, jugador=jugador, set=i, puntaje=0
                     )
 
-                form = JugadorForm(request.POST)
-                if form.is_valid():
-                    jugador = form.save(commit=False)
-                    jugador.partida = partida
-                    jugador.save()
-                    
-                    # Crear puntajes iniciales para el nuevo jugador
-                    for set_num in range(1, 11):
-                        PuntajeJugador.objects.create(
-                            partida=partida,
-                            jugador=jugador,
-                            set=set_num,
-                            puntaje=0
-                        )
-                    
-                    messages.success(request, f'Jugador {jugador.nombre} agregado correctamente!')
-                else:
-                    messages.error(request, 'Error al agregar jugador. Verifica los datos.')
-            
+                messages.success(request, f"Jugador {jugador.nombre} agregado correctamente.")
+            else:
+                messages.error(request, "Error al agregar jugador.")
+
         except Exception as e:
-            messages.error(request, f'Error: {str(e)}')
-        
+            messages.error(request, f"Error: {e}")
+
         return redirect('tablero_puntuaciones')
 
     def guardar_puntajes(self, request):
-        # Procesar todos los forms de puntajes
         for key, value in request.POST.items():
-            if key.startswith('puntaje-'):
-                if '-puntaje' in key:
-                    # Extraer el ID del puntaje del nombre del campo
-                    try:
-                        puntaje_id = key.split('-')[1]
-                        puntaje_id = int(puntaje_id)
-                        puntaje_obj = get_object_or_404(PuntajeJugador, id_puntaje=puntaje_id)
-                        
-                        # Verificar permisos
-                        if puntaje_obj.partida.cliente.user == request.user:
-                            nuevo_valor = int(value) if value else 0
-                            if 0 <= nuevo_valor <= 300:
-                                puntaje_obj.puntaje = nuevo_valor
-                                puntaje_obj.save()
-                    except (ValueError, PuntajeJugador.DoesNotExist):
-                        continue
-        
-        messages.success(request, 'Puntajes guardados correctamente!')
+            if key.startswith('puntaje-') and '-puntaje' in key:
+                try:
+                    puntaje_id = int(key.split('-')[1])
+                    puntaje = get_object_or_404(PuntajeJugador, id_puntaje=puntaje_id)
+
+                    if puntaje.partida.cliente.user == request.user:
+                        puntaje.puntaje = max(0, min(int(value or 0), 300))
+                        puntaje.save()
+                except:
+                    continue
+
+        messages.success(request, "Puntajes guardados correctamente.")
         return redirect('tablero_puntuaciones')
 
 
+# ---------------------------------------------------------
+# Asignar admin
+# ---------------------------------------------------------
+
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
-    """Permite asignar o cambiar el rol de los usuarios"""
     template_name = "bowl/cositas_admin/asignar_admin.html"
 
     def get(self, request):
         if getattr(request.user, 'rol', None) != 'admin':
-            messages.error(request, "No tienes permiso para acceder a esta página.")
+            messages.error(request, "No tienes permiso para acceder.")
             return redirect('inicio')
+
         usuarios = Usuario.objects.all().order_by('username')
         return render(request, self.template_name, {'usuarios': usuarios})
 
@@ -418,17 +386,18 @@ class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
             usuario = Usuario.objects.get(id=user_id)
             usuario.rol = nuevo_rol
             usuario.save()
-            messages.success(request, f"✅ Rol de {usuario.username} actualizado correctamente.")
+            messages.success(request, f"Rol de {usuario.username} cambiado correctamente.")
         except Usuario.DoesNotExist:
-            messages.error(request, "❌ Usuario no encontrado.")
+            messages.error(request, "Usuario no encontrado.")
 
         return redirect('asignar')
 
-# -------------------------
-# Vista de Contacto
-# -------------------------
+
+# ---------------------------------------------------------
+# Contacto
+# ---------------------------------------------------------
+
 class ContactoView(UsuarioContext, View):
-    """Envía un mensaje al correo del administrador"""
     template_name = "bowl/contactos.html"
 
     def get(self, request):
@@ -437,58 +406,127 @@ class ContactoView(UsuarioContext, View):
     def post(self, request):
         nombre = request.POST.get('nombre')
         email = request.POST.get('email')
-        mensaje_texto = request.POST.get('mensaje')
+        mensaje = request.POST.get('mensaje')
 
-        asunto = f'Nuevo mensaje de contacto de {nombre}'
+        asunto = f'Nuevo mensaje de {nombre}'
         cuerpo = f"""
         Nombre: {nombre}
         Email: {email}
-        
+
         Mensaje:
-        {mensaje_texto}
-        ---
-        Enviado desde Space Bowling
+        {mensaje}
+        -- Enviado desde Space Bowling
         """
+
         try:
-            send_mail(asunto, cuerpo, EMAIL_HOST_USER, [EMAIL_HOST_USER], fail_silently=False)
-            messages.success(request, '¡Mensaje enviado correctamente!')
+            send_mail(asunto, cuerpo, EMAIL_HOST_USER, [EMAIL_HOST_USER])
+            messages.success(request, "Mensaje enviado correctamente.")
         except Exception as e:
-            messages.error(request, f'Error al enviar el mensaje: {str(e)}')
+            messages.error(request, f"Error al enviar: {e}")
+
         return redirect('contacto')
 
-# -------------------------
-# Vista de Registro
-# -------------------------
+
+# ---------------------------------------------------------
+# Registro
+# ---------------------------------------------------------
+
 def registro(request):
-    """Permite crear un nuevo usuario desde un formulario"""
     if request.method == "POST":
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, f"Usuario {user.username} registrado correctamente")
+            messages.success(request, f"Usuario {user.username} registrado correctamente.")
             return render(request, "bowl/inicio_sesion1.html")
-        messages.error(request, "Hubo un error en el formulario")
+        messages.error(request, "Error en el formulario.")
     else:
         form = RegistroUsuarioForm()
+
     return render(request, "bowl/registro.html", {"form": form})
 
 
-class NuevoJugadorView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
-    template_name = "bowl/nuevo_jugador.html"
 
-    def get(self, request, partida_id):
-        form = AgregarJugadorForm()
-        return render(request, self.template_name, {"form": form})
+# ---------------------------------------------------------
+# Página de gestión de reserva activa
+# ---------------------------------------------------------
 
-    def post(self, request, partida_id):
-        form = AgregarJugadorForm(request.POST)
-        if form.is_valid():
-            nombre_jugador = form.cleaned_data['nombre_jugador']
-            jugador = Jugador.objects.create(nombre=nombre_jugador, partida = partida_id)
-            for set in range(1, 11):
-                PuntajeJugador.objects.create(jugador=jugador, partida_id=partida_id, puntaje=0, set=set)
-            
-            messages.success(request, f"Jugador {jugador.nombre} agregado correctamente.")
+class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
+    template_name = "bowl/gestion_reserva.html"
+    login_url = reverse_lazy('iniciar_sesion')
 
-            return redirect('lista_jugadores')
-        return render(request, self.template_name, {"form": form})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        context[pk] = pk
+        hoy = timezone.now().date()
+        ahora = timezone.now().time()
+
+        user = self.request.user
+        cliente = getattr(user, "cliente", None)
+        
+
+
+
+        reserva_activa = get_object_or_404(Reserva, pk=pk)
+
+        if not reserva_activa:
+            context['reserva_activa'] = None
+            return context
+
+        # Calculamos si ya puede entrar (15 min antes)
+        hora_inicio = (datetime.combine(hoy, reserva_activa.hora) - timedelta(hours=1)).time()
+        puede_entrar = ahora >= hora_inicio
+
+        # Pedido actual de la reserva (si existe)
+        pedido = getattr(reserva_activa, 'pedido', None)
+        print(reserva_activa)
+        context["reserva"] = reserva_activa
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        accion = request.POST.get('accion')
+        print("Accion recibida:", accion)
+        if accion == "cancelar":
+            return self.cancelar_reserva(request, pk=self.kwargs.get('pk'))
+        elif accion == "agregar_comida":
+            return self.agregar_comida_reserva(request)
+        
+        return redirect('reserva')
+
+    def cancelar_reserva(self, request, pk):
+        reserva_id = request.POST.get('reserva_id')
+        reserva = get_object_or_404(Reserva, id_reserva=pk)
+        print("Intentando cancelar reserva:", reserva)    
+        # Regla: solo se puede cancelar con más de 2 horas de antelación
+        fecha_hora_reserva = timezone.make_aware(
+            datetime.combine(reserva.fecha, reserva.hora)
+        )
+    
+
+
+        estado_disponible = Estado.objects.get(nombre="Disponible")
+        reserva.estado = estado_disponible
+        reserva.save()
+        print("Reserva cancelada:", reserva)
+        messages.success(request, "Reserva cancelada y pista liberada correctamente.")
+        
+        return redirect('reserva')  # va a la lista de reservas activas
+
+    def agregar_comida_reserva(self, request):
+        reserva_id = request.POST.get('reserva_id')
+        comida_id = request.POST.get('comida_id')
+        cantidad = int(request.POST.get('cantidad', 1))
+
+        reserva = get_object_or_404(Reserva, id=reserva_id, cliente=request.user.cliente)
+        comida = get_object_or_404(Comida, id=comida_id)
+
+        # Creamos o obtenemos el pedido de la reserva
+        pedido, _ = Pedido.objects.get_or_create(reserva=reserva)
+
+        # Añadimos la comida (puedes usar through model si tienes cantidad, aquí simplificado)
+        pedido.comidas.add(comida)  # Si tienes modelo Pedido tiene ManyToMany directo
+        # Si tienes un modelo intermedio con cantidad, cambia la lógica aquí
+
+        messages.success(request, f"{comida.nombre} ×{cantidad} añadido al pedido.")
+        return redirect('gestion_reserva')

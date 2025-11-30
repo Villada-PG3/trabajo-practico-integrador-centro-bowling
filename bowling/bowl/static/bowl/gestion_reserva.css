@@ -1,0 +1,50 @@
+/* static/css/gestion_reserva.css */
+
+.card-reserva {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-reserva .card-header {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.badge-pendiente   { background-color: #ffc107; color: #000; }
+.badge-confirmada  { background-color: #0d6efd; }
+.badge-en-curso    { background-color: #198754; }
+.badge-cancelada   { background-color: #dc3545; }
+
+.comida-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.comida-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+}
+
+.btn-comida {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.75rem;
+}
+
+.precio-comida {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #198754;
+}
+
+.total-pedido {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.no-reserva {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}

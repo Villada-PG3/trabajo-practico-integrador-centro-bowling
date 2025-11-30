@@ -1,0 +1,45 @@
+{% extends 'bowl/navbar.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/gestion_reserva.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Gestión de Reserva</h1>
+
+    {% if reserva %}
+        <p><strong>Pista:</strong> Pista {{ reserva.pista.numero }}</p>
+        <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
+        <p><strong>Hora:</strong> {{ reserva.hora }}</p>
+
+        <p><strong>Precio Total:</strong> ${{ reserva.precio_total }}</p>
+        <p><strong>Estado:</strong> {{ reserva.estado.nombre }}</p>
+
+        <h2>Acciones</h2>
+
+        <!-- Botón para cancelar reserva -->
+        <form method="post" action="">  <!-- action vacío = misma URL -->
+            {% csrf_token %}
+            <button type="submit" 
+                    name="accion" 
+                    value="cancelar" 
+                    class="btn-cancelar"
+                    onclick="return confirm('¿Seguro que querés cancelar la reserva?')">
+                Cancelar Reserva
+            </button>
+        </form>
+
+        <!-- Botón para empezar partida -->
+        {% if puede_entrar %}
+            <a href="{% url 'tablero_puntuaciones' pk %}" class="btn-empezar">Empezar Partida</a>
+        {% else %}
+            <p class="aviso">Podés ingresar 15 minutos antes de la hora reservada.</p>
+        {% endif %}
+
+    {% else %}
+        <p>No tienes reservas activas en este momento.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -49,6 +49,7 @@ la ruta correcta en el proyecto.
                     <td>Pista {{ reserva.pista.numero }}</td>
                     <td>${{ reserva.precio_total }}</td>
                     <td>{{ reserva.estado.nombre }}</td>
+                    <td><a href="{% url 'gestion_reserva' reserva.id_reserva %}" class = "btn-reservar">Gestionar Reserva</a></td>
                 </tr>
                 {% empty %}
                 <!-- Mensaje cuando no hay reservas -->
