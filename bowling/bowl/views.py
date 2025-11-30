@@ -19,8 +19,8 @@ from .models import (
     Comida, Partida, Jugador, PuntajeJugador
 )
 from .forms import (
-    PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
-    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm,
+    CrearPistaForm, EditarPistaForm,
+    ContactoForm, RegistroUsuarioForm, ReservaForm,
     PuntajeForm, JugadorForm
 )
 
@@ -61,26 +61,12 @@ class InicioView(ThemeMixin, UsuarioContext, TemplateView):
         context['estado_logueo'] = 0
         return context
 
-
-class GaleriaView(ThemeMixin, UsuarioContext, TemplateView):
-    template_name = "bowl/galeria.html"
-
-
-class ReglasView(ThemeMixin, UsuarioContext, TemplateView):
-    template_name = "bowl/reglas.html"
-
-
 class CafeView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/cafe.html"
 
 
 class LoginnView(ThemeMixin, UsuarioContext, LoginView):
     template_name = "bowl/inicio_sesion1.html"
-
-
-def nosotros(request):
-    return render(request, 'bowl/nosotros.html')
-
 
 def toggle_theme_mode(request):
     modo_actual = request.session.get('theme_mode', 'light')

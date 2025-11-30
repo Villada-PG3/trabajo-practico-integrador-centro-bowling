@@ -26,18 +26,6 @@ class PistaForm(forms.ModelForm):
             raise forms.ValidationError("El número de pista ya existe.")
         return id_pista
 
-# --------------------------- FORMULARIO CAFETERIA --------------------------
-class CafeteriaForm(forms.ModelForm):
-    class Meta:
-        model = Cafeteria
-        fields = ['id_cafeteria', 'nombre', 'horario_apertura', 'horario_cierre', 'capacidad_maxima', 'email', 'telefono']
-
-    def clean_numero(self):
-        id_pista = self.cleaned_data['id_pista']
-        if Pista.objects.filter(id_pista=id_pista).exists():
-            raise forms.ValidationError("El número de pista ya existe.")
-        return id_pista
-
 # ----------------------------- FORMULARIO RESERVA --------------------------
 class ReservaForm(forms.ModelForm):
     # Genera opciones de hora de 14:00 a 23:00
