@@ -33,6 +33,7 @@
 
         <!-- Botón para empezar partida -->
         {% if puede_entrar %}
+            
             <a href="{% url 'tablero_puntuaciones' pk %}" class="btn-empezar">Empezar Partida</a>
         {% else %}
             <p class="aviso">Podés ingresar 1 hora antes de la hora reservada.</p>

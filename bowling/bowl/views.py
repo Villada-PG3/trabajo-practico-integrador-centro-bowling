@@ -518,9 +518,10 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
         # Calculamos si ya puede entrar (15 min antes)
         hora_inicio = (datetime.combine(hoy, reserva_activa.hora) - timedelta(hours=1)).time()
         puede_entrar = ahora >= hora_inicio
-
+        puede_entrar = True
         # Pedido actual de la reserva (si existe)
         pedido = getattr(reserva_activa, 'pedido', None)
+        context['puede_entrar'] = puede_entrar
         print(reserva_activa)
         context["reserva"] = reserva_activa
 

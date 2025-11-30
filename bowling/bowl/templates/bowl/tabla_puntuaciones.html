@@ -1,278 +1,143 @@
 {% extends 'bowl/navbar.html' %}
 {% load static %}
 
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/tabla_puntuaciones.css' %}">
 <style>
-.puntaje-input {
-    width: 50px;
-    text-align: center;
-    border: 1px solid #ccc;
-    padding: 5px;
-    margin: 2px;
-}
-
-.puntaje-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0,123,255,0.5);
-}
-
-.btn-guardar {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 10px 5px;
-    font-size: 16px;
-}
-
-.btn-guardar:hover {
-    background-color: #218838;
-}
-
-.btn-agregar {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 10px 5px;
-    font-size: 16px;
-}
-
-.btn-agregar:hover {
-    background-color: #0056b3;
-}
-
-.tabla-container {
-    margin: 20px;
+/* --- estilos generales --- */
+.container {
+    background: #fff;
     padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 12px;
 }
+
+.btn {
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-size: 16px;
+}
+
+.btn-agregar { background: #007bff; color: #fff; }
+.btn-empezar { background: #28a745; color: #fff; }
+.btn-tiro { background: #6f42c1; color: #fff; }
 
 table {
     width: 100%;
+    margin-top: 20px;
     border-collapse: collapse;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
 }
 
 th, td {
-    padding: 12px;
+    padding: 10px;
+    border: 1px solid #ccc;
     text-align: center;
-    border: 1px solid #ddd;
 }
+th { background: #333; color: #fff; }
 
-th {
-    background-color: #343a40;
-    color: white;
+.frames-row td {
+    background: #f8f9fa;
     font-weight: bold;
-}
-
-.nombre-jugador {
-    font-weight: bold;
-    background-color: #e9ecef;
-}
-
-.total-jugador {
-    font-weight: bold;
-    background-color: #d4edda;
-    font-size: 16px;
-}
-
-.agregar-jugador-form {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-
-.agregar-jugador-form h3 {
-    margin-top: 0;
-    color: #343a40;
-}
-
-.form-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.jugador-input {
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-.jugador-input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0,123,255,0.5);
-}
-
-.messages {
-    margin: 20px 0;
-}
-
-.alert {
-    padding: 15px;
-    border-radius: 5px;
-    margin: 10px 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="tabla-container">
-    <h2>🎳 Tabla de Puntuaciones</h2>
-    
-    <!-- Mostrar mensajes -->
+<div class="container">
+    <h2>🎳 Partida: {{ partida.nombre }}</h2>
+
+    <!-- MENSAJES -->
     {% if messages %}
-    <div class="messages">
         {% for message in messages %}
-        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
-            {{ message }}
-        </div>
+            <p style="background:#d4edda; padding:10px; border-radius:5px;">
+                {{ message }}
+            </p>
         {% endfor %}
-    </div>
     {% endif %}
 
-    <!-- Formulario para agregar jugador -->
-    <div class="agregar-jugador-form">
-        <h3>➕ Agregar Nuevo Jugador</h3>
-        <form method="post" style="display: inline;">
-            {% csrf_token %}
-            <div class="form-group">
-                {{ jugador_form.nombre }}
-                <button type="submit" name="agregar_jugador" class="btn-agregar">
-                    ➕ Agregar Jugador
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Tabla de puntuaciones -->
+    <!-- AGREGAR JUGADORES SOLO SI ESTA PENDIENTE -->
+    {% if partida.estado == "pendiente" %}
+    <h3>➕ Agregar jugadores</h3>
     <form method="post">
         {% csrf_token %}
-        <table border="1" id="tabla-puntuaciones">
-            <thead>
-                <tr>
-                    <th>Jugador</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for jugador in jugadores_puntajes %}
-                <tr>
-                    <td class="nombre-jugador">{{ jugador.nombre }}</td>
-                    {% for puntaje_data in jugador.puntajes %}
-                    <td>
-                        <input 
-                            type="number" 
-                            name="puntaje-{{ puntaje_data.id_puntaje }}-puntaje" 
-                            value="{{ puntaje_data.valor }}" 
-                            class="puntaje-input" 
-                            min="0" 
-                            max="300"
-                        >
-                    </td>
-                    {% endfor %}
-                    <td class="total-jugador" id="total-{{ jugador.id }}">
-                        {{ jugador.total }}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="12" style="text-align: center; padding: 20px;">
-                        No hay jugadores registrados. ¡Agrega el primer jugador!
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        {% if jugadores_puntajes %}
-        <button type="submit" class="btn-guardar">
-            💾 Guardar Todos los Puntajes
-        </button>
-        {% endif %}
+        {{ jugador_form.nombre }}
+        <button type="submit" name="agregar_jugador" class="btn btn-agregar">Agregar</button>
     </form>
-</div>
 
-<script>
-// Cálculo automático de totales al cambiar puntajes
-document.addEventListener('DOMContentLoaded', function() {
-    const inputs = document.querySelectorAll('.puntaje-input');
-    
-    function calcularTotal(fila) {
-        let total = 0;
-        const inputsFila = fila.querySelectorAll('.puntaje-input');
-        
-        inputsFila.forEach(input => {
-            const valor = parseInt(input.value) || 0;
-            total += valor;
-        });
-        
-        return total;
-    }
-    
-    function actualizarTotal(fila) {
-        const total = calcularTotal(fila);
-        const jugadorId = fila.querySelector('.nombre-jugador').textContent;
-        const celdaTotal = fila.querySelector('.total-jugador');
-        if (celdaTotal) {
-            celdaTotal.textContent = total;
-            celdaTotal.style.backgroundColor = total > 0 ? '#d4edda' : '#f8d7da';
-        }
-    }
-    
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            const fila = this.closest('tr');
-            actualizarTotal(fila);
-        });
-    });
-    
-    // Efecto visual al cargar
-    const totals = document.querySelectorAll('.total-jugador');
-    totals.forEach(total => {
-        const valor = parseInt(total.textContent) || 0;
-        if (valor > 0) {
-            total.style.backgroundColor = '#d4edda';
-            total.style.transition = 'background-color 0.3s';
-        }
-    });
-});
-</script>
+    <h4>Jugadores actuales:</h4>
+    <ul>
+        {% for j in jugadores %}
+        <li>{{ j.nombre }}</li>
+        {% endfor %}
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="comenzar" class="btn btn-empezar">
+            ▶ Comenzar partida
+        </button>
+    </form>
+    {% endif %}
+
+    <!-- PANEL DE TIROS -->
+    {% if partida.estado == "jugando" %}
+    <h3>🎯 Registrar tiro</h3>
+    <form method="post">
+        {% csrf_token %}
+        <label>Jugador:</label>
+        <select name="jugador_id">
+            {% for j in jugadores %}
+            <option value="{{ j.id }}">{{ j.nombre }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Tiro 1:</label>
+        <input type="number" name="tiro1" min="0" max="10">
+
+        <label>Tiro 2:</label>
+        <input type="number" name="tiro2" min="0" max="10">
+
+        <button type="submit" name="registrar_tiro" class="btn btn-tiro">Registrar</button>
+    </form>
+    {% endif %}
+
+    <!-- TABLA COMPLETA DE BOWLING -->
+    <table>
+        <thead>
+            <tr>
+                <th>Jugador</th>
+                {% for i in 1|to:10 %}
+                <th>Frame {{ i }}</th>
+                {% endfor %}
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jugador in jugadores %}
+            <tr>
+                <td>{{ jugador.nombre }}</td>
+
+                {% for frame in jugador.frames_list %}
+                <td>
+                    {% if frame.tiro1 == 10 %}
+                        X
+                    {% elif frame.tiro1 + frame.tiro2 == 10 %}
+                        {{ frame.tiro1 }} /
+                    {% else %}
+                        {{ frame.tiro1 }} - {{ frame.tiro2 }}
+                    {% endif %}
+                    <br>
+                    <small>{{ frame.acumulado }}</small>
+                </td>
+                {% endfor %}
+
+                <td><strong>{{ jugador.total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
 {% endblock %}
