@@ -2,252 +2,31 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bowl/reservas.css' %}">  <!-- Puedes crear este archivo o usar el estilo inline abajo -->
-<style>
-    :root {
-        --primary: #2ecc71;
-        --danger: #e74c3c;
-        --warning: #f39c12;
-        --dark: #2c3e50;
-        --gray: #95a5a6;
-        --light: #f8f9fa;
-    }
-
-    .page-title {
-        text-align: center;
-        padding: 40px 20px 20px;
-        color: var(--dark);
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-
-    .page-subtitle {
-        text-align: center;
-        color: var(--gray);
-        margin-bottom: 30px;
-        font-size: 1.1rem;
-    }
-
-    .reservas-container {
-        max-width: 1100px;
-        margin: 0 auto 60px;
-        padding: 0 20px;
-    }
-
-    .reservas-grid {
-        display: grid;
-        gap: 24px;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    }
-
-    .reserva-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-
-    .reserva-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, var(--dark), #34495e);
-        color: white;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .fecha {
-        font-size: 1.3rem;
-        font-weight: 600;
-    }
-
-    .estado {
-        padding: 6px 14px;
-        border-radius: 30px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-
-    .estado.pendiente { background: #fff3cd; color: #856404; }
-    .estado.en_curso { background: var(--primary); color: white; }
-    .estado.finalizada, .estado.cancelada { background: #6c757d; color: white; }
-
-    .card-body {
-        padding: 24px;
-    }
-
-    .pista-info {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .pista-numero {
-        background: var(--primary);
-        color: white;
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        font-weight: bold;
-    }
-
-    .acciones {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .btn {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.95rem;
-        text-decoration: none;
-    }
-
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-warning { background: var(--warning); color: white; }
-
-    .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-    .empty-state {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 80px 20px;
-        color: var(--gray);
-    }
-
-    .empty-state i {
-        font-size: 5rem;
-        opacity: 0.2;
-        margin-bottom: 20px;
-    }
-
-    .messages {
-        max-width: 1100px;
-        margin: 20px auto;
-        text-align: center;
-    }
-
-    .messages div {
-        padding: 14px;
-        border-radius: 12px;
-        margin: 8px 20px;
-        display: inline-block;
-        font-weight: 600;
-    }
-
-    .messages .success { background: #d4edda; color: #155724; }
-    .messages .error   { background: #f8d7da; color: #721c24; }
-    .messages .info    { background: #d1ecf1; color: #0c5460; }
-
-    @media (max-width: 768px) {
-        .card-header { flex-direction: column; text-align: center; gap: 10px; }
-        .acciones { justify-content: center; }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'bowl/login.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="page-title">Mis Reservas</div>
-<p class="page-subtitle">Gestiona tus partidos, inicia la pista o pide algo rico mientras juegas</p>
+    <div class = "container">
+    <div class="login-container">
+        <h2>Inicia sesión</h2>
 
-<div class="reservas-container">
-    <!-- Mensajes flash -->
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            
+            <input type="text" name="username" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
 
-    <div class="reservas-grid">
-        {% if reservas %}
-            {% for reserva in reservas %}
-            <div class="reserva-card">
-                <div class="card-header">
-                    <div class="fecha">
-                        {{ reserva.fecha|date:"d/m/Y" }} — {{ reserva.hora_inicio|time:"H:i" }}
-                    </div>
-                    <span class="estado {{ reserva.estado }}">{{ reserva.get_estado_display }}</span>
-                </div>
+            <button type="submit">Entrar</button>
+        </form>
 
-                <div class="card-body">
-                    <div class="pista-info">
-                        <div class="pista-numero">{{ reserva.pista.numero }}</div>
-                        <div>
-                            <strong>Pista {{ reserva.pista.numero }}</strong><br>
-                            <small>
-                                {{ reserva.pista.get_tipo_superficie_display }} • 
-                                {{ reserva.pista.cubierta|yesno:"Cubierta,Descubierta" }}
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="acciones">
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
-                            <input type="hidden" name="accion" value="empezar">
-                            <button type="submit" class="btn btn-primary"
-                                    {% if reserva.estado != 'pendiente' %}disabled{% endif %}>
-                                Empezar Partida
-                            </button>
-                        </form>
-
-                        <form method="POST" style="display:inline;"
-                              onsubmit="return confirm('¿Cancelar esta reserva? No se puede deshacer.');">
-                            {% csrf_token %}
-                            <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
-                            <input type="hidden" name="accion" value="cancelar">
-                            <button type="submit" class="btn btn-danger"
-                                    {% if not reserva.puede_cancelarse or reserva.estado != 'pendiente' %}disabled{% endif %}>
-                                Cancelar
-                            </button>
-                        </form>
-
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
-                            <input type="hidden" name="accion" value="pedir_comida">
-                            <button type="submit" class="btn btn-warning">
-                                Pedir Comida
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <h2>No tienes reservas activas</h2>
-                <p>Cuando reserves una pista, aparecerá aquí</p>
-                <a href="{% url 'reservar_pista' %}" class="btn btn-primary" style="margin-top:20px; padding:15px 40px; font-size:1.1rem;">
-                    Reservar Pista
-                </a>
-            </div>
+        {% if form.errors %}
+            <p class="error">Usuario o contraseña incorrectos</p>
         {% endif %}
+
+        <p class="register-link">
+            ¿No tienes cuenta? 
+            <a href="{% url 'inicio' %}">Regístrate</a>
+        </p>
     </div>
-</div>
+    </div>
 {% endblock content %}

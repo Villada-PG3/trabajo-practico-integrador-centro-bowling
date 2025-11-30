@@ -1,72 +1,126 @@
-{% extends 'bowl/navbar.html' %}
+{% extends "bowl/navbar.html" %}
 {% load static %}
 
-{% block title %}Nueva Reserva - Calendario{% endblock %}
+{% block title %}Nueva Reserva - Space Bowling{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Reservar Pista de Bowling</h2>
 
-    <!-- Calendario simple (puedes usar flatpickr o un widget más bonito) -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <label>Selecciona un día:</label>
-            <input type="date" id="selector-fecha" class="form-control" value="{{ fecha_seleccionada|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
-        </div>
-    </div>
+<div class="container my-5">
+    <h2 class="text-center mb-5 fw-bold">Reservar Pista de Bowling</h2>
 
-    <h4>Horarios disponibles el <strong>{{ fecha_seleccionada|date:"d/m/Y" }}</strong></h4>
+    <div class="row g-4">
+        <!-- Calendario -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Selecciona el día</h5>
+                    
+                    <form method="get" class="mb-3">
+                        <input type="date" 
+                               name="fecha" 
+                               value="{{ fecha_seleccionada|date:'Y-m-d' }}" 
+                               min="{{ today|date:'Y-m-d' }}"
+                               class="form-control form-control-lg text-center"
+                               onchange="this.form.submit()">
+                    </form>
 
-    <div class="row">
-        {% for disp in disponibilidad %}
-            <div class="col-md-4 mb-3">
-                <div class="card {% if not disp.disponible %}bg-danger text-white{% else %}bg-success text-white{% endif %}">
-                    <div class="card-body text-center">
-                        <h5>{{ disp.hora }}</h5>
-                        {% if disp.disponible %}
-                            <p class="mb-2">{{ disp.pistas|length }} pista{{ disp.pistas|length|pluralize }} disponible{{ disp.pistas|length|pluralize }}</p>
-                            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalReserva"
-                                    data-hora="{{ disp.hora }}" data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}">
-                                Reservar
-                            </button>
-                        {% else %}
-                            <p class="mb-0">No hay pistas disponibles</p>
-                        {% endif %}
+                    <div class="alert alert-info small p-2 text-center">
+                        Horario disponible: <strong>14:00 - 23:00 hs</strong><br>
+                        Reservas cada hora en punto
                     </div>
                 </div>
             </div>
-        {% empty %}
-            <p>No hay horarios disponibles para esta fecha.</p>
-        {% endfor %}
+        </div>
+
+        <!-- Horarios del día seleccionado -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        {{ fecha_seleccionada|date:"l d" }} de {{ fecha_seleccionada|date:"F Y" }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if horarios_disponibilidad %}
+                        <div class="row g-3">
+                            {% for slot in horarios_disponibilidad %}
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="text-center p-3 rounded-3 border
+                                        {% if slot.disponible %}border-success bg-success bg-opacity-10{% else %}border-danger bg-danger bg-opacity-10{% endif %}">
+                                        
+                                        <h5 class="mb-2 fw-bold {% if slot.disponible %} text-success {% else %} text-danger  {% endif %}">
+                                            {{ slot.hora }}
+                                        </h5>
+
+                                        <p class="mb-2 small">
+                                            {% if slot.disponible %}
+                                                <strong>{{ slot.cantidad }}</strong> pista{{ slot.cantidad|pluralize }} disponible{{ slot.cantidad|pluralize }}
+                                            {% else %}
+                                                <strong>Completo</strong>
+                                            {% endif %}
+                                        </p>
+
+                                        {% if slot.disponible %}
+                                            <!-- usamos slot.pistas_json (string JSON) -->
+                                            <button type="button"
+                                                    class="btn btn-success btn-sm w-100 mt-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalReserva"
+                                                    data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
+                                                    data-hora="{{ slot.hora }}"
+                                                    data-pistas='{{ slot.pistas_json|safe }}'>
+                                                Reservar
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-outline-secondary btn-sm w-100 mt-2" disabled>
+                                                No disponible
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning text-center">
+                            No hay horarios disponibles para este día.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal para elegir pista -->
-<div class="modal fade" id="modalReserva" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="modalReserva" tabindex="-1" aria-labelledby="modalReservaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form method="post">
                 {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Reserva</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalReservaLabel">Confirmar Reserva</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="fecha" id="modal-fecha">
-                    <input type="hidden" name="hora" id="modal-hora">
+                    <div class="text-center mb-4">
+                        <h4 id="modal-fecha" class="text-primary"></h4>
+                        <h3 id="modal-hora" class="fw-bold"></h3>
+                    </div>
 
-                    <p>Fecha: <strong id="texto-fecha"></strong></p>
-                    <p>Hora: <strong id="texto-hora"></strong></p>
+                    <div class="mb-3">
+                        <label for="id_pista" class="form-label fw-bold">Elige tu pista:</label>
+                        <select name="pista" id="id_pista" class="form-select form-select-lg" required>
+                            <option value="">-- Selecciona una pista disponible --</option>
+                        </select>
+                    </div>
 
-                    <label>Elegir pista:</label>
-                    <select name="pista" class="form-select" required>
-                        <option value="">-- Selecciona una pista --</option>
-                        <!-- Se llenará con JS -->
-                    </select>
+                    <!-- Campos ocultos -->
+                    <input type="hidden" name="fecha" id="id_fecha">
+                    <input type="hidden" name="hora" id="id_hora">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                    <button type="submit" class="btn btn-primary btn-lg px-5">Confirmar Reserva</button>
                 </div>
             </form>
         </div>
@@ -74,33 +128,51 @@
 </div>
 
 <script>
-document.getElementById('selector-fecha').addEventListener('change', function() {
-    window.location = '?fecha=' + this.value;
-});
+// Cuando se abre el modal, llenamos los datos
+document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const fecha = this.getAttribute('data-fecha');
+        const hora = this.getAttribute('data-hora');
+        const pistasJsonRaw = this.getAttribute('data-pistas');
 
-const modal = document.getElementById('modalReserva');
-modal.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget;
-    const hora = button.getAttribute('data-hora');
-    const fecha = button.getAttribute('data-fecha');
+        // Fecha bonita
+        const fechaObj = new Date(fecha + 'T12:00'); // truco para zona horaria
+        document.getElementById('modal-fecha').textContent = fechaObj.toLocaleDateString('es-ES', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        }).replace(/^\w/, c => c.toUpperCase());
 
-    document.getElementById('modal-fecha').value = fecha;
-    document.getElementById('modal-hora').value = hora;
-    document.getElementById('texto-fecha').textContent = new Date(fecha).toLocaleDateString('es-ES');
-    document.getElementById('texto-hora').textContent = hora;
+        // Hora
+        document.getElementById('modal-hora').textContent = hora;
 
-    // Limpiar opciones anteriores
-    const select = modal.querySelector('select[name="pista"]');
-    select.innerHTML = '<option value="">-- Selecciona una pista --</option>';
+        // Campos ocultos
+        document.getElementById('id_fecha').value = fecha;
+        document.getElementById('id_hora').value = hora;
 
-    // Llenar pistas disponibles (puedes pasarlas como JSON desde el contexto)
-    const pistasDisponibles = {{ pistas_json|safe }};
-    const horaSeleccionada = hora;
+        // Limpiar y cargar pistas disponibles
+        const select = document.getElementById('id_pista');
+        select.innerHTML = '<option value="">-- Selecciona una pista disponible --</option>';
 
-    // Filtrar por hora (opcional si ya vienes filtrado)
-    pistasDisponibles.forEach(p => {
-        select.innerHTML += `<option value="${p.id}">${p.numero} - ${p.tipo} ({{ p.precio }} CLP)</option>`;
+        let pistas = [];
+        try {
+            // pistasJsonRaw ya es una cadena JSON bien formada (ver view)
+            pistas = JSON.parse(pistasJsonRaw);
+        } catch (e) {
+            console.error("Error parseando JSON de pistas", e);
+            select.innerHTML += '<option value="">Error cargando pistas</option>';
+            return;
+        }
+
+        pistas.forEach(pista => {
+            const opt = document.createElement('option');
+            opt.value = pista.pk;  // pk de la pista
+            // mostramos número + tipo + precio (si llegaron desde el servidor)
+            const tipoLabel = pista.tipo || 'Tipo desconocido';
+            const precioLabel = pista.precio !== undefined ? `($${pista.precio})` : '';
+            opt.textContent = `Pista ${pista.numero} — ${tipoLabel} ${precioLabel}`;
+            select.appendChild(opt);
+        });
     });
 });
 </script>
+
 {% endblock %}
