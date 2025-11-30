@@ -3,9 +3,9 @@ from django import views
 from django.contrib import admin
 from django.urls import path,include
 from bowl.views import (
-    InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView, ListaComidaView, 
-    CrearCafeteriaView, EditarCafeteriaView,LoginnView,ContactoView, AsignarAdminView, CrearComidaView, 
-    registro, nosotros, GaleriaView, ReglasView, ReservaCreateView, TableroPuntuacionesView, GestionReservaView
+    InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView,
+    LoginnView, ContactoView, AsignarAdminView, registro, ReservaCreateView, 
+    TableroPuntuacionesView, GestionReservaView
 )
 from django.contrib.auth.views import LogoutView
 

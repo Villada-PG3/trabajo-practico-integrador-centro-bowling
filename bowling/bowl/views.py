@@ -258,33 +258,6 @@ class ListaComidaView(UsuarioContext, View):
         comidas = Comida.objects.all()
         return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
-
-class CrearComidaView(UsuarioContext, View):
-    def get(self, request):
-        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": MenuForm()})
-
-    def post(self, request):
-        form = MenuForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_comida")
-        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
-
-
-class CrearCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
-    model = Cafeteria
-    form_class = CafeteriaForm
-    template_name = "bowl/cositas_admin/crear_comida.html"
-    success_url = reverse_lazy('lista_comida')
-
-
-class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView):
-    model = Cafeteria
-    form_class = CafeteriaForm
-    template_name = "bowl/cositas_admin/editar_comida.html"
-    success_url = reverse_lazy('lista_comida')
-
-
 # ---------------------------------------------------------
 # Tablero de puntuaciones
 # ---------------------------------------------------------
