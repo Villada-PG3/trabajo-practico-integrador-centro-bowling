@@ -19,8 +19,8 @@ from .models import (
     Comida, Partida, Jugador, PuntajeJugador
 )
 from .forms import (
-    PistaForm, CafeteriaForm, CrearPistaForm, EditarPistaForm,
-    ContactoForm, MenuForm, RegistroUsuarioForm, ReservaForm,
+    CrearPistaForm, EditarPistaForm,
+    ContactoForm, RegistroUsuarioForm, ReservaForm,
     PuntajeForm, JugadorForm
 )
 
@@ -61,26 +61,12 @@ class InicioView(ThemeMixin, UsuarioContext, TemplateView):
         context['estado_logueo'] = 0
         return context
 
-
-class GaleriaView(ThemeMixin, UsuarioContext, TemplateView):
-    template_name = "bowl/galeria.html"
-
-
-class ReglasView(ThemeMixin, UsuarioContext, TemplateView):
-    template_name = "bowl/reglas.html"
-
-
 class CafeView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/cafe.html"
 
 
 class LoginnView(ThemeMixin, UsuarioContext, LoginView):
     template_name = "bowl/inicio_sesion1.html"
-
-
-def nosotros(request):
-    return render(request, 'bowl/nosotros.html')
-
 
 def toggle_theme_mode(request):
     modo_actual = request.session.get('theme_mode', 'light')
@@ -277,33 +263,6 @@ class ListaComidaView(UsuarioContext, View):
     def get(self, request):
         comidas = Comida.objects.all()
         return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
-
-
-class CrearComidaView(UsuarioContext, View):
-    def get(self, request):
-        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": MenuForm()})
-
-    def post(self, request):
-        form = MenuForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("lista_comida")
-        return render(request, "bowl/cositas_admin/crear_comida.html", {"form": form})
-
-
-class CrearCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
-    model = Cafeteria
-    form_class = CafeteriaForm
-    template_name = "bowl/cositas_admin/crear_comida.html"
-    success_url = reverse_lazy('lista_comida')
-
-
-class EditarCafeteriaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView):
-    model = Cafeteria
-    form_class = CafeteriaForm
-    template_name = "bowl/cositas_admin/editar_comida.html"
-    success_url = reverse_lazy('lista_comida')
-
 
 # ---------------------------------------------------------
 # Tablero de puntuaciones
