@@ -12,6 +12,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime, time, timedelta
 from django.core.serializers import serialize
+from django.db.models import Sum
+from django.db import models    
 import json
 
 from .models import (
@@ -260,6 +262,7 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
 
 
 
+
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     template_name = "bowl/tabla_puntuaciones.html"
 
@@ -273,11 +276,10 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
             defaults={'cliente': self.request.user.cliente, 'pista': reserva.pista}
         )
 
-        # Estado partida
         clave = f'partida_iniciada_{partida.id_partida}'
         partida_iniciada = self.request.session.get(clave, False)
 
-        # Jugadores ordenados siempre igual
+        # === JUGADORES Y PUNTAJES ===
         jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
         jugadores_puntajes = []
 
@@ -295,7 +297,10 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
                     'puntaje': p.puntaje,
                     'es_actual': False
                 })
-            total = sum(item['puntaje'] for item in puntajes)
+            
+            # Cálculo del total (Aviso: Si no tienes lógica de spares/strikes compleja, esto solo suma los tiros)
+            total = sum(item['puntaje'] for item in puntajes) 
+            
             jugadores_puntajes.append({
                 'id': jugador.id_jugador,
                 'nombre': jugador.nombre,
@@ -304,41 +309,53 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
                 'es_turno_actual': False,
             })
 
-        # === LÓGICA DE TURNO (COMO EN BOLERA REAL) ===
-        frame_actual = 1
+        # === LÓGICA DE TURNO REVISADA (Busca el primer tiro con 0) ===
         jugador_actual = None
+        frame_actual = 1
+        partida_terminada = False
 
-        # Encontrar el frame más bajo con al menos un 0
-        for f in range(1, 11):
-            if any(j['puntajes'][f-1]['puntaje'] == 0 for j in jugadores_puntajes):
-                frame_actual = f
-                break
+        # 1. Encontrar el *siguiente* tiro que necesita ser registrado (el primer PuntajeJugador con puntaje=0)
+        siguiente_turno_db = PuntajeJugador.objects.filter(
+            partida=partida, 
+            puntaje=0
+        ).order_by('set', 'jugador__id_jugador').first()
+        
+        if siguiente_turno_db:
+            # 2. Si existe un tiro pendiente, usar sus datos para actualizar el contexto
+            frame_actual = siguiente_turno_db.set
+            
+            # 3. Marcar el jugador y el frame actual en la lista de contexto
+            for j in jugadores_puntajes:
+                if j['id'] == siguiente_turno_db.jugador.id_jugador:
+                    jugador_actual = j
+                    j['es_turno_actual'] = True
+                    
+                    # Buscar el frame específico en la lista de puntajes del jugador
+                    for p in j['puntajes']:
+                        if p['frame'] == frame_actual:
+                            p['es_actual'] = True
+                            break
+                    break
         else:
-            frame_actual = 10  # todos terminaron
+            # 4. Si no quedan tiros pendientes, el juego ha terminado
+            partida_terminada = True
+            frame_actual = 10 
+            
+            # Nos aseguramos de que el ganador se calcule SOLO si la partida ya terminó
+            ganador = None
+            if jugadores_puntajes and partida_iniciada:
+                ganador = max(jugadores_puntajes, key=lambda x: x['total'])
+        
+        # El resto de la lógica de partida terminada queda manejada aquí y en el POST.
+        ganador = max(jugadores_puntajes, key=lambda x: x['total']) if partida_terminada and jugadores_puntajes else None
 
-        # En ese frame, el primer jugador que tenga 0
-        for j in jugadores_puntajes:
-            if j['puntajes'][frame_actual-1]['puntaje'] == 0:
-                jugador_actual = j
-                j['es_turno_actual'] = True
-                j['puntajes'][frame_actual-1]['es_actual'] = True
-                break
-
-        # === PARTIDA TERMINADA? ===
-        partida_terminada = all(
-            all(p['puntaje'] > 0 for p in j['puntajes'])
-            for j in jugadores_puntajes
-        )
-
-        ganador = None
-        if partida_terminada and jugadores_puntajes:
-            ganador = max(jugadores_puntajes, key=lambda x: x['total'])
 
         context.update({
+            'reserva': reserva,
             'jugadores_puntajes': jugadores_puntajes,
             'partida_iniciada': partida_iniciada,
             'frame_actual': frame_actual,
-            'jugador_actual': jugador_actual or {'nombre': 'Partida terminada'},
+            'jugador_actual': jugador_actual or {'nombre': '—'},
             'partida_terminada': partida_terminada,
             'ganador': ganador,
             'reserva_pk': pk,
@@ -359,7 +376,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk')
         partida = Partida.objects.get(reserva__pk=pk)
         request.session[f'partida_iniciada_{partida.id_partida}'] = True
-        messages.success(request, "PARTIDA INICIADA – Frame 1")
+        messages.success(request, "PARTIDA INICIADA – ¡A tirar bolos!")
         return redirect('tablero_puntuaciones', pk=pk)
 
     def agregar_jugador(self, request):
@@ -368,7 +385,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         partida = Partida.objects.get(reserva=reserva)
 
         if request.session.get(f'partida_iniciada_{partida.id_partida}', False):
-            messages.error(request, "Ya empezó la partida")
+            messages.error(request, "No se pueden agregar jugadores una vez empezada la partida")
             return redirect('tablero_puntuaciones', pk=pk)
 
         form = JugadorForm(request.POST)
@@ -386,32 +403,49 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         reserva = get_object_or_404(Reserva, pk=pk)
         partida = Partida.objects.get(reserva=reserva)
 
-        puntaje = int(request.POST.get('puntaje_turno', 0) or 0)
-        puntaje = max(0, min(300, puntaje))
+        # Usamos .get() en lugar de .get('puntaje_turno', 0) or 0, para asegurar que el 0 pase.
+        try:
+            puntaje = int(request.POST.get('puntaje_turno', 0)) 
+        except ValueError:
+            puntaje = 0
+            
+        puntaje = max(0, min(10, puntaje)) # Máximo 10 pinos por tiro (Simplificación)
 
-        # Frame más bajo con hueco
-        frame_actual = None
-        for f in range(1, 11):
-            if PuntajeJugador.objects.filter(partida=partida, set=f, puntaje=0).exists():
-                frame_actual = f
-                break
-
-        if not frame_actual:
-            messages.success(request, "¡PARTIDA TERMINADA!")
-            return redirect('tablero_puntuaciones', pk=pk)
-
-        # Primer jugador de ese frame con 0
+        # Encontrar el TURNO ACTUAL pendiente
         turno = PuntajeJugador.objects.filter(
             partida=partida,
-            set=frame_actual,
             puntaje=0
-        ).order_by('jugador__id_jugador').first()
+        ).order_by('set', 'jugador__id_jugador').first()
 
+        # Si hay turno → guardar tiro
         if turno:
             turno.puntaje = puntaje
             turno.save()
-            messages.success(request, f"Frame {frame_actual} → {turno.jugador.nombre}: {puntaje} puntos")
+            messages.success(request, f"Frame {turno.set} → {turno.jugador.nombre}: {puntaje} puntos")
+
+        # AHORA: comprobar si ya no quedan tiros (Partida Terminada)
+        quedan_tiros = PuntajeJugador.objects.filter(partida=partida, puntaje=0).exists()
+
+        if not quedan_tiros:
+            # PARTIDA TERMINADA
+            try:
+                # Nota: Asegúrate de que 'Estado' y 'Completada' existan en tus models
+                estado_completada = Estado.objects.get(nombre="Completada") 
+            except Estado.DoesNotExist:
+                messages.error(request, "Error: No existe el estado 'Completada'")
+                return redirect('tablero_puntuaciones', pk=pk)
+
+            reserva.estado = estado_completada
+            reserva.fecha_completada = timezone.now()
+            reserva.save()
+
+            # El cálculo del ganador se hace en el GET, pero repetimos el mensaje de éxito
+            # para que aparezca al momento de finalizar el último tiro.
+            messages.success(request, f"¡PARTIDA TERMINADA!")
+
         return redirect('tablero_puntuaciones', pk=pk)
+
+
 
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
     template_name = "bowl/cositas_admin/asignar_admin.html"
