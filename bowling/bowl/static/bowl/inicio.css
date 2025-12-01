@@ -1,30 +1,25 @@
+:root {
+    --body-color: #f8f8f8;
+    --navbar-color: #FFFFFF;
+    --primary-color: #000000;
+    --text-color: #000000;
+    --tran-05: all 0.5s ease;
+}
 
+/* Fondo estrellado solo para Inicio */
+.home {
+    background: transparent !important;
+    min-height: calc(100vh - 60px);
+}
 body {
     background:
         linear-gradient(rgba(46,46,46,0.75), rgba(0,0,0,0.4)),
         url("/static/bowl/imagenes/espaciooo.png") repeat-x;
-    background-size: auto 100%;
+    background-size: auto 110%;
     background-attachment: fixed;
     background-color: transparent;
 }
 
-/* Elimina fondos globales molestos */
-.container, .container-fluid {
-    background: transparent !important;
-}
-
-.hero-section,
-.features-grid,
-.feature-item {
-    background: transparent !important;
-}
-:root {
-    --body-color: #f8f8f8;           /* Gris claro de cafetería */
-    --navbar-color: #FFFFFF;         /* Blanco puro */
-    --primary-color: #000000;        /* Negro principal de cafetería */
-    --text-color: #000000;           /* Negro para texto */
-    --tran-05: all 0.5s ease;
-}
 body.dark {
     --body-color: #0a0a0a;           /* Negro puro dark */
     --navbar-color: #1a1a1a;         /* Gris oscuro de cafetería */
@@ -38,8 +33,8 @@ body.dark {
     align-items: center;
     text-align: center;
     padding: 80px 20px;
-    background-color: var(--navbar-color);
-    box-shadow: 0 3px 15px rgba(0,0,0,0.15); /* Shadow consistente con reserva */
+    background: transparent;          /* Deja ver el fondo estrellado */
+    box-shadow: none;
     margin-bottom: 30px;
     transition: var(--tran-05);
     border-radius: 10px;              /* Bordes redondeados como reserva */
@@ -95,13 +90,13 @@ body.dark {
 }
 
 .feature-item {
-    background-color: var(--navbar-color);
+    background: rgba(255, 255, 255, 0.25); /* Mucho más transparente para mostrar el cielo */
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Shadow consistente */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     padding: 40px;
     width: 100%;
     transition: var(--tran-05);       /* Transición suave como reserva */
-    border-left: 5px solid var(--primary-color); /* Acento izquierdo como reserva */
+    border-left: 5px solid rgba(255, 255, 255, 0.6);
 }
 
 .feature-item:hover {
