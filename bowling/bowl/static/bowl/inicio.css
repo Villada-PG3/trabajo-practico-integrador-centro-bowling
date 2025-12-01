@@ -1,3 +1,23 @@
+
+body {
+    background:
+        linear-gradient(rgba(46,46,46,0.75), rgba(0,0,0,0.4)),
+        url("/static/bowl/imagenes/espaciooo.png") repeat-x;
+    background-size: auto 100%;
+    background-attachment: fixed;
+    background-color: transparent;
+}
+
+/* Elimina fondos globales molestos */
+.container, .container-fluid {
+    background: transparent !important;
+}
+
+.hero-section,
+.features-grid,
+.feature-item {
+    background: transparent !important;
+}
 :root {
     --body-color: #f8f8f8;           /* Gris claro de cafetería */
     --navbar-color: #FFFFFF;         /* Blanco puro */
@@ -5,7 +25,6 @@
     --text-color: #000000;           /* Negro para texto */
     --tran-05: all 0.5s ease;
 }
-
 body.dark {
     --body-color: #0a0a0a;           /* Negro puro dark */
     --navbar-color: #1a1a1a;         /* Gris oscuro de cafetería */

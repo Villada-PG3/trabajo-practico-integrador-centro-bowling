@@ -6,8 +6,9 @@
 {% endblock %}
 
 {% block content %}
-<main class="contact-page">
-    <!-- Mensajes de éxito/error -->
+
+<main class="contact-page transparent-zone">
+
     {% if messages %}
         <div class="messages-container">
             {% for message in messages %}
@@ -18,7 +19,6 @@
         </div>
     {% endif %}
 
-    <!-- HEADER INFORMACIÓN -->
     <div class="contact-header">
         <h1>Contacto</h1>
         <div class="header-info">
@@ -38,7 +38,6 @@
     </div>
 
     <div class="content-grid">
-        <!-- COLUMNA IZQUIERDA - FORMULARIO -->
         <div class="left-column">
             <div class="form-card">
                 <h2>Quejas o Sugerencias</h2>
@@ -46,12 +45,12 @@
 
                 <form method="post" class="contact-form">
                     {% csrf_token %}
-                    
+
                     <div class="form-group">
                         <label for="nombre">Nombre</label>
                         <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="email">Correo electrónico</label>
                         <input type="email" id="email" name="email" placeholder="Tu correo" required>
@@ -67,7 +66,6 @@
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA - INFORMACIÓN -->
         <div class="right-column">
             <div class="info-card">
                 <h2>Sobre Nosotros</h2>
@@ -77,20 +75,23 @@
                         Desde nuestra apertura en 2020, hemos crecido junto a nuestra comunidad ofreciendo las mejores pistas de bowling,
                         un ambiente acogedor, cafetería con productos artesanales y eventos especiales durante todo el año.
                     </p>
-                    
+
                     <div class="location-section">
                         <h3>📍 Ubicación</h3>
                         <p>Av. Siempreviva 742, Springfield</p>
-                        <div class="map-container">
-                            <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.019789446256!2d-122.41941548468138!3d37.77492927975909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDQ2JzI5LjgiTiAxMjLCsDI1JzA3LjkiVw!5e0!3m2!1ses!2sar!4v1679949489982!5m2!1ses!2sar" 
+
+                        <div class="map-container map-wrapper">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.019789446256!2d-122.41941548468138!3d37.77492927975909!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDQ2JzI5LjgiTiAxMjLCsDI1JzA3LjkiVw!5e0!3m2!1ses!2sar!4v1679949489982!5m2!1ses!2sar"
                                 width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy">
                             </iframe>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
 {% endblock %}
