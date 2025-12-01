@@ -1,24 +1,40 @@
-/* RESET Y ESTILOS BASE */
+/* ========== FONDO (aplicado al body para esta vista) ========== */
+.home {
+    background: transparent !important;
+}
+body {
+    background:
+        linear-gradient(rgba(46,46,46,0.75), rgba(0,0,0,0.4)),
+        url("/static/bowl/imagenes/espaciooo.png") repeat-x;
+    background-size: auto 100%;
+    background-attachment: fixed;
+    background-color: transparent;
+}
+
+/* 🔥 Elimina el fondo negro de Bootstrap */
+.container, .container-fluid {
+    background: transparent !important;
+}
+
+/* ===== RESET Y ESTILOS BASE ===== */
+
 .contact-page {
-    background-color: #f8f8f8;           /* Gris claro de cafetería */
-    min-height: 100vh;
-    padding: 30px 40px;
-    font-family: 'Poppins', sans-serif;
-    color: #000000;                      /* Negro puro */
+    background-color: transparent !important;
+    backdrop-filter: none;
 }
 
 /* HEADER */
 .contact-header {
-    background: #ffffff;                 /* Blanco puro */
+    background: transparent;
     padding: 25px 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15); /* Shadow más pronunciado */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     margin-bottom: 30px;
-    border-left: 4px solid #000000;      /* Negro en lugar de azul */
+    border-left: 4px solid #000000;
 }
 
 .contact-header h1 {
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     margin-bottom: 20px;
     font-size: 2rem;
     font-weight: 600;
@@ -34,12 +50,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #666666;                      /* Gris medio */
+    color: #666666;
     font-size: 1rem;
 }
 
 .info-item i {
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     font-size: 1.2rem;
 }
 
@@ -53,23 +69,23 @@
 
 /* TARJETAS */
 .form-card, .info-card {
-    background: #ffffff;                 /* Blanco puro */
+    background: #ffffff;
     border-radius: 10px;
     padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15); /* Shadow más pronunciado */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     height: fit-content;
 }
 
 /* FORMULARIO */
 .form-card h2 {
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     margin-bottom: 10px;
     font-size: 1.5rem;
     font-weight: 600;
 }
 
 .form-description {
-    color: #666666;                      /* Gris medio */
+    color: #666666;
     margin-bottom: 25px;
     line-height: 1.5;
 }
@@ -88,28 +104,28 @@
 
 .form-group label {
     font-weight: 600;
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group textarea {
     padding: 12px 15px;
-    border: 1px solid #e0e0e0;           /* Gris claro */
+    border: 1px solid #e0e0e0;
     border-radius: 6px;
     font-size: 1rem;
     font-family: 'Poppins', sans-serif;
-    background: #f8f8f8;                 /* Gris claro */
+    background: #f8f8f8;
     transition: all 0.3s;
-    color: #000000;                      /* Negro puro */
+    color: #000000;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #000000;               /* Negro puro */
+    border-color: #000000;
     outline: none;
-    background: #ffffff;                 /* Blanco puro */
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1); /* Shadow negro */
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-group textarea {
@@ -118,8 +134,8 @@
 }
 
 .submit-btn {
-    background: #000000;                 /* Negro puro */
-    color: #ffffff;                      /* Blanco puro */
+    background: #000000;
+    color: #ffffff;
     border: none;
     padding: 14px 30px;
     border-radius: 6px;
@@ -132,13 +148,13 @@
 }
 
 .submit-btn:hover {
-    background: #1a1a1a;                 /* Gris oscuro */
+    background: #1a1a1a;
     transform: translateY(-2px);
 }
 
 /* INFORMACIÓN */
 .info-card h2 {
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     margin-bottom: 20px;
     font-size: 1.5rem;
     font-weight: 600;
@@ -152,44 +168,44 @@
 
 .about-content p {
     line-height: 1.7;
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     text-align: justify;
 }
 
 .location-section {
-    background: #f8f8f8;                 /* Gris claro */
+    background: #f8f8f8;
     padding: 20px;
     border-radius: 8px;
-    border-left: 3px solid #000000;      /* Negro puro */
+    border-left: 3px solid #000000;
 }
 
 .location-section h3 {
-    color: #000000;                      /* Negro puro */
+    color: #000000;
     margin-bottom: 10px;
     font-size: 1.2rem;
 }
 
 .location-section p {
-    color: #666666;                      /* Gris medio */
+    color: #666666;
     margin-bottom: 15px;
 }
 
 .map-container {
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15); /* Shadow más pronunciado */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 /* MODO OSCURO */
 body.dark .contact-page {
-    background-color: #0a0a0a;           /* Negro puro dark */
-    color: #ffffff;                      /* Blanco puro */
+    background-color: rgba(10,10,10,0.75);
+    color: #ffffff;
 }
 
 body.dark .contact-header,
 body.dark .form-card,
 body.dark .info-card {
-    background: #1a1a1a;                 /* Gris oscuro */
+    background: #1a1a1a;
     box-shadow: 0 2px 10px rgba(255,255,255,0.1);
 }
 
@@ -197,7 +213,7 @@ body.dark .contact-header h1,
 body.dark .form-card h2,
 body.dark .info-card h2,
 body.dark .location-section h3 {
-    color: #ffffff;                      /* Blanco puro */
+    color: #ffffff;
 }
 
 body.dark .info-item,
@@ -205,34 +221,34 @@ body.dark .form-description,
 body.dark .about-content p,
 body.dark .location-section p,
 body.dark .form-group label {
-    color: #b0b0b0;                      /* Gris claro */
+    color: #b0b0b0;
 }
 
 body.dark .form-group input,
 body.dark .form-group textarea {
-    background: #2a2a2a;                 /* Gris medio oscuro */
-    border-color: #444444;               /* Gris oscuro */
-    color: #ffffff;                      /* Blanco puro */
+    background: #2a2a2a;
+    border-color: #444444;
+    color: #ffffff;
 }
 
 body.dark .form-group input:focus,
 body.dark .form-group textarea:focus {
-    background: #333333;                 /* Gris medio */
-    border-color: #ffffff;               /* Blanco puro */
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1); /* Shadow blanco */
+    background: #333333;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 body.dark .location-section {
-    background: #2a2a2a;                 /* Gris medio oscuro */
+    background: #2a2a2a;
 }
 
 body.dark .submit-btn {
-    background: #ffffff;                 /* Blanco puro */
-    color: #000000;                      /* Negro puro */
+    background: #ffffff;
+    color: #000000;
 }
 
 body.dark .submit-btn:hover {
-    background: #e0e0e0;                 /* Gris claro */
+    background: #e0e0e0;
 }
 
 /* RESPONSIVE */
@@ -247,18 +263,18 @@ body.dark .submit-btn:hover {
     .contact-page {
         padding: 20px;
     }
-    
+
     .contact-header,
     .form-card,
     .info-card {
         padding: 20px;
     }
-    
+
     .header-info {
         gap: 20px;
         flex-direction: column;
     }
-    
+
     .contact-header h1 {
         font-size: 1.8rem;
     }
@@ -268,11 +284,11 @@ body.dark .submit-btn:hover {
     .contact-page {
         padding: 15px;
     }
-    
+
     .contact-header h1 {
         font-size: 1.6rem;
     }
-    
+
     .form-card h2,
     .info-card h2 {
         font-size: 1.3rem;
@@ -293,26 +309,21 @@ body.dark .submit-btn:hover {
 }
 
 .alert-success {
-    background: #f8f8f8;                 /* Gris claro */
-    color: #000000;                      /* Negro puro */
-    border: 1px solid #e0e0e0;           /* Gris claro */
+    background: #f8f8f8;
+    color: #000000;
+    border: 1px solid #e0e0e0;
 }
 
 .alert-error {
-    background: #f8f8f8;                 /* Gris claro */
-    color: #000000;                      /* Negro puro */
-    border: 1px solid #e0e0e0;           /* Gris claro */
+    background: #f8f8f8;
+    color: #000000;
+    border: 1px solid #e0e0e0;
 }
 
 /* Modo oscuro para mensajes */
-body.dark .alert-success {
-    background: #1a1a1a;                 /* Gris oscuro */
-    color: #ffffff;                      /* Blanco puro */
-    border-color: #333333;               /* Gris medio */
-}
-
+body.dark .alert-success,
 body.dark .alert-error {
-    background: #1a1a1a;                 /* Gris oscuro */
-    color: #ffffff;                      /* Blanco puro */
-    border-color: #333333;               /* Gris medio */
+    background: #1a1a1a;
+    color: #ffffff;
+    border-color: #333333;
 }
