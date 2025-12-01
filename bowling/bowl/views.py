@@ -429,7 +429,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         except ValueError:
             puntaje = 0
             
-        puntaje = max(0, min(10, puntaje)) # Máximo 10 pinos por tiro (Simplificación)
+        puntaje = max(0, min(100, puntaje)) # Máximo 10 pinos por tiro (Simplificación)
 
         # Encontrar el TURNO ACTUAL pendiente
         turno = PuntajeJugador.objects.filter(

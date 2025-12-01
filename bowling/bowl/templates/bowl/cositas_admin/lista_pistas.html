@@ -2,184 +2,118 @@
 
 {% block content %}
 <style>
-
-        /* Contenedores */
-    .content-container, 
-    .container {
-        max-width: 900px;
-        margin: 20px auto;
-        background-color: var(--navbar-color);
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--text-color);
+    .pistas-shell {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
+        color: #e8ecf1;
     }
-
-    /* Titulos */
-    h1 {
-        text-align: center;
-        font-size: 2rem;
-        color: var(--text-color);
-        margin-bottom: 20px;
+    .panel {
+        background: rgba(20,24,35,0.82);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+        padding: 22px;
     }
-
-    /* Formularios */
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    label {
-        font-weight: 500;
-        margin-bottom: 5px;
-        color: var(--text-color);
-    }
-
-    input, select, textarea {
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid var(--toggle-color);
-        font-size: 1rem;
-        width: 100%;
-        box-sizing: border-box;
-        background-color: var(--body-color);
-        color: var(--text-color);
-    }
-
-    /* Botones */
-    button, .btn {
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    button:hover, .btn:hover {
-        background-color: var(--primary-color-light);
-    }
-
-    /* Listas */
-    ul.comidas-list {
-        list-style: none;
-        padding: 0;
-    }
-
-    ul.comidas-list li {
-        background-color: var(--primary-color-light);
-        margin-bottom: 10px;
-        padding: 12px;
-        border-radius: 8px;
+    .panel-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: background-color 0.3s;
-        color: var(--text-color);
+        margin-bottom: 14px;
+        gap: 12px;
     }
-
-    ul.comidas-list li:hover {
-        background-color: var(--body-color);
-    }
-
-    a.edit {
-        color: var(--primary-color);
+    .panel-header h1 { margin: 0; font-size: 24px; color: #fff; }
+    .btn-cta {
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: #0f1117;
+        font-weight: 700;
         text-decoration: none;
-        font-weight: 500;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+        transition: transform 0.12s ease, box-shadow 0.2s ease;
     }
+    .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0,0,0,0.3); }
 
-    a.edit:hover {
-        text-decoration: underline;
-    }
-
-    /* Tablas */
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
-        background-color: var(--navbar-color);
+        background: rgba(6, 10, 18, 0.82);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        overflow: hidden;
     }
-
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        color: var(--text-color);
-    }
-
-    thead {
-        background-color: var(--navbar-color);
-    }
-
-    tbody tr {
-        border-bottom: 1px solid var(--toggle-color);
-        transition: background-color 0.3s;
-    }
-
-    tbody tr:hover {
-        background-color: var(--body-color);
-    }
-
-    .no-data {
+    thead th {
+        background: rgba(255,255,255,0.06);
+        color: #cfe6ff;
+        padding: 12px 10px;
         text-align: center;
-        padding: 20px;
-        color: var(--text-color);
+        letter-spacing: 0.3px;
     }
-
-    body.dark a.edit {
-        color: #ffffff;
+    tbody td {
+        padding: 12px 10px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        border-right: 1px solid rgba(255,255,255,0.05);
     }
-
-    body.dark a.edit:hover {
-        text-decoration: underline;
+    tbody td:first-child { font-weight: 700; color: #fff; }
+    tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    tbody tr:hover { background: rgba(255,255,255,0.05); }
+    .edit {
+        color: #7af0c9;
+        text-decoration: none;
+        font-weight: 700;
     }
+    .edit:hover { text-decoration: underline; }
+    .no-data { text-align: center; padding: 20px; color: #cfd8e3; }
 
-        
+    @media (max-width: 768px) {
+        .panel-header { flex-direction: column; align-items: flex-start; }
+        table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
 </style>
 
-<div class="container">
-    <h1>Lista de Pistas</h1>
-    {% if request.user.rol == "admin" %}
-        <a href="{% url 'crear_pista' %}" class="btn">Crear Nueva Pista</a>
-    {% endif%}
-    </ul>
+<div class="pistas-shell">
+    <div class="panel">
+        <div class="panel-header">
+            <h1>Lista de Pistas</h1>
+            {% if request.user.rol == "admin" %}
+                <a href="{% url 'crear_pista' %}" class="btn-cta">Crear nueva pista</a>
+            {% endif%}
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Capacidad Máxima</th>
-                <th>Tipo de Pista</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pista in pistas %}
-            <tr>
-                <td>{{ pista.id_pista }}</td>
-                <td>{{ pista.capacidad_maxima }}</td>
-                <td>
-                    {% if pista.tipo_pista %}
-                        {{ pista.tipo_pista.tipo }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>{{ pista.estado.nombre }}</td>
-                <td><a href="{% url 'editar_pista' pista.id_pista %}" class="edit">Editar</a></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="no-data">No hay pistas registradas.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Capacidad</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pista in pistas %}
+                <tr>
+                    <td>{{ pista.id_pista }}</td>
+                    <td>{{ pista.capacidad_maxima }}</td>
+                    <td>
+                        {% if pista.tipo_pista %}
+                            {{ pista.tipo_pista.tipo }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ pista.estado.nombre }}</td>
+                    <td><a href="{% url 'editar_pista' pista.id_pista %}" class="edit">Editar</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="no-data">No hay pistas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

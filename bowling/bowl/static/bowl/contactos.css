@@ -6,7 +6,7 @@ body {
     background:
         linear-gradient(rgba(46,46,46,0.75), rgba(0,0,0,0.4)),
         url("/static/bowl/imagenes/espaciooo.png") repeat-x;
-    background-size: auto 100%;
+    background-size: auto 110%;
     background-attachment: fixed;
     background-color: transparent;
 }
@@ -18,26 +18,23 @@ body {
 
 /* ===== RESET Y ESTILOS BASE ===== */
 
-.contact-page {
-    background-color: transparent !important;
-    backdrop-filter: none;
-}
+.contact-page { background-color: transparent !important; backdrop-filter: none; }
 
 /* HEADER */
 .contact-header {
-    background: transparent;
-    padding: 25px 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    margin-bottom: 30px;
-    border-left: 4px solid #000000;
+    background: rgba(20,24,35,0.82);
+    padding: 24px 28px;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    margin-bottom: 28px;
+    border-left: 5px solid #7af0c9;
 }
 
 .contact-header h1 {
-    color: #000000;
-    margin-bottom: 20px;
+    color: #ffffff;
+    margin-bottom: 16px;
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .header-info {
@@ -50,13 +47,13 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #666666;
+    color: #d0d9e5;
     font-size: 1rem;
 }
 
 .info-item i {
-    color: #000000;
-    font-size: 1.2rem;
+    color: #7af0c9;
+    font-size: 1.1rem;
 }
 
 /* LAYOUT PRINCIPAL */
@@ -69,23 +66,25 @@ body {
 
 /* TARJETAS */
 .form-card, .info-card {
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    background: rgba(20,24,35,0.85);
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
     height: fit-content;
+    color: #e8ecf1;
 }
 
 /* FORMULARIO */
 .form-card h2 {
-    color: #000000;
-    margin-bottom: 10px;
+    color: #ffffff;
+    margin-bottom: 12px;
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .form-description {
-    color: #666666;
+    color: #c0cad5;
     margin-bottom: 25px;
     line-height: 1.5;
 }
@@ -104,28 +103,28 @@ body {
 
 .form-group label {
     font-weight: 600;
-    color: #000000;
+    color: #dfe7ee;
     font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group textarea {
     padding: 12px 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 6px;
     font-size: 1rem;
     font-family: 'Poppins', sans-serif;
-    background: #f8f8f8;
+    background: rgba(0,0,0,0.25);
     transition: all 0.3s;
-    color: #000000;
+    color: #ffffff;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #000000;
+    border-color: #7af0c9;
     outline: none;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    background: rgba(0,0,0,0.35);
+    box-shadow: 0 0 0 3px rgba(122, 240, 201, 0.15);
 }
 
 .form-group textarea {
@@ -134,30 +133,28 @@ body {
 }
 
 .submit-btn {
-    background: #000000;
-    color: #ffffff;
+    background: linear-gradient(135deg, #7af0c9, #2ecc71);
+    color: #0f1117;
     border: none;
     padding: 14px 30px;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.12s ease, box-shadow 0.2s ease;
     margin-top: 10px;
     width: 100%;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
 }
 
-.submit-btn:hover {
-    background: #1a1a1a;
-    transform: translateY(-2px);
-}
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0,0,0,0.3); }
 
 /* INFORMACIÓN */
 .info-card h2 {
-    color: #000000;
-    margin-bottom: 20px;
+    color: #ffffff;
+    margin-bottom: 16px;
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .about-content {
@@ -168,25 +165,25 @@ body {
 
 .about-content p {
     line-height: 1.7;
-    color: #000000;
+    color: #dfe7ee;
     text-align: justify;
 }
 
 .location-section {
-    background: #f8f8f8;
+    background: rgba(255,255,255,0.06);
     padding: 20px;
-    border-radius: 8px;
-    border-left: 3px solid #000000;
+    border-radius: 10px;
+    border-left: 4px solid #7af0c9;
 }
 
 .location-section h3 {
-    color: #000000;
-    margin-bottom: 10px;
+    color: #ffffff;
+    margin-bottom: 8px;
     font-size: 1.2rem;
 }
 
 .location-section p {
-    color: #666666;
+    color: #c0cad5;
     margin-bottom: 15px;
 }
 
@@ -308,16 +305,10 @@ body.dark .submit-btn:hover {
     text-align: center;
 }
 
-.alert-success {
-    background: #f8f8f8;
-    color: #000000;
-    border: 1px solid #e0e0e0;
-}
-
-.alert-error {
-    background: #f8f8f8;
-    color: #000000;
-    border: 1px solid #e0e0e0;
+.alert-success, .alert-error {
+    background: rgba(255,255,255,0.06);
+    color: #e8ecf1;
+    border: 1px solid rgba(255,255,255,0.12);
 }
 
 /* Modo oscuro para mensajes */
