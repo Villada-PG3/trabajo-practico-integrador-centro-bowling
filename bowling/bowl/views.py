@@ -271,10 +271,31 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk)
 
-        partida, _ = Partida.objects.get_or_create(
+        # === CREACIÓN DE PARTIDA + JUGADOR DEL CLIENTE AUTOMÁTICO ===
+        partida, creada = Partida.objects.get_or_create(
             reserva=reserva,
-            defaults={'cliente': self.request.user.cliente, 'pista': reserva.pista}
+            defaults={
+                'cliente': self.request.user.cliente,
+                'pista': reserva.pista
+            }
         )
+
+        # Si la partida es nueva → creamos automáticamente al cliente como jugador
+        if creada:
+            nombre_jugador = self.request.user.get_full_name() or self.request.user.username
+            jugador_cliente, _ = Jugador.objects.get_or_create(
+                partida=partida,
+                nombre=nombre_jugador,
+            )
+
+            # Creamos los 10 frames vacíos para este jugador
+            for frame in range(1, 11):
+                PuntajeJugador.objects.create(
+                    partida=partida,
+                    jugador=jugador_cliente,
+                    set=frame,
+                    puntaje=0
+                )
 
         clave = f'partida_iniciada_{partida.id_partida}'
         partida_iniciada = self.request.session.get(clave, False)
@@ -297,10 +318,9 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
                     'puntaje': p.puntaje,
                     'es_actual': False
                 })
-            
-            # Cálculo del total (Aviso: Si no tienes lógica de spares/strikes compleja, esto solo suma los tiros)
-            total = sum(item['puntaje'] for item in puntajes) 
-            
+
+            total = sum(item['puntaje'] for item in puntajes)
+
             jugadores_puntajes.append({
                 'id': jugador.id_jugador,
                 'nombre': jugador.nombre,
@@ -309,48 +329,47 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
                 'es_turno_actual': False,
             })
 
-        # === LÓGICA DE TURNO REVISADA (Busca el primer tiro con 0) ===
+        # === LÓGICA DE TURNO + DETECCIÓN DE PARTIDA TERMINADA (CORREGIDA) ===
         jugador_actual = None
         frame_actual = 1
         partida_terminada = False
 
-        # 1. Encontrar el *siguiente* tiro que necesita ser registrado (el primer PuntajeJugador con puntaje=0)
-        if  PuntajeJugador.objects.first != None: 
-            siguiente_turno_db = PuntajeJugador.objects.filter(
-                partida=partida, 
-                puntaje=0
-            ).order_by('set', 'jugador__id_jugador').first()
-        
+        # Buscamos el primer tiro pendiente (puntaje = 0)
+        siguiente_turno_db = PuntajeJugador.objects.filter(
+            partida=partida,
+            puntaje=0
+        ).order_by('set', 'jugador__id_jugador').first()
+
         if siguiente_turno_db:
-            # 2. Si existe un tiro pendiente, usar sus datos para actualizar el contexto
+            # Hay tiros por jugar
             frame_actual = siguiente_turno_db.set
-            
-            # 3. Marcar el jugador y el frame actual en la lista de contexto
             for j in jugadores_puntajes:
                 if j['id'] == siguiente_turno_db.jugador.id_jugador:
                     jugador_actual = j
                     j['es_turno_actual'] = True
-                    
-                    # Buscar el frame específico en la lista de puntajes del jugador
                     for p in j['puntajes']:
                         if p['frame'] == frame_actual:
                             p['es_actual'] = True
                             break
                     break
+
         else:
-            # 4. Si no quedan tiros pendientes, el juego ha terminado
-            partida_terminada = True
-            frame_actual = 10 
-            
-            # Nos aseguramos de que el ganador se calcule SOLO si la partida ya terminó
-            ganador = None
-            if jugadores_puntajes and partida_iniciada:
-                ganador = max(jugadores_puntajes, key=lambda x: x['total'])
-        
-        # El resto de la lógica de partida terminada queda manejada aquí y en el POST.
-        ganador = max(jugadores_puntajes, key=lambda x: x['total']) if partida_terminada and jugadores_puntajes else None
+            # NO hay tiros pendientes → ¿la partida realmente terminó?
+            # Solo es "terminada" si además ya se presionó "Empezar partida"
+            if partida_iniciada and jugadores_puntajes:
+                partida_terminada = True
+                frame_actual = 10
+            else:
+                # Caso: hay jugadores pero nadie empezó todavía
+                partida_terminada = False
+                frame_actual = 1
 
+        # Ganador SOLO si la partida está terminada y fue iniciada
+        ganador = None
+        if partida_terminada and jugadores_puntajes:
+            ganador = max(jugadores_puntajes, key=lambda x: x['total'])
 
+        # === CONTEXTO FINAL ===
         context.update({
             'reserva': reserva,
             'jugadores_puntajes': jugadores_puntajes,
