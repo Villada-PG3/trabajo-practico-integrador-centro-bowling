@@ -1,143 +1,455 @@
 {% extends 'bowl/navbar.html' %}
 {% load static %}
 
-
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'bowl/tabla_puntuaciones.css' %}">
+
 <style>
-/* --- estilos generales --- */
-.container {
-    background: #fff;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 12px;
-}
+    /* ------------------------------------------------------------------ */
+    /* ESTILOS GENERALES Y LAYOUT */
+    /* ------------------------------------------------------------------ */
+    
+    body {
+        background-color: #f4f7f6;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+    }
+    .tabla-container {
+        padding: 20px;
+    }
 
-.btn {
-    padding: 10px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    font-size: 16px;
-}
+    /* Encabezado Principal */
+    .tabla-container h2 {
+        font-weight: 700;
+        color: #34495e;
+        border-bottom: 3px solid #feca57;
+        padding-bottom: 10px;
+    }
+    
+    /* Estilo para los mensajes de Django (Success/Alerts) */
+    .alert {
+        background: #d4edda; 
+        color: #155724; 
+        border-color:#c3e6cb; 
+        border-radius:10px;
+        text-align:center; 
+        margin:10px; 
+        padding:12px;
+    }
 
-.btn-agregar { background: #007bff; color: #fff; }
-.btn-empezar { background: #28a745; color: #fff; }
-.btn-tiro { background: #6f42c1; color: #fff; }
+    /* Tabla de Puntuaciones */
+    #tabla-puntuaciones {
+        width: 100%;
+        max-width: 1200px;
+        border-collapse: separate;
+        border-spacing: 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 40px auto;
+        background: #ffffff;
+    }
 
-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-}
+    /* Encabezados de la Tabla */
+    #tabla-puntuaciones thead th {
+        background-color: #3498db;
+        color: white;
+        padding: 15px 10px;
+        text-align: center;
+        font-weight: 600;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    #tabla-puntuaciones thead th:last-child {
+        border-right: none;
+        background-color: #2ecc71;
+    }
 
-th, td {
-    padding: 10px;
-    border: 1px solid #ccc;
-    text-align: center;
-}
-th { background: #333; color: #fff; }
+    /* Cuerpo de la Tabla */
+    #tabla-puntuaciones tbody td {
+        padding: 12px 10px;
+        text-align: center;
+        border-bottom: 1px solid #ecf0f1;
+        border-right: 1px solid #ecf0f1;
+        font-size: 17px;
+        transition: background-color 0.3s;
+    }
+    #tabla-puntuaciones tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    #tabla-puntuaciones tbody tr:hover:not(.turno-actual) {
+        background-color: #e8f6fd;
+    }
+    #tabla-puntuaciones tbody td:first-child {
+        text-align: left;
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 18px;
+    }
 
-.frames-row td {
-    background: #f8f9fa;
-    font-weight: bold;
-}
+    /* Columna Total */
+    #tabla-puntuaciones tbody td:last-child {
+        font-size: 24px !important;
+        font-weight: 700;
+        background-color: #e6f7ff;
+        color: #27ae60;
+        border-right: none;
+    }
+
+    /* Formulario Agregar Jugador */
+    .agregar-jugador-form {
+        padding: 20px;
+        background: #ecf0f1;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    .agregar-jugador-form form {
+        display: flex;
+        gap: 10px;
+    }
+    .agregar-jugador-form input[type="text"] {
+        flex-grow: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #bdc3c7;
+        font-size: 16px;
+    }
+    .btn-agregar {
+        background-color: #feca57;
+        color: #34495e;
+        font-weight: bold;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+    }
+    .btn-agregar:hover {
+        background-color: #ff9f43;
+        transform: translateY(-2px);
+    }
+
+    /* Responsividad Básica */
+    @media (max-width: 768px) {
+        #tabla-puntuaciones {
+            font-size: 14px;
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+
+
+    /* ------------------------------------------------------------- */
+    /* ESTILOS DE ESTADO DE JUEGO (Turno, Frame, etc.) */
+    /* ------------------------------------------------------------- */
+    
+    .frame-actual {
+        background: #feca57 !important;
+        font-weight: bold;
+        color: #000;
+        transform: scale(1.05);
+        z-index: 10;
+        border: 2px solid #ff9f43;
+    }
+
+    .turno-actual {
+        background: #ff6b6b;
+        color: white;
+        font-weight: bold;
+        animation: glow 1.8s infinite alternate ease-in-out;
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.7);
+    }
+    .turno-actual td:last-child {
+        background-color: #e74c3c !important;
+        color: white !important;
+    }
+
+    @keyframes glow {
+        from { box-shadow: 0 0 10px #ff6b6b; }
+        to { box-shadow: 0 0 20px #ff4757; }
+    }
+
+    /* Botón EMPEZAR PARTIDA */
+    .tabla-container button[name="empezar_partida"] {
+        font-size: 36px !important;
+        padding: 25px 90px !important;
+        background: linear-gradient(45deg, #00b894, #2ecc71) !important;
+        color: white !important;
+        border: none;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+    }
+    .tabla-container button[name="empezar_partida"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* MENSAJE PARTIDA EN CURSO */
+    .tabla-container > div:nth-of-type(2):not(.registro-box):not(.ganador-box) {
+        background: linear-gradient(90deg, #00b894, #00d3a5);
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 28px;
+        margin: 30px 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* CAJA DE REGISTRO (Turno de Juego) */
+    .registro-box {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 40px;
+        border-radius: 25px;
+        text-align: center;
+        margin: 50px auto;
+        max-width: 750px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .registro-box h1, .registro-box h2 {
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    #puntaje_input {
+        font-size: 80px;
+        width: 300px;
+        padding: 20px;
+        text-align: center;
+        border: 3px solid #667eea;
+        border-radius: 18px;
+        margin: 20px 0;
+        color: #333;
+        font-weight: 700;
+    }
+
+    .btn-rapido {
+        padding: 14px 25px;
+        margin: 8px;
+        font-size: 19px;
+        font-weight: bold;
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .btn-rapido:hover {
+        background: white;
+        color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    }
+
+    .btn-strike {
+        background: #e74c3c !important;
+        border-color: white !important;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%,100% { transform: scale(1); box-shadow: 0 0 10px #ff6b6b; }
+        50% { transform: scale(1.05); box-shadow: 0 0 20px #ff4757; }
+    }
+    
+    .registro-box button[type="submit"] {
+        font-size: 34px !important;
+        padding: 20px 80px !important;
+        background: white !important;
+        color: #667eea !important;
+        border: none;
+        border-radius: 18px;
+        margin-top: 25px;
+        font-weight: bold;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        transition: 0.3s;
+    }
+    .registro-box button[type="submit"]:hover {
+        background: #ecf0f1 !important;
+        transform: translateY(-3px);
+    }
+
+
+    /* ------------------------------------------------------------- */
+    /* CAJA DE GANADOR (REDUCIDA 5 VECES APROX.) */
+    /* ------------------------------------------------------------- */
+    .ganador-box {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        padding: 30px; /* Reducido de 60px */
+        border-radius: 20px; /* Reducido de 40px */
+        text-align: center;
+        margin: 40px auto; /* Reducido de 80px */
+        max-width: 600px; /* Reducido de 950px */
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        border: 3px solid #ffd43b; /* Borde más fino */
+    }
+    .ganador-box h1 { font-size: 40px; margin: 0 0 10px 0; } /* Reducido de 72px */
+    .ganador-box h2 { 
+        font-size: 65px; /* Reducido de 110px */
+        margin: 20px 0; 
+        color: #ffd43b; 
+        text-shadow: 3px 3px 5px rgba(0,0,0,0.3); 
+    }
+    .ganador-box h3 { font-size: 30px; margin: 15px 0; } /* Reducido de 55px */
+    .ganador-box > div { 
+        background: rgba(0,0,0,0.1); 
+        padding: 10px; /* Reducido de 15px */
+        border-radius: 10px; 
+        font-size: 20px; /* Reducido de 28px */
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>🎳 Partida: {{ partida.nombre }}</h2>
+<div class="tabla-container">
 
-    <!-- MENSAJES -->
+    <h2 style="text-align:center; margin:20px 0; font-size:36px;">
+        CENTRO DE BOWLING – Reserva #{{ reserva_pk }}
+    </h2>
+
     {% if messages %}
         {% for message in messages %}
-            <p style="background:#d4edda; padding:10px; border-radius:5px;">
-                {{ message }}
-            </p>
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
         {% endfor %}
     {% endif %}
 
-    <!-- AGREGAR JUGADORES SOLO SI ESTA PENDIENTE -->
-    {% if partida.estado == "pendiente" %}
-    <h3>➕ Agregar jugadores</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ jugador_form.nombre }}
-        <button type="submit" name="agregar_jugador" class="btn btn-agregar">Agregar</button>
-    </form>
+    {% if not partida_iniciada %}
+        <div style="text-align:center; margin:60px 0;">
+            <form method="post">
+                {% csrf_token %}
+                <button name="empezar_partida">
+                    EMPEZAR PARTIDA
+                </button>
+            </form>
+        </div>
 
-    <h4>Jugadores actuales:</h4>
-    <ul>
-        {% for j in jugadores %}
-        <li>{{ j.nombre }}</li>
-        {% endfor %}
-    </ul>
+        <div class="agregar-jugador-form" style="max-width:500px; margin:0 auto 60px;">
+            <h3 style="text-align:center; color: #34495e; margin-bottom: 15px;">Agregar Jugador</h3>
+            <form method="post">{% csrf_token %}
+                {{ jugador_form.nombre }}
+                <button name="agregar_jugador" class="btn-agregar">Agregar</button>
+            </form>
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" name="comenzar" class="btn btn-empezar">
-            ▶ Comenzar partida
-        </button>
-    </form>
+    {% else %}
+        <div>
+            PARTIDA EN CURSO – FRAME ACTUAL: <strong>{{ frame_actual }}</strong>
+        </div>
     {% endif %}
 
-    <!-- PANEL DE TIROS -->
-    {% if partida.estado == "jugando" %}
-    <h3>🎯 Registrar tiro</h3>
-    <form method="post">
-        {% csrf_token %}
-        <label>Jugador:</label>
-        <select name="jugador_id">
-            {% for j in jugadores %}
-            <option value="{{ j.id }}">{{ j.nombre }}</option>
-            {% endfor %}
-        </select>
-
-        <label>Tiro 1:</label>
-        <input type="number" name="tiro1" min="0" max="10">
-
-        <label>Tiro 2:</label>
-        <input type="number" name="tiro2" min="0" max="10">
-
-        <button type="submit" name="registrar_tiro" class="btn btn-tiro">Registrar</button>
-    </form>
-    {% endif %}
-
-    <!-- TABLA COMPLETA DE BOWLING -->
-    <table>
+    <table id="tabla-puntuaciones">
         <thead>
             <tr>
-                <th>Jugador</th>
-                {% for i in 1|to:10 %}
-                <th>Frame {{ i }}</th>
+                <th>JUGADOR</th>
+                {% for i in "1234567891" %}
+                    <th>
+                        {% if forloop.counter == 10 %}10{% else %}{{ forloop.counter }}{% endif %}
+                    </th>
                 {% endfor %}
-                <th>Total</th>
+                <th>TOTAL</th>
             </tr>
         </thead>
         <tbody>
-            {% for jugador in jugadores %}
-            <tr>
-                <td>{{ jugador.nombre }}</td>
-
-                {% for frame in jugador.frames_list %}
+            {% for j in jugadores_puntajes %}
+            <tr {% if j.es_turno_actual %}class="turno-actual"{% endif %}>
                 <td>
-                    {% if frame.tiro1 == 10 %}
-                        X
-                    {% elif frame.tiro1 + frame.tiro2 == 10 %}
-                        {{ frame.tiro1 }} /
-                    {% else %}
-                        {{ frame.tiro1 }} - {{ frame.tiro2 }}
-                    {% endif %}
-                    <br>
-                    <small>{{ frame.acumulado }}</small>
+                    <strong>{{ j.nombre }}</strong>
+                    {% if j.es_turno_actual %} ← TURNO{% endif %}
+                </td>
+                {% for p in j.puntajes %}
+                <td {% if p.frame == frame_actual %}class="frame-actual"{% endif %}
+                    {% if p.es_actual %}style="background:#e74c3c; color:white;"{% endif %}>
+                    {% if p.puntaje > 0 %}{{ p.puntaje }}{% else %}–{% endif %}
                 </td>
                 {% endfor %}
-
-                <td><strong>{{ jugador.total }}</strong></td>
+                <td>{{ j.total }}</td>
             </tr>
+            {% empty %}
+            <tr><td colspan="12" style="padding:60px; color:#95a5a6; font-style:italic;">No hay jugadores aún</td></tr>
             {% endfor %}
         </tbody>
     </table>
 
+    {% if partida_terminada %}
+        <div class="ganador-box">
+            <h1>¡PARTIDA TERMINADA!</h1>
+            <h2>
+                {{ ganador.nombre }}
+            </h2>
+            <h3>
+                CAMPEÓN CON {{ ganador.total }} PUNTOS
+            </h3>
+            <div style="margin-top:20px;">
+                {% for j in jugadores_puntajes %}
+                    {% if j.nombre != ganador.nombre %}
+                        <div style="margin:5px;">{{ j.nombre }} → {{ j.total }} puntos</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <script>
+            confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 } });
+            setInterval(() => {
+                confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 } });
+            }, 3000);
+        </script>
+
+    {% elif partida_iniciada %}
+        <div class="registro-box">
+            <h1>
+                TURNO DE: <span style="color:#ffd43b;">{{ jugador_actual.nombre }}</span>
+            </h1>
+            <h2>FRAME {{ frame_actual }}</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="registrar_turno" value="1">
+                <input type="number" name="puntaje_turno" id="puntaje_input"
+                        min="0" max="10" required autofocus placeholder="0">
+
+                <div style="margin:25px 0;">
+                    <button type="button" class="btn-rapido" data-valor="10">10 (Strike)</button>
+                    <button type="button" class="btn-rapido" data-valor="0">0 (Foul/Miss)</button>
+                    <button type="button" class="btn-rapido" data-valor="5">5</button>
+                    <button type="button" class="btn-rapido" data-valor="7">7</button>
+                    <button type="button" class="btn-rapido" data-valor="9">9</button>
+                    <button type="button" class="btn-rapido btn-strike" data-valor="10">STRIKE</button>
+                </div>
+                
+                <p style="margin-bottom: 10px; font-style: italic; font-size: 16px;">
+                    **Ingresa los pinos derribados en este tiro (0-10)**
+                </p>
+
+                <button type="submit">
+                    REGISTRAR TIRO
+                </button>
+            </form>
+        </div>
+    {% endif %}
+
 </div>
+
+<script>
+document.querySelectorAll('[data-valor]').forEach(b => {
+    b.onclick = () => {
+        document.getElementById('puntaje_input').value = b.dataset.valor;
+        document.getElementById('puntaje_input').focus();
+    };
+});
+document.getElementById('puntaje_input')?.focus();
+document.getElementById('puntaje_input')?.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault(); 
+    }
+});
+</script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario, PuntajeJugador, Jugador
+from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario, Jugador
 from django.utils import timezone
 from datetime import time, datetime
 from django.contrib.auth.forms import UserCreationForm
@@ -112,15 +112,3 @@ class JugadorForm(forms.ModelForm):
             })
         }
 
-class PuntajeForm(forms.ModelForm):
-    class Meta:
-        model = PuntajeJugador
-        fields = ['puntaje']
-        widgets = {
-            'puntaje': forms.NumberInput(attrs={
-                'class': 'puntaje-input',
-                'min': '0',
-                'max': '300',
-                'style': 'width: 50px; text-align: center;'
-            })
-        }

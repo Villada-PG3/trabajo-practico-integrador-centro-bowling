@@ -1,141 +1,145 @@
-from django.contrib import admin  # Importa el módulo admin para registrar los modelos en el panel de administración
-from .models import (  # Importa todos los modelos definidos en models.py para poder usarlos en el admin
-    Jugador, EstadisticasJugador, Pista, TipoPista, Usuario, Reserva, Estado,
-    Partida, Turno, JugadorPartida, Cafeteria, Menu, Pedido, DetallePedido, Cliente, Comida, Mensaje, PuntajeJugador
+# bowl/admin.py
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import (
+    Usuario, Cliente, Estado, TipoPista, Pista, Reserva,
+    Partida, Jugador, Frame,
+    Cafeteria, Menu, Pedido, DetallePedido, Mensaje
 )
 
-# === ADMIN DE JUGADOR ===
-@admin.register(Jugador)
-class JugadorAdmin(admin.ModelAdmin):
-    list_display = ('id_jugador', 'nombre', 'get_cliente', 'get_cliente_email')
-    search_fields = ('nombre', 'partida__cliente__email')
 
-    # Cliente a través de la partida
-    def get_cliente(self, obj):
-        return obj.partida.cliente.nombre if obj.partida and obj.partida.cliente else "-"
-    get_cliente.short_description = "Cliente"
+# ==============================================================================
+# USUARIO Y CLIENTE
+# ==============================================================================
 
-    def get_cliente_email(self, obj):
-        return obj.partida.cliente.email if obj.partida and obj.partida.cliente else "-"
-    get_cliente_email.short_description = "Email"
+@admin.register(Usuario)
+class UsuarioAdmin(UserAdmin):
+    list_display = ('username', 'email', 'rol', 'is_staff', 'date_joined')
+    list_filter = ('rol', 'is_staff', 'is_superuser')
+    search_fields = ('username', 'email')
+    fieldsets = UserAdmin.fieldsets + (
+        ('Rol en Bowling', {'fields': ('rol',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Rol', {'fields': ('rol',)}),
+    )
 
-# === ADMIN DE ESTADÍSTICAS DE JUGADOR ===
-@admin.register(EstadisticasJugador)
-class EstadisticasJugadorAdmin(admin.ModelAdmin):
-    list_display = ('id_estadistica', 'jugador', 'partidas_jugadas', 'promedio_puntaje', 'total_strikes', 'total_spares')
-    search_fields = ('jugador__nombre',)  # Permite buscar por el nombre del jugador relacionado
 
-# === ADMIN DE PISTA ===
-@admin.register(Pista)
-class PistaAdmin(admin.ModelAdmin):
-    list_display = ('id_pista', 'numero', 'capacidad_maxima', 'estado', 'tipo_pista')
-    search_fields = ('numero',)
-
-# === ADMIN DE ESTADO ===
-@admin.register(Estado)
-class EstadoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre')  # Muestra ID y nombre del estado
-    search_fields = ('nombre',)  # Permite buscar por nombre
-
-# === ADMIN DE COMIDA ===
-@admin.register(Comida)
-class ComidaAdmin(admin.ModelAdmin):
-    list_display = ('id_comida', 'nombre', 'descripcion', 'precio')  # Campos visibles en la lista
-    search_fields = ('nombre',)  
-
-# === ADMIN DE TIPO DE PISTA ===
-@admin.register(TipoPista)
-class TipoPistaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tipo', 'zona', 'precio', 'descuento', 'descripcion')
-
-    def has_add_permission(self, request):
-        if TipoPista.objects.count() >= 3:
-            return False
-        return True
-
-# === ADMIN DE CLIENTE ===
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('id_cliente', 'nombre', 'direccion', 'telefono', 'email')
-    search_fields = ('nombre', 'email')
+    list_display = ('nombre', 'user', 'email', 'telefono')
+    search_fields = ('nombre', 'user__username', 'email')
+    raw_id_fields = ('user',)
 
-# === ADMIN DE RESERVA ===
+
+# ==============================================================================
+# PISTAS Y TIPOS
+# ==============================================================================
+
+@admin.register(Estado)
+class EstadoAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
+
+
+@admin.register(TipoPista)
+class TipoPistaAdmin(admin.ModelAdmin):
+    list_display = ('tipo', 'zona', 'precio', 'descuento')
+    search_fields = ('tipo', 'zona')
+    list_editable = ('precio', 'descuento')
+
+
+@admin.register(Pista)
+class PistaAdmin(admin.ModelAdmin):
+    list_display = ('numero', 'tipo_pista', 'estado', 'capacidad_maxima')
+    list_filter = ('tipo_pista', 'estado')
+    search_fields = ('numero',)
+    list_editable = ('estado',)
+
+
+# ==============================================================================
+# RESERVAS Y PARTIDAS
+# ==============================================================================
+
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
-    list_display = ('id_reserva', 'fecha', 'hora', 'cliente', 'pista', 'precio_total', 'estado', 'usuario')
-    list_filter = ('fecha', 'estado', 'cliente')
-    search_fields = ('id_reserva', 'cliente__nombre', 'pista__numero')
+    list_display = ('id_reserva', 'cliente', 'pista', 'fecha', 'hora', 'estado')
+    list_filter = ('fecha', 'estado', 'pista')
+    search_fields = ('cliente__nombre', 'pista__numero')
+    date_hierarchy = 'fecha'
+    raw_id_fields = ('cliente', 'pista')
 
-# === ADMIN DE PARTIDA ===
+
 @admin.register(Partida)
 class PartidaAdmin(admin.ModelAdmin):
-    list_display = ('id_partida', 'cliente', 'pista', 'reserva', 'duracion', 'puntaje_final')
+    list_display = ('reserva', 'pista', 'empezada', 'finalizada', 'fecha_inicio')
+    list_filter = ('empezada', 'finalizada', 'fecha_inicio')
+    raw_id_fields = ('reserva',)
 
-# === ADMIN DE JUGADORPARTIDA ===
-@admin.register(JugadorPartida)
-class JugadorPartidaAdmin(admin.ModelAdmin):
-    list_display = ('id_jugador_partida', 'jugador', 'partida', 'puntaje_final', 'posicion') 
 
-# === ADMIN DE TURNO ===
-@admin.register(Turno)
-class TurnoAdmin(admin.ModelAdmin):
-    list_display = (  # Muestra todos los campos del turno en la lista
-        'id_turno', 'numero_turno', 'partida', 'jugador_partida', 'lanzamiento1', 'lanzamiento2',
-        'lanzamiento3', 'puntaje_turno', 'bonus', 'strike', 'spare',
-        'falta1', 'falta2', 'falta3', 'frame_final'
-    )
-    list_filter = ('partida', 'jugador_partida')  # Filtros laterales por partida o jugador
-    
-    # Agrega estos métodos para los campos que no existen en el modelo
-    def falta1(self, obj):
-        return "No"  # O el valor que corresponda
-    falta1.short_description = 'Falta 1'
-    
-    def falta2(self, obj):
-        return "No"
-    falta2.short_description = 'Falta 2'
-    
-    def falta3(self, obj):
-        return "No"
-    falta3.short_description = 'Falta 3'
-    
-    def frame_final(self, obj):
-        return "0"
-    frame_final.short_description = 'Frame Final'
+@admin.register(Jugador)
+class JugadorAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'partida', 'orden')
+    list_filter = ('partida__reserva__fecha',)
+    search_fields = ('nombre',)
 
-# === ADMIN DE CAFETERÍA ===
+
+class FrameInline(admin.TabularInline):
+    model = Frame
+    extra = 0
+    fields = ('numero', 'tiro1', 'tiro2', 'tiro3', 'puntaje_frame', 'puntaje_acumulado')
+    readonly_fields = ('puntaje_frame', 'puntaje_acumulado')
+
+
+@admin.register(Frame)
+class FrameAdmin(admin.ModelAdmin):
+    list_display = ('jugador', 'numero', 'tiro1', 'tiro2', 'tiro3', 'puntaje_acumulado')
+    list_filter = ('jugador__partida', 'numero')
+    inlines = []
+
+
+# ==============================================================================
+# CAFETERÍA Y PEDIDOS
+# ==============================================================================
+
 @admin.register(Cafeteria)
 class CafeteriaAdmin(admin.ModelAdmin):
-    list_display = ('id_cafeteria', 'nombre', 'horario_apertura', 'horario_cierre')
+    list_display = ('nombre', 'horario_apertura', 'horario_cierre')
 
-    def has_add_permission(self, request):
-        if Cafeteria.objects.exists():
-            return False
-        return True
 
-# === ADMIN DE MENÚ ===
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
-    list_display = ('id_menu', 'nombre', 'descripcion', 'precio')  # Campos visibles
-    search_fields = ('nombre',)  # Permite buscar por nombre
+    list_display = ('nombre', 'precio', 'disponible')
+    list_filter = ('disponible',)
+    search_fields = ('nombre',)
+    list_editable = ('precio', 'disponible')
 
-# === ADMIN DE PEDIDO ===
+
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('id_pedido', 'horario', 'precio_total', 'reserva', 'cafeteria', 'cliente')  # Campos visibles
-    list_filter = ('horario',)  # Filtro por horario
+    list_display = ('id', 'reserva', 'cliente', 'fecha', 'precio_total', 'estado')
+    list_filter = ('fecha', 'estado')
+    raw_id_fields = ('reserva', 'cliente')
 
-# === ADMIN DE DETALLE PEDIDO ===
+
 @admin.register(DetallePedido)
 class DetallePedidoAdmin(admin.ModelAdmin):
-    list_display = ('id_detalle_pedido', 'pedido', 'menu', 'cliente', 'cantidad', 'subtotal')
+    list_display = ('pedido', 'menu', 'cantidad', 'subtotal')
+    raw_id_fields = ('pedido', 'menu')
 
-# === ADMIN DE MENSAJE ===
+
+# ==============================================================================
+# CONTACTO
+# ==============================================================================
+
 @admin.register(Mensaje)
 class MensajeAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'email', 'fecha')
+    list_display = ('nombre', 'email', 'fecha', 'leido')
+    list_filter = ('leido', 'fecha')
+    search_fields = ('nombre', 'email', 'mensaje')
+    readonly_fields = ('nombre', 'email', 'mensaje', 'fecha')
+    actions = ['marcar_como_leido']
 
-# === ADMIN DE PUNTAJE JUGADOR ===
-@admin.register(PuntajeJugador)
-class PuntajeJugadorAdmin(admin.ModelAdmin):
-    list_display = ('id_puntaje', 'jugador', 'partida', 'puntaje', 'set')
+    def marcar_como_leido(self, request, queryset):
+        queryset.update(leido=True)
+    marcar_como_leido.short_description = "Marcar seleccionados como leídos"

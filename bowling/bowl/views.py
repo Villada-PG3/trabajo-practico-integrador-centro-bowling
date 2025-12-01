@@ -16,12 +16,12 @@ import json
 
 from .models import (
     Reserva, Pista, Cafeteria, Usuario, Cliente, TipoPista, Estado,
-    Comida, Partida, Jugador, PuntajeJugador
+     Partida, Jugador, Frame, PuntajeJugador
 )
 from .forms import (
     CrearPistaForm, EditarPistaForm,
     ContactoForm, RegistroUsuarioForm, ReservaForm,
-    PuntajeForm, JugadorForm
+     JugadorForm
 )
 
 EMAIL_HOST_USER = settings.EMAIL_HOST_USER
@@ -95,7 +95,7 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
             cliente=cliente,
             estado__nombre="Pendiente"       # ¡Solo las pendientes!
         ).order_by('-fecha', '-hora')
-
+    
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
     model = Reserva
     form_class = ReservaForm
@@ -167,7 +167,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
                 'pistas': pistas_disponibles_qs,
                 'cantidad': pistas_disponibles_qs.count(),
                 # pasamos string JSON ya listo para el template (evita repr de Python)
-                'pistas_json': json.dumps(pistas_simple, ensure_ascii=False),
+                'pistas_json': json.dumps(pistas_simple, ensure_ascii=False, default=str),
             })
 
         context.update({
@@ -230,7 +230,6 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
     def form_invalid(self, form):
         messages.error(self.request, "Por favor corrige los errores del formulario.")
         return self.render_to_response(self.get_context_data(form=form))
-
 # ---------------------------------------------------------
 # Pistas
 # ---------------------------------------------------------
@@ -254,115 +253,165 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
+# views.py → TableroPuntuacionesView (versión definitiva y probada)
+# bowl/views.py → TableroPuntuacionesView (VERSIÓN BOLERA REAL)
 
-# ---------------------------------------------------------
-# Cafetería
-# ---------------------------------------------------------
 
-class ListaComidaView(UsuarioContext, View):
-    def get(self, request):
-        comidas = Comida.objects.all()
-        return render(request, "bowl/cositas_admin/lista_comidas.html", {"comidas": comidas})
 
-# ---------------------------------------------------------
-# Tablero de puntuaciones
-# ---------------------------------------------------------
+
 
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     template_name = "bowl/tabla_puntuaciones.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         pk = self.kwargs.get('pk')
-        reserva_actual = get_object_or_404(Reserva, pk=pk)
-        
+        reserva = get_object_or_404(Reserva, pk=pk)
+
         partida, _ = Partida.objects.get_or_create(
-            reserva=reserva_actual,
-            defaults={'cliente': self.request.user.cliente, 'pista': reserva_actual.pista}
+            reserva=reserva,
+            defaults={'cliente': self.request.user.cliente, 'pista': reserva.pista}
         )
 
+        # Estado partida
+        clave = f'partida_iniciada_{partida.id_partida}'
+        partida_iniciada = self.request.session.get(clave, False)
+
+        # Jugadores ordenados siempre igual
+        jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
         jugadores_puntajes = []
 
-        for jugador in Jugador.objects.filter(partida=partida):
-            puntajes = [
-                PuntajeJugador.objects.get_or_create(
-                    partida=partida, jugador=jugador, set=i, defaults={'puntaje': 0}
-                )[0]
-                for i in range(1, 11)
-            ]
-
+        for jugador in jugadores:
+            puntajes = []
+            for frame in range(1, 11):
+                p, _ = PuntajeJugador.objects.get_or_create(
+                    partida=partida,
+                    jugador=jugador,
+                    set=frame,
+                    defaults={'puntaje': 0}
+                )
+                puntajes.append({
+                    'frame': frame,
+                    'puntaje': p.puntaje,
+                    'es_actual': False
+                })
+            total = sum(item['puntaje'] for item in puntajes)
             jugadores_puntajes.append({
                 'id': jugador.id_jugador,
                 'nombre': jugador.nombre,
-                'puntajes': [{'id_puntaje': p.id_puntaje, 'valor': p.puntaje} for p in puntajes],
-                'total': sum(p.puntaje for p in puntajes)
+                'puntajes': puntajes,
+                'total': total,
+                'es_turno_actual': False,
             })
+
+        # === LÓGICA DE TURNO (COMO EN BOLERA REAL) ===
+        frame_actual = 1
+        jugador_actual = None
+
+        # Encontrar el frame más bajo con al menos un 0
+        for f in range(1, 11):
+            if any(j['puntajes'][f-1]['puntaje'] == 0 for j in jugadores_puntajes):
+                frame_actual = f
+                break
+        else:
+            frame_actual = 10  # todos terminaron
+
+        # En ese frame, el primer jugador que tenga 0
+        for j in jugadores_puntajes:
+            if j['puntajes'][frame_actual-1]['puntaje'] == 0:
+                jugador_actual = j
+                j['es_turno_actual'] = True
+                j['puntajes'][frame_actual-1]['es_actual'] = True
+                break
+
+        # === PARTIDA TERMINADA? ===
+        partida_terminada = all(
+            all(p['puntaje'] > 0 for p in j['puntajes'])
+            for j in jugadores_puntajes
+        )
+
+        ganador = None
+        if partida_terminada and jugadores_puntajes:
+            ganador = max(jugadores_puntajes, key=lambda x: x['total'])
 
         context.update({
             'jugadores_puntajes': jugadores_puntajes,
-            'partida_id': partida.id_partida,
-            'jugador_form': JugadorForm()
+            'partida_iniciada': partida_iniciada,
+            'frame_actual': frame_actual,
+            'jugador_actual': jugador_actual or {'nombre': 'Partida terminada'},
+            'partida_terminada': partida_terminada,
+            'ganador': ganador,
+            'reserva_pk': pk,
+            'jugador_form': JugadorForm(),
         })
-
         return context
 
     def post(self, request, *args, **kwargs):
-        return (
-            self.agregar_jugador(request)
-            if 'agregar_jugador' in request.POST
-            else self.guardar_puntajes(request)
-        )
+        if 'empezar_partida' in request.POST:
+            return self.empezar_partida(request)
+        if 'agregar_jugador' in request.POST:
+            return self.agregar_jugador(request)
+        if 'registrar_turno' in request.POST:
+            return self.registrar_turno_real(request)
+        return redirect('tablero_puntuaciones', pk=self.kwargs['pk'])
+
+    def empezar_partida(self, request):
+        pk = self.kwargs.get('pk')
+        partida = Partida.objects.get(reserva__pk=pk)
+        request.session[f'partida_iniciada_{partida.id_partida}'] = True
+        messages.success(request, "PARTIDA INICIADA – Frame 1")
+        return redirect('tablero_puntuaciones', pk=pk)
 
     def agregar_jugador(self, request):
-        try:
-            cliente = Cliente.objects.get(user=request.user)
-            reserva_actual = Reserva.objects.filter(cliente=cliente).order_by('-fecha').first()
-            partida, _ = Partida.objects.get_or_create(
-                reserva=reserva_actual,
-                defaults={'cliente': cliente, 'pista': reserva_actual.pista}
-            )
+        pk = self.kwargs.get('pk')
+        reserva = get_object_or_404(Reserva, pk=pk)
+        partida = Partida.objects.get(reserva=reserva)
 
-            form = JugadorForm(request.POST)
-            if form.is_valid():
-                jugador = form.save(commit=False)
-                jugador.partida = partida
-                jugador.save()
+        if request.session.get(f'partida_iniciada_{partida.id_partida}', False):
+            messages.error(request, "Ya empezó la partida")
+            return redirect('tablero_puntuaciones', pk=pk)
 
-                for i in range(1, 11):
-                    PuntajeJugador.objects.create(
-                        partida=partida, jugador=jugador, set=i, puntaje=0
-                    )
+        form = JugadorForm(request.POST)
+        if form.is_valid():
+            jugador = form.save(commit=False)
+            jugador.partida = partida
+            jugador.save()
+            for i in range(1, 11):
+                PuntajeJugador.objects.create(partida=partida, jugador=jugador, set=i, puntaje=0)
+            messages.success(request, f"{jugador.nombre} agregado")
+        return redirect('tablero_puntuaciones', pk=pk)
 
-                messages.success(request, f"Jugador {jugador.nombre} agregado correctamente.")
-            else:
-                messages.error(request, "Error al agregar jugador.")
+    def registrar_turno_real(self, request):
+        pk = self.kwargs.get('pk')
+        reserva = get_object_or_404(Reserva, pk=pk)
+        partida = Partida.objects.get(reserva=reserva)
 
-        except Exception as e:
-            messages.error(request, f"Error: {e}")
+        puntaje = int(request.POST.get('puntaje_turno', 0) or 0)
+        puntaje = max(0, min(300, puntaje))
 
-        return redirect('tablero_puntuaciones')
+        # Frame más bajo con hueco
+        frame_actual = None
+        for f in range(1, 11):
+            if PuntajeJugador.objects.filter(partida=partida, set=f, puntaje=0).exists():
+                frame_actual = f
+                break
 
-    def guardar_puntajes(self, request):
-        for key, value in request.POST.items():
-            if key.startswith('puntaje-') and '-puntaje' in key:
-                try:
-                    puntaje_id = int(key.split('-')[1])
-                    puntaje = get_object_or_404(PuntajeJugador, id_puntaje=puntaje_id)
+        if not frame_actual:
+            messages.success(request, "¡PARTIDA TERMINADA!")
+            return redirect('tablero_puntuaciones', pk=pk)
 
-                    if puntaje.partida.cliente.user == request.user:
-                        puntaje.puntaje = max(0, min(int(value or 0), 300))
-                        puntaje.save()
-                except:
-                    continue
+        # Primer jugador de ese frame con 0
+        turno = PuntajeJugador.objects.filter(
+            partida=partida,
+            set=frame_actual,
+            puntaje=0
+        ).order_by('jugador__id_jugador').first()
 
-        messages.success(request, "Puntajes guardados correctamente.")
-        return redirect('tablero_puntuaciones')
-
-
-# ---------------------------------------------------------
-# Asignar admin
-# ---------------------------------------------------------
+        if turno:
+            turno.puntaje = puntaje
+            turno.save()
+            messages.success(request, f"Frame {frame_actual} → {turno.jugador.nombre}: {puntaje} puntos")
+        return redirect('tablero_puntuaciones', pk=pk)
 
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
     template_name = "bowl/cositas_admin/asignar_admin.html"

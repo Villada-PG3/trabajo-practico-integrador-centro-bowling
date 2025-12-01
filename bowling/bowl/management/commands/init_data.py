@@ -6,8 +6,7 @@ from datetime import date, time, timedelta
 
 from bowl.models import (
     TipoPista, Estado, Pista, Cliente, Reserva, Partida,
-    Jugador, EstadisticasJugador, JugadorPartida, Turno,
-    Comida, Cafeteria, Menu, Pedido, DetallePedido, Usuario
+    Jugador, Frame, Cafeteria, Menu, Pedido, DetallePedido, Usuario
 )
 
 class Command(BaseCommand):
@@ -32,12 +31,11 @@ class Command(BaseCommand):
             {'tipo': 'BASE', 'zona': 'Zona 1', 'precio': 10000, 'descuento': 0, 'descripcion': 'Zona general y con servicio base.'},
         ]
         for t in tipos:
-            # get_or_create evita duplicados
             obj, created = TipoPista.objects.get_or_create(tipo=t['tipo'], defaults=t)
             self.stdout.write(self.style.SUCCESS(f'TipoPista "{t["tipo"]}" {"creado" if created else "ya existe"}'))
 
         # === ESTADOS ===
-        estados = ['Disponible', 'Ocupada', 'En mantenimiento', 'Pendiente']
+        estados = ['Disponible', 'Ocupada', 'En mantenimiento', 'Pendiente', "Completada", "Cancelada"]
         for e in estados:
             obj, created = Estado.objects.get_or_create(nombre=e)
             self.stdout.write(self.style.SUCCESS(f'Estado "{e}" {"creado" if created else "ya existe"}'))
@@ -77,59 +75,79 @@ class Command(BaseCommand):
         pista2 = Pista.objects.get(numero=2)
 
         reservas_data = [
-            {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000, 'estado': Estado.objects.get(nombre='Disponible')},
-            {'fecha': date.today() + timedelta(days=1), 'hora': time(20, 0), 'cliente': clientes[1], 'pista': pista2, 'precio_total': 8000, 'estado': Estado.objects.get(nombre='Ocupada')},
+            {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000, 'estado': Estado.objects.get(nombre='Pendiente')},
+            {'fecha': date.today() + timedelta(days=1), 'hora': time(20, 0), 'cliente': clientes[1], 'pista': pista2, 'precio_total': 8000, 'estado': Estado.objects.get(nombre='Pendiente')},
         ]
         reservas = []
         partidas = []
         for r in reservas_data:
-            reserva, _ = Reserva.objects.get_or_create(fecha=r['fecha'], hora=r['hora'], cliente=r['cliente'], pista=r['pista'], defaults={'precio_total': r['precio_total'], 'estado': r['estado'], 'usuario': r['cliente'].user})
+            # CAMBIO 1: Sacamos el campo 'usuario' que ya no existe
+            reserva, _ = Reserva.objects.get_or_create(
+                fecha=r['fecha'],
+                hora=r['hora'],
+                cliente=r['cliente'],
+                pista=r['pista'],
+                defaults={'precio_total': r['precio_total'], 'estado': r['estado']}
+            )
             reservas.append(reserva)
-            partida, _ = Partida.objects.get_or_create(pista=r['pista'], reserva=reserva, cliente=r['cliente'], duracion=time(1,0))
+
+            # CAMBIO 2: Partida ya no tiene 'duracion' ni 'pista' obligatorio así
+            partida, _ = Partida.objects.get_or_create(
+                reserva=reserva,
+                defaults={'cliente': r['cliente'], 'pista': r['pista']}
+            )
             partidas.append(partida)
             self.stdout.write(self.style.SUCCESS(f'Reserva y Partida creadas para {r["cliente"].nombre}'))
 
-        # === JUGADORES y Estadísticas ===
+        # === JUGADORES ===
         jugadores_data = ['pichi', 'sori']
-        jugadores = []
         for i, jnombre in enumerate(jugadores_data):
-            jugador, _ = Jugador.objects.get_or_create(nombre=jnombre, partida=partidas[i])
-            jugadores.append(jugador)
-            EstadisticasJugador.objects.get_or_create(jugador=jugador, defaults={'partidas_jugadas':1,'promedio_puntaje':4.0,'total_strikes':1,'total_spares':2})
-            self.stdout.write(self.style.SUCCESS(f'Jugador "{jnombre}" creado y estadística inicializada.'))
+            jugador, _ = Jugador.objects.get_or_create(
+                nombre=jnombre,
+                partida=partidas[i],
+                defaults={'orden': i + 1}
+            )
+            # CREAMOS LOS 10 FRAMES PARA CADA JUGADOR
+            for frame_num in range(1, 11):
+                Frame.objects.get_or_create(jugador=jugador, numero=frame_num)
+            self.stdout.write(self.style.SUCCESS(f'Jugador "{jnombre}" creado con 10 frames'))
 
-        # === JugadorPartida y Turnos ===
-        for i, jugador in enumerate(jugadores):
-            jp, _ = JugadorPartida.objects.get_or_create(jugador=jugador, partida=partidas[i], defaults={'puntaje_final':10*(i+1), 'posicion': i+1})
-            for t in range(1,4):
-                Turno.objects.get_or_create(numero_turno=t, partida=partidas[i], jugador_partida=jp, defaults={'lanzamiento1':5,'lanzamiento2':4,'puntaje_turno':9})
-
-        # === COMIDAS, CAFETERIA, MENUS y PEDIDOS ===
-        comidas_data = [
-            {'nombre': 'SpaceCafé', 'descripcion': 'Café recién hecho', 'precio': 3.99},
-            {'nombre': 'SpaceFries', 'descripcion': 'Papas doradas', 'precio': 4.99},
-            {'nombre': 'SpaceNuggets', 'descripcion': 'Nuggets crujientes', 'precio': 8.99},
-            {'nombre': 'SpaceBowling Burger', 'descripcion': 'Hamburguesa', 'precio': 12.99},
-            {'nombre': 'SpaceGaseosa', 'descripcion': 'Gaseosa', 'precio': 2.99},
-        ]
-        for c in comidas_data:
-            Comida.objects.get_or_create(nombre=c['nombre'], defaults=c)
-
-        cafe, _ = Cafeteria.objects.get_or_create(nombre='Bowling Café', defaults={'horario_apertura':time(10,0),'horario_cierre':time(23,0),'capacidad_maxima':10,'email':'cafe@bowling.com','telefono':'3511112222'})
+        # === CAFETERIA Y MENU ===
+        cafe, _ = Cafeteria.objects.get_or_create(
+            nombre='Bowling Café',
+            defaults={
+                'horario_apertura': time(14, 0),
+                'horario_cierre': time(23, 0),
+                'capacidad_maxima': 60
+            }
+        )
 
         menus_data = [
-            {'nombre':'Espacial 1','descripcion':'Spacegaseosa + Spacenuggets','precio':10},
-            {'nombre':'Espacial 2','descripcion':'SpaceBowling Burguer + gaseosa','precio':15},
-            {'nombre':'Espacial 3','descripcion':'SpaceBowling Burguer + Spacefries','precio':16},
-            {'nombre':'Espacial 4','descripcion':'Spacecafe','precio':2.99},
+            {'nombre': 'SpaceCafé', 'descripcion': 'Café recién hecho', 'precio': 350},
+            {'nombre': 'SpaceFries', 'descripcion': 'Papas doradas', 'precio': 600},
+            {'nombre': 'SpaceNuggets', 'descripcion': 'Nuggets crujientes', 'precio': 1200},
+            {'nombre': 'SpaceBowling Burger', 'descripcion': 'Hamburguesa', 'precio': 1800},
+            {'nombre': 'SpaceGaseosa', 'descripcion': 'Gaseosa', 'precio': 400},
         ]
         menus = []
         for m in menus_data:
             menu, _ = Menu.objects.get_or_create(nombre=m['nombre'], defaults=m)
             menus.append(menu)
 
-        pedido, _ = Pedido.objects.get_or_create(horario=timezone.now(), precio_total=13000, reserva=reservas[0], cafeteria=cafe, cliente=clientes[0])
-        for menu in menus:
-            DetallePedido.objects.get_or_create(pedido=pedido, menu=menu, cliente=clientes[0], defaults={'cantidad':1, 'subtotal':menu.precio})
+        # === PEDIDO DE PRUEBA ===
+        pedido, _ = Pedido.objects.get_or_create(
+            reserva=reservas[0],
+            cliente=clientes[0],
+            defaults={
+                'precio_total': 5000,
+                'estado': Estado.objects.get(nombre='Pendiente')
+            }
+        )
+        for menu in menus[:3]:  # los primeros 3 del menú
+            DetallePedido.objects.get_or_create(
+                pedido=pedido,
+                menu=menu,
+                defaults={'cantidad': 1, 'subtotal': menu.precio}
+            )
 
-        self.stdout.write(self.style.SUCCESS("✅ Inicialización completada."))
+        self.stdout.write(self.style.SUCCESS("Inicialización completada."))

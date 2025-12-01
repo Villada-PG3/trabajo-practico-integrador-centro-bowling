@@ -1,0 +1,40 @@
+<!-- bowl/frame_cell.html -->
+
+
+{% if frame.numero == 10 %}
+  <div class="frame-10">
+    <small>{% if frame.tiro1 == 10 %}X{% else %}{{ frame.tiro1|default:"" }}{% endif %}</small>
+    <small>{% if frame.tiro2 == 10 %}X{% elif frame.es_spare %}/{% else %}{{ frame.tiro2|default:"" }}{% endif %}</small>
+    <small>{% if frame.tiro3 == 10 %}X{% elif frame.tiro3 %}{{ frame.tiro3 }}{% else %}{{ frame.tiro3|default:"" }}{% endif %}</small>
+    <br>
+    <strong>{{ frame.puntaje_total }}</strong>
+  </div>
+{% else %}
+  {% if frame.es_strike %}
+    <div class="text-center">X</div>
+  {% elif frame.es_spare %}
+    <div><small>{{ frame.tiro1 }}</small> /</div>
+  {% else %}
+    <div><small>{{ frame.tiro1|default:"" }}</small> <small>{{ frame.tiro2|default:"" }}</small></div>
+  {% endif %}
+  <strong>{{ frame.puntaje_total }}</strong>
+{% endif %}
+
+<!-- Formulario para ingresar tiro -->
+<!-- Formulario para ingresar tiro -->
+{% if partida.empezada %}
+    {% with ultimo_frame_num=jugador.frames.all.last.numero %}
+        {% if frame.numero == ultimo_frame_num|add:"-1" or frame.numero == ultimo_frame_num or frame.numero == 10 %}
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="ingresar_tiro">
+                <input type="hidden" name="jugador_id" value="{{ jugador.id_jugador }}">
+                <input type="hidden" name="frame" value="{{ frame.numero }}">
+                <div class="input-group input-group-sm">
+                    <input type="number" name="puntos" min="0" max="10" class="form-control" placeholder="Tiro" required>
+                    <button class="btn btn-success btn-sm">OK</button>
+                </div>
+            </form>
+        {% endif %}
+    {% endwith %}
+{% endif %}
