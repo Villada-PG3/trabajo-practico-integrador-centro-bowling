@@ -3,44 +3,129 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'bowl/gestion_reserva.css' %}">
+<style>
+    .content-shell {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #e8ecf1;
+    }
+    .card-reserva {
+        background: rgba(20,24,35,0.82);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+        padding: 24px;
+    }
+    .card-reserva h1 {
+        margin-bottom: 16px;
+        font-size: 26px;
+        color: #fff;
+    }
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin: 10px 0 20px;
+    }
+    .pill {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+    .pill label {
+        display: block;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    .pill span { font-weight: 700; }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        align-items: center;
+    }
+    .btn-main, .btn-ghost {
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.2s ease;
+    }
+    .btn-main {
+        background: linear-gradient(135deg, #e74c3c, #ff7675);
+        color: #fff;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    }
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.35);
+        color: #e8ecf1;
+    }
+    .btn-main:hover, .btn-ghost:hover { transform: translateY(-2px); }
+
+    .notice {
+        padding: 10px 14px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        text-align: center;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="content-container">
-    <h1>Gestión de Reserva</h1>
-
+<div class="content-shell">
     {% if reserva %}
-        <p><strong>Pista:</strong> Pista {{ reserva.pista.numero }}</p>
-        <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
-        <p><strong>Hora:</strong> {{ reserva.hora }}</p>
+    <div class="card-reserva">
+        <h1>Gestión de Reserva</h1>
+        <div class="data-grid">
+            <div class="pill">
+                <label>Pista</label>
+                <span>Pista {{ reserva.pista.numero }}</span>
+            </div>
+            <div class="pill">
+                <label>Fecha</label>
+                <span>{{ reserva.fecha }}</span>
+            </div>
+            <div class="pill">
+                <label>Hora</label>
+                <span>{{ reserva.hora }}</span>
+            </div>
+            <div class="pill">
+                <label>Estado</label>
+                <span>{{ reserva.estado.nombre }}</span>
+            </div>
+            <div class="pill">
+                <label>Total</label>
+                <span>${{ reserva.precio_total }}</span>
+            </div>
+        </div>
 
-        <p><strong>Precio Total:</strong> ${{ reserva.precio_total }}</p>
-        <p><strong>Estado:</strong> {{ reserva.estado.nombre }}</p>
+        <div class="actions">
+            <form method="post" action="">
+                {% csrf_token %}
+                <button type="submit" name="accion" value="cancelar" class="btn-main"
+                        onclick="return confirm('Seguro que querés cancelar la reserva?')">
+                    Cancelar reserva
+                </button>
+            </form>
 
-        <h2>Acciones</h2>
-
-        <!-- Botón para cancelar reserva -->
-        <form method="post" action="">  <!-- action vacío = misma URL -->
-            {% csrf_token %}
-            <button type="submit" 
-                    name="accion" 
-                    value="cancelar" 
-                    class="btn-cancelar"
-                    onclick="return confirm('¿Seguro que querés cancelar la reserva?')">
-                Cancelar Reserva
-            </button>
-        </form>
-
-        <!-- Botón para empezar partida -->
-        {% if puede_entrar %}
-            
-            <a href="{% url 'tablero_puntuaciones' pk %}" class="btn-empezar">Empezar Partida</a>
-        {% else %}
-            <p class="aviso">Podés ingresar 1 hora antes de la hora reservada.</p>
-        {% endif %}
-
+            {% if puede_entrar %}
+                <a href="{% url 'tablero_puntuaciones' pk %}" class="btn-ghost">Empezar partida</a>
+            {% else %}
+                <div class="notice">Podés ingresar 1 hora antes del horario reservado.</div>
+            {% endif %}
+        </div>
+    </div>
     {% else %}
+    <div class="card-reserva">
         <p>No tienes reservas activas en este momento.</p>
+    </div>
     {% endif %}
 </div>
 {% endblock %}
