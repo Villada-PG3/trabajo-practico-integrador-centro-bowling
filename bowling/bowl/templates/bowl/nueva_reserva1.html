@@ -3,28 +3,135 @@
 
 {% block title %}Nueva Reserva - Space Bowling{% endblock %}
 
+{% block extra_css %}
+<style>
+    .reserva-hero {
+        text-align: center;
+        padding: 50px 20px 20px;
+        color: #ffffff;
+    }
+    .reserva-hero h2 { font-size: 2.4rem; margin-bottom: 10px; }
+    .reserva-hero p { opacity: 0.85; margin: 0 auto 10px; }
+
+    .reserva-shell { max-width: 1200px; margin: 0 auto; padding: 0 15px 40px; }
+    .panel {
+        background: rgba(20, 24, 35, 0.82);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+        color: #e8ecf1;
+    }
+    .panel-header {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .panel-body { padding: 20px; }
+
+    .calendar-card input[type="date"] {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        height: 52px;
+        border-radius: 12px;
+        text-align: center;
+        width: 100%;
+    }
+    .calendar-card input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+    .pill {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: #dfe7ee;
+    }
+
+    .slot-card {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.28);
+        color: #e9f2fa;
+        transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .slot-card.available { border-color: rgba(76, 201, 91, 0.45); }
+    .slot-card.unavailable { border-color: rgba(235, 87, 87, 0.35); opacity: 0.65; }
+    .slot-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.25); }
+    .slot-hour { font-weight: 800; letter-spacing: 0.5px; font-size: 1.05rem; }
+    .slot-meta { font-size: 0.92rem; opacity: 0.9; }
+    .btn-glow {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: #fff;
+        border: none;
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 700;
+        box-shadow: 0 10px 25px rgba(46, 204, 113, 0.35);
+        transition: transform 0.12s ease, box-shadow 0.2s ease;
+    }
+    .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(46, 204, 113, 0.4); }
+    .btn-ghost {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px dashed rgba(255,255,255,0.3);
+        color: #cdd7e0;
+        background: transparent;
+    }
+
+    /* Modal */
+    .modal-content {
+        background: rgba(20,24,35,0.95);
+        color: #e8eef5;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+    }
+    .modal-header { border: none; }
+    .modal-title { font-weight: 700; letter-spacing: 0.4px; }
+    .modal-body h4 { color: #9ad5ff; margin-bottom: 6px; }
+    .modal-body h3 { color: #fff; margin-bottom: 16px; }
+    .form-select {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .form-select option { color: #0f1117; }
+
+    @media (max-width: 768px) {
+        .slot-card { padding: 12px; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div class="container my-5">
-    <h2 class="text-center mb-5 fw-bold">Reservar Pista de Bowling</h2>
+<div class="reserva-hero">
+    <h2>Reservar Pista de Bowling</h2>
+    <p>Elegí el día y horario, y confirmá tu pista en segundos.</p>
+</div>
 
+<div class="reserva-shell">
     <div class="row g-4">
         <!-- Calendario -->
         <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-4">Selecciona el día</h5>
-                    
+            <div class="panel calendar-card">
+                <div class="panel-header">📅 Selecciona el día</div>
+                <div class="panel-body">
                     <form method="get" class="mb-3">
                         <input type="date" 
                                name="fecha" 
                                value="{{ fecha_seleccionada|date:'Y-m-d' }}" 
                                min="{{ today|date:'Y-m-d' }}"
-                               class="form-control form-control-lg text-center"
                                onchange="this.form.submit()">
                     </form>
-
-                    <div class="alert alert-info small p-2 text-center">
+                    <div class="pill text-center">
                         Horario disponible: <strong>14:00 - 23:00 hs</strong><br>
                         Reservas cada hora en punto
                     </div>
@@ -34,36 +141,29 @@
 
         <!-- Horarios del día seleccionado -->
         <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        {{ fecha_seleccionada|date:"l d" }} de {{ fecha_seleccionada|date:"F Y" }}
-                    </h4>
+            <div class="panel">
+                <div class="panel-header">
+                    {{ fecha_seleccionada|date:"l d" }} de {{ fecha_seleccionada|date:"F Y" }}
                 </div>
-                <div class="card-body">
+                <div class="panel-body">
                     {% if horarios_disponibilidad %}
                         <div class="row g-3">
                             {% for slot in horarios_disponibilidad %}
                                 <div class="col-6 col-md-4 col-lg-3">
-                                    <div class="text-center p-3 rounded-3 border
-                                        {% if slot.disponible %}border-success bg-success bg-opacity-10{% else %}border-danger bg-danger bg-opacity-10{% endif %}">
-                                        
-                                        <h5 class="mb-2 fw-bold {% if slot.disponible %} text-success {% else %} text-danger  {% endif %}">
+                                    <div class="slot-card {% if slot.disponible %}available{% else %}unavailable{% endif %}">
+                                        <div class="slot-hour {% if slot.disponible %}text-success{% else %}text-danger{% endif %}">
                                             {{ slot.hora }}
-                                        </h5>
-
-                                        <p class="mb-2 small">
+                                        </div>
+                                        <div class="slot-meta mb-2">
                                             {% if slot.disponible %}
-                                                <strong>{{ slot.cantidad }}</strong> pista{{ slot.cantidad|pluralize }} disponible{{ slot.cantidad|pluralize }}
+                                                <strong>{{ slot.cantidad }}</strong> pista{{ slot.cantidad|pluralize }} disponibles
                                             {% else %}
-                                                <strong>Completo</strong>
+                                                Completo
                                             {% endif %}
-                                        </p>
-
+                                        </div>
                                         {% if slot.disponible %}
-                                            <!-- usamos slot.pistas_json (string JSON) -->
                                             <button type="button"
-                                                    class="btn btn-success btn-sm w-100 mt-2"
+                                                    class="btn-glow btn-sm"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#modalReserva"
                                                     data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
@@ -72,7 +172,7 @@
                                                 Reservar
                                             </button>
                                         {% else %}
-                                            <button class="btn btn-outline-secondary btn-sm w-100 mt-2" disabled>
+                                            <button class="btn-ghost btn-sm" disabled>
                                                 No disponible
                                             </button>
                                         {% endif %}
@@ -97,13 +197,13 @@
         <div class="modal-content">
             <form method="post">
                 {% csrf_token %}
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header">
                     <h5 class="modal-title" id="modalReservaLabel">Confirmar Reserva</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <h4 id="modal-fecha" class="text-primary"></h4>
+                    <div class="text-center mb-3">
+                        <h4 id="modal-fecha"></h4>
                         <h3 id="modal-hora" class="fw-bold"></h3>
                     </div>
 
@@ -114,13 +214,12 @@
                         </select>
                     </div>
 
-                    <!-- Campos ocultos -->
                     <input type="hidden" name="fecha" id="id_fecha">
                     <input type="hidden" name="hora" id="id_hora">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary btn-lg px-5">Confirmar Reserva</button>
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-lg px-4">Confirmar Reserva</button>
                 </div>
             </form>
         </div>
@@ -128,47 +227,39 @@
 </div>
 
 <script>
-// Cuando se abre el modal, llenamos los datos
 document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
     btn.addEventListener('click', function () {
         const fecha = this.getAttribute('data-fecha');
         const hora = this.getAttribute('data-hora');
         const pistasJsonRaw = this.getAttribute('data-pistas');
 
-        // Fecha bonita
-        const fechaObj = new Date(fecha + 'T12:00'); // truco para zona horaria
+        const fechaObj = new Date(fecha + 'T12:00');
         document.getElementById('modal-fecha').textContent = fechaObj.toLocaleDateString('es-ES', {
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         }).replace(/^\w/, c => c.toUpperCase());
 
-        // Hora
         document.getElementById('modal-hora').textContent = hora;
-
-        // Campos ocultos
         document.getElementById('id_fecha').value = fecha;
         document.getElementById('id_hora').value = hora;
 
-        // Limpiar y cargar pistas disponibles
         const select = document.getElementById('id_pista');
-        select.innerHTML = '<option value="">-- Selecciona una pista disponible --</option>';
+        select.innerHTML = '<option value=\"\">-- Selecciona una pista disponible --</option>';
 
         let pistas = [];
         try {
-            // pistasJsonRaw ya es una cadena JSON bien formada (ver view)
             pistas = JSON.parse(pistasJsonRaw);
         } catch (e) {
             console.error("Error parseando JSON de pistas", e);
-            select.innerHTML += '<option value="">Error cargando pistas</option>';
+            select.innerHTML += '<option value=\"\">Error cargando pistas</option>';
             return;
         }
 
         pistas.forEach(pista => {
             const opt = document.createElement('option');
-            opt.value = pista.pk;  // pk de la pista
-            // mostramos número + tipo + precio (si llegaron desde el servidor)
+            opt.value = pista.pk;
             const tipoLabel = pista.tipo || 'Tipo desconocido';
             const precioLabel = pista.precio !== undefined ? `($${pista.precio})` : '';
-            opt.textContent = `Pista ${pista.numero} — ${tipoLabel} ${precioLabel}`;
+            opt.textContent = `Pista ${pista.numero} – ${tipoLabel} ${precioLabel}`;
             select.appendChild(opt);
         });
     });

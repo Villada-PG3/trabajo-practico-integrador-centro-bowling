@@ -74,44 +74,17 @@ class Command(BaseCommand):
         pista1 = Pista.objects.get(numero=1)
         pista2 = Pista.objects.get(numero=2)
 
-        reservas_data = [
-            {'fecha': date.today(), 'hora': time(18, 0), 'cliente': clientes[0], 'pista': pista1, 'precio_total': 15000, 'estado': Estado.objects.get(nombre='Pendiente')},
-            {'fecha': date.today() + timedelta(days=1), 'hora': time(20, 0), 'cliente': clientes[1], 'pista': pista2, 'precio_total': 8000, 'estado': Estado.objects.get(nombre='Pendiente')},
-        ]
-        reservas = []
+        
+
         partidas = []
-        for r in reservas_data:
-            # CAMBIO 1: Sacamos el campo 'usuario' que ya no existe
-            reserva, _ = Reserva.objects.get_or_create(
-                fecha=r['fecha'],
-                hora=r['hora'],
-                cliente=r['cliente'],
-                pista=r['pista'],
-                defaults={'precio_total': r['precio_total'], 'estado': r['estado']}
-            )
-            reservas.append(reserva)
+        
 
             # CAMBIO 2: Partida ya no tiene 'duracion' ni 'pista' obligatorio así
-            partida, _ = Partida.objects.get_or_create(
-                reserva=reserva,
-                defaults={'cliente': r['cliente'], 'pista': r['pista']}
-            )
-            partidas.append(partida)
-            self.stdout.write(self.style.SUCCESS(f'Reserva y Partida creadas para {r["cliente"].nombre}'))
-
+            
         # === JUGADORES ===
-        jugadores_data = ['pichi', 'sori']
-        for i, jnombre in enumerate(jugadores_data):
-            jugador, _ = Jugador.objects.get_or_create(
-                nombre=jnombre,
-                partida=partidas[i],
-                defaults={'orden': i + 1}
-            )
+        
             # CREAMOS LOS 10 FRAMES PARA CADA JUGADOR
-            for frame_num in range(1, 11):
-                Frame.objects.get_or_create(jugador=jugador, numero=frame_num)
-            self.stdout.write(self.style.SUCCESS(f'Jugador "{jnombre}" creado con 10 frames'))
-
+            
         # === CAFETERIA Y MENU ===
         cafe, _ = Cafeteria.objects.get_or_create(
             nombre='Bowling Café',
@@ -135,19 +108,5 @@ class Command(BaseCommand):
             menus.append(menu)
 
         # === PEDIDO DE PRUEBA ===
-        pedido, _ = Pedido.objects.get_or_create(
-            reserva=reservas[0],
-            cliente=clientes[0],
-            defaults={
-                'precio_total': 5000,
-                'estado': Estado.objects.get(nombre='Pendiente')
-            }
-        )
-        for menu in menus[:3]:  # los primeros 3 del menú
-            DetallePedido.objects.get_or_create(
-                pedido=pedido,
-                menu=menu,
-                defaults={'cantidad': 1, 'subtotal': menu.precio}
-            )
 
         self.stdout.write(self.style.SUCCESS("Inicialización completada."))

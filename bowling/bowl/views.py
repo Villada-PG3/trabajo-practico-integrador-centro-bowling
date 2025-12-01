@@ -315,10 +315,11 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         partida_terminada = False
 
         # 1. Encontrar el *siguiente* tiro que necesita ser registrado (el primer PuntajeJugador con puntaje=0)
-        siguiente_turno_db = PuntajeJugador.objects.filter(
-            partida=partida, 
-            puntaje=0
-        ).order_by('set', 'jugador__id_jugador').first()
+        if  PuntajeJugador.objects.first != None: 
+            siguiente_turno_db = PuntajeJugador.objects.filter(
+                partida=partida, 
+                puntaje=0
+            ).order_by('set', 'jugador__id_jugador').first()
         
         if siguiente_turno_db:
             # 2. Si existe un tiro pendiente, usar sus datos para actualizar el contexto
