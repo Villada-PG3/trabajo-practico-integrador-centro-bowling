@@ -1,4 +1,4 @@
-# bowl/views.py
+﻿# bowl/views.py
 
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
@@ -52,7 +52,7 @@ class UsuarioContext:
 
 
 # ---------------------------------------------------------
-# Inicio y páginas informativas
+# Inicio y pÃ¡ginas informativas
 # ---------------------------------------------------------
 
 class InicioView(ThemeMixin, UsuarioContext, TemplateView):
@@ -92,10 +92,10 @@ class ReservaListView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
         if not cliente:
             return Reserva.objects.none()
 
-        # Solo mostrar reservas que aún están pendientes (es decir, activas)
+        # Solo mostrar reservas que aÃºn estÃ¡n pendientes (es decir, activas)
         return Reserva.objects.filter(
             cliente=cliente,
-            estado__nombre="Pendiente"       # ¡Solo las pendientes!
+            estado__nombre="Pendiente"       # Â¡Solo las pendientes!
         ).order_by('-fecha', '-hora')
     
 class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateView):
@@ -137,7 +137,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         else:
             fecha_seleccionada = today
 
-        # === Obtener disponibilidad para el día seleccionado ===
+        # === Obtener disponibilidad para el dÃ­a seleccionado ===
         horarios_disponibilidad = []
         for hora_str in horarios:
             hora = datetime.strptime(hora_str, '%H:%M').time()
@@ -184,7 +184,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
 
     def form_valid(self, form):
         user = self.request.user
-        # Obtener el cliente asociado (más robusto que getattr)
+        # Obtener el cliente asociado (mÃ¡s robusto que getattr)
         try:
             cliente = Cliente.objects.get(user=user)
         except Cliente.DoesNotExist:
@@ -194,7 +194,7 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
             messages.error(self.request, "No tienes un perfil de cliente asociado.")
             return redirect('nueva_reserva1')
 
-        # Validar que la pista y horario estén libres
+        # Validar que la pista y horario estÃ©n libres
         pista = form.cleaned_data.get('pista')
         fecha = form.cleaned_data.get('fecha')
         hora = form.cleaned_data.get('hora')
@@ -211,13 +211,13 @@ class ReservaCreateView(LoginRequiredMixin, ThemeMixin, UsuarioContext, CreateVi
         ).exists()
 
         if conflicto:
-            messages.error(self.request, "Esta pista ya está reservada en ese horario.")
+            messages.error(self.request, "Esta pista ya estÃ¡ reservada en ese horario.")
             return redirect('nueva_reserva1')
 
         # Rellenamos campos necesarios antes de guardar
         form.instance.cliente = cliente
         form.instance.usuario = user
-        # Asegúrate de que exista el Estado "Pendiente" en la BD
+        # AsegÃºrate de que exista el Estado "Pendiente" en la BD
         estado_pendiente, _ = Estado.objects.get_or_create(nombre="Pendiente")
         form.instance.estado = estado_pendiente
         # precio desde tipo_pista
@@ -255,8 +255,8 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
-# views.py → TableroPuntuacionesView (versión definitiva y probada)
-# bowl/views.py → TableroPuntuacionesView (VERSIÓN BOLERA REAL)
+# views.py â†’ TableroPuntuacionesView (versiÃ³n definitiva y probada)
+# bowl/views.py â†’ TableroPuntuacionesView (VERSIÃ“N BOLERA REAL)
 
 
 
@@ -266,12 +266,144 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     template_name = "bowl/tabla_puntuaciones.html"
 
+    def _asegurar_frames(self, partida):
+        """Crea frames y registros de puntaje vacíos si faltan."""
+        jugadores = Jugador.objects.filter(partida=partida)
+        for jugador in jugadores:
+            for numero in range(1, 11):
+                Frame.objects.get_or_create(jugador=jugador, numero=numero)
+                PuntajeJugador.objects.get_or_create(
+                    partida=partida,
+                    jugador=jugador,
+                    set=numero,
+                    defaults={'puntaje': 0}
+                )
+
+    def _siguiente_tiro(self, partida):
+        """
+        Devuelve el siguiente tiro pendiente en orden por frame y jugador.
+        Respuesta: {'jugador': jugador, 'frame': frame, 'tiro': 1|2|3, 'maximo': n}
+        """
+        jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
+        for numero in range(1, 11):
+            for jugador in jugadores:
+                frame, _ = Frame.objects.get_or_create(jugador=jugador, numero=numero)
+                if frame.tiro1 is None:
+                    return {'jugador': jugador, 'frame': frame, 'tiro': 1, 'maximo': 10}
+                if numero < 10:
+                    if frame.tiro1 < 10 and frame.tiro2 is None:
+                        restante = max(0, 10 - frame.tiro1)
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': restante}
+                else:
+                    # Frame 10: habilita tiro 3 si hay strike o spare
+                    if frame.tiro2 is None:
+                        restante = 10 if frame.tiro1 == 10 else max(0, 10 - frame.tiro1)
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': restante}
+                    if (frame.tiro1 == 10 or (frame.tiro1 or 0) + (frame.tiro2 or 0) >= 10) and frame.tiro3 is None:
+                        if frame.tiro1 == 10 and frame.tiro2 == 10:
+                            restante = 10
+                        elif frame.tiro1 == 10:
+                            restante = max(0, 10 - (frame.tiro2 or 0))
+                        else:
+                            restante = 10
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 3, 'maximo': restante}
+        return None
+
+    def _puntaje_frame(self, frame):
+        t1 = frame.tiro1 or 0
+        t2 = frame.tiro2 or 0
+        t3 = frame.tiro3 or 0
+        if frame.numero == 10:
+            if t1 == 10:
+                return 10 + t2 + t3
+            if t1 + t2 >= 10:
+                return 10 + t3
+            return t1 + t2
+        return min(10, t1 + t2)
+
+    def _formatear_frame(self, frame):
+        """Marca a mostrar en el tablero: X, / o numeros (maneja tercer tiro en frame 10)."""
+        t1, t2, t3 = frame.tiro1, frame.tiro2, frame.tiro3
+        if t1 is None and t2 is None and t3 is None:
+            return "-"
+        if frame.numero < 10:
+            if t1 == 10:
+                return "X"
+            if t2 is None:
+                return f"{t1} -"
+            if (t1 or 0) + (t2 or 0) >= 10:
+                return f"{t1} /"
+            return f"{t1} {t2}"
+
+        # Frame 10
+        partes = []
+        # tiro1
+        if t1 == 10:
+            partes.append("X")
+        elif t1 is None:
+            partes.append("-")
+        else:
+            partes.append(str(t1))
+        # tiro2
+        if t2 is None:
+            partes.append("-")
+        elif t1 == 10 and t2 == 10:
+            partes.append("X")
+        elif t1 != 10 and (t1 or 0) + (t2 or 0) >= 10:
+            partes.append("/")
+        else:
+            partes.append(str(t2))
+        # tiro3
+        if t3 is None:
+            pass
+        elif t3 == 10:
+            partes.append("X")
+        elif (t1 == 10 or (t1 or 0) + (t2 or 0) >= 10) and (t2 or 0) + (t3 or 0) >= 10 and t2 != 10:
+            partes.append("/")
+        else:
+            partes.append(str(t3))
+
+        return " ".join(partes)
+
+    def _armar_tabla(self, partida):
+        turno = self._siguiente_tiro(partida)
+        jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
+        jugadores_puntajes = []
+
+        for jugador in jugadores:
+            puntajes = []
+            total = 0
+            for numero in range(1, 11):
+                frame, _ = Frame.objects.get_or_create(jugador=jugador, numero=numero)
+                puntaje_frame = self._puntaje_frame(frame)
+                total += puntaje_frame
+                puntajes.append({
+                    'frame': numero,
+                    'puntaje': puntaje_frame,
+                    'display': self._formatear_frame(frame),
+                    'es_actual': turno and turno['frame'].id == frame.id and turno['jugador'].id_jugador == jugador.id_jugador
+                })
+
+            jugadores_puntajes.append({
+                'id': jugador.id_jugador,
+                'nombre': jugador.nombre,
+                'puntajes': puntajes,
+                'total': total,
+                'es_turno_actual': turno and turno['jugador'].id_jugador == jugador.id_jugador,
+            })
+
+        frame_actual = turno['frame'].numero if turno else 1
+        jugador_actual = turno['jugador'] if turno else None
+        tiro_actual = turno['tiro'] if turno else None
+        maximo_tiro = turno['maximo'] if turno else 10
+
+        return jugadores_puntajes, frame_actual, jugador_actual, tiro_actual, maximo_tiro
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk)
 
-        # === CREACIÓN DE PARTIDA + JUGADOR DEL CLIENTE AUTOMÁTICO ===
         partida, creada = Partida.objects.get_or_create(
             reserva=reserva,
             defaults={
@@ -280,7 +412,6 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
             }
         )
 
-        # Si la partida es nueva → creamos automáticamente al cliente como jugador
         if creada:
             nombre_jugador = self.request.user.get_full_name() or self.request.user.username
             jugador_cliente, _ = Jugador.objects.get_or_create(
@@ -288,94 +419,35 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
                 nombre=nombre_jugador,
             )
 
-            # Creamos los 10 frames vacíos para este jugador
-            for frame in range(1, 11):
-                PuntajeJugador.objects.create(
+            for numero in range(1, 11):
+                Frame.objects.get_or_create(jugador=jugador_cliente, numero=numero)
+                PuntajeJugador.objects.get_or_create(
                     partida=partida,
                     jugador=jugador_cliente,
-                    set=frame,
-                    puntaje=0
+                    set=numero,
+                    defaults={'puntaje': 0}
                 )
+
+        self._asegurar_frames(partida)
 
         clave = f'partida_iniciada_{partida.id_partida}'
         partida_iniciada = self.request.session.get(clave, False)
 
-        # === JUGADORES Y PUNTAJES ===
-        jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
-        jugadores_puntajes = []
+        jugadores_puntajes, frame_actual, jugador_actual, tiro_actual, maximo_tiro = self._armar_tabla(partida)
+        partida_terminada = partida_iniciada and not self._siguiente_tiro(partida)
 
-        for jugador in jugadores:
-            puntajes = []
-            for frame in range(1, 11):
-                p, _ = PuntajeJugador.objects.get_or_create(
-                    partida=partida,
-                    jugador=jugador,
-                    set=frame,
-                    defaults={'puntaje': 0}
-                )
-                puntajes.append({
-                    'frame': frame,
-                    'puntaje': p.puntaje,
-                    'es_actual': False
-                })
-
-            total = sum(item['puntaje'] for item in puntajes)
-
-            jugadores_puntajes.append({
-                'id': jugador.id_jugador,
-                'nombre': jugador.nombre,
-                'puntajes': puntajes,
-                'total': total,
-                'es_turno_actual': False,
-            })
-
-        # === LÓGICA DE TURNO + DETECCIÓN DE PARTIDA TERMINADA (CORREGIDA) ===
-        jugador_actual = None
-        frame_actual = 1
-        partida_terminada = False
-
-        # Buscamos el primer tiro pendiente (puntaje = 0)
-        siguiente_turno_db = PuntajeJugador.objects.filter(
-            partida=partida,
-            puntaje=0
-        ).order_by('set', 'jugador__id_jugador').first()
-
-        if siguiente_turno_db:
-            # Hay tiros por jugar
-            frame_actual = siguiente_turno_db.set
-            for j in jugadores_puntajes:
-                if j['id'] == siguiente_turno_db.jugador.id_jugador:
-                    jugador_actual = j
-                    j['es_turno_actual'] = True
-                    for p in j['puntajes']:
-                        if p['frame'] == frame_actual:
-                            p['es_actual'] = True
-                            break
-                    break
-
-        else:
-            # NO hay tiros pendientes → ¿la partida realmente terminó?
-            # Solo es "terminada" si además ya se presionó "Empezar partida"
-            if partida_iniciada and jugadores_puntajes:
-                partida_terminada = True
-                frame_actual = 10
-            else:
-                # Caso: hay jugadores pero nadie empezó todavía
-                partida_terminada = False
-                frame_actual = 1
-
-        # Ganador SOLO si la partida está terminada y fue iniciada
         ganador = None
         if partida_terminada and jugadores_puntajes:
             ganador = max(jugadores_puntajes, key=lambda x: x['total'])
 
-        # === CONTEXTO FINAL ===
         context.update({
             'reserva': reserva,
             'jugadores_puntajes': jugadores_puntajes,
             'partida_iniciada': partida_iniciada,
             'frame_actual': frame_actual,
-            'jugador_actual': jugador_actual or {'nombre': '—'},
+            'jugador_actual': jugador_actual or {'nombre': '--'},
+            'tiro_actual': tiro_actual,
+            'tiro_maximo': maximo_tiro,
             'partida_terminada': partida_terminada,
             'ganador': ganador,
             'reserva_pk': pk,
@@ -396,7 +468,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk')
         partida = Partida.objects.get(reserva__pk=pk)
         request.session[f'partida_iniciada_{partida.id_partida}'] = True
-        messages.success(request, "PARTIDA INICIADA – ¡A tirar bolos!")
+        messages.success(request, "PARTIDA INICIADA - A tirar bolos!")
         return redirect('tablero_puntuaciones', pk=pk)
 
     def agregar_jugador(self, request):
@@ -414,43 +486,60 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
             jugador.partida = partida
             jugador.save()
             for i in range(1, 11):
-                PuntajeJugador.objects.create(partida=partida, jugador=jugador, set=i, puntaje=0)
-            messages.success(request, f"{jugador.nombre} agregado")
+                Frame.objects.get_or_create(jugador=jugador, numero=i)
+                PuntajeJugador.objects.get_or_create(partida=partida, jugador=jugador, set=i, defaults={'puntaje': 0})
+            messages.success(self.request, f"{jugador.nombre} agregado")
         return redirect('tablero_puntuaciones', pk=pk)
 
     def registrar_turno_real(self, request):
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk)
         partida = Partida.objects.get(reserva=reserva)
+        turno = self._siguiente_tiro(partida)
 
-        # Usamos .get() en lugar de .get('puntaje_turno', 0) or 0, para asegurar que el 0 pase.
+        if not turno:
+            messages.info(request, "No quedan tiros pendientes.")
+            return redirect('tablero_puntuaciones', pk=pk)
+
         try:
-            puntaje = int(request.POST.get('puntaje_turno', 0)) 
+            puntaje_ingresado = int(request.POST.get('puntaje_turno', 0))
         except ValueError:
-            puntaje = 0
-            
-        puntaje = max(0, min(100, puntaje)) # Máximo 10 pinos por tiro (Simplificación)
+            puntaje_ingresado = 0
 
-        # Encontrar el TURNO ACTUAL pendiente
-        turno = PuntajeJugador.objects.filter(
+        puntaje = max(0, min(turno['maximo'], puntaje_ingresado))
+        frame = turno['frame']
+        jugador = turno['jugador']
+
+        if turno['tiro'] == 1:
+            frame.tiro1 = puntaje
+            # En frames 1-9 un strike salta el segundo tiro
+            if frame.numero < 10 and puntaje == 10:
+                frame.tiro2 = 0
+        elif turno['tiro'] == 2:
+            frame.tiro2 = puntaje
+        else:
+            frame.tiro3 = puntaje
+
+        frame.puntaje_frame = self._puntaje_frame(frame)
+        frame.save()
+
+        puntaje_record, _ = PuntajeJugador.objects.get_or_create(
             partida=partida,
-            puntaje=0
-        ).order_by('set', 'jugador__id_jugador').first()
+            jugador=jugador,
+            set=frame.numero,
+            defaults={'puntaje': 0}
+        )
+        puntaje_record.puntaje = frame.puntaje_frame
+        puntaje_record.save()
 
-        # Si hay turno → guardar tiro
-        if turno:
-            turno.puntaje = puntaje
-            turno.save()
-            messages.success(request, f"Frame {turno.set} → {turno.jugador.nombre}: {puntaje} puntos")
+        marca = self._formatear_frame(frame)
+        messages.success(request, f"Frame {frame.numero} - {jugador.nombre}: {marca}")
 
-        # AHORA: comprobar si ya no quedan tiros (Partida Terminada)
-        quedan_tiros = PuntajeJugador.objects.filter(partida=partida, puntaje=0).exists()
+        quedan_tiros = self._siguiente_tiro(partida)
 
         if not quedan_tiros:
-            # PARTIDA TERMINADA
             try:
-                # Nota: Asegúrate de que 'Estado' y 'Completada' existan en tus models
-                estado_completada = Estado.objects.get(nombre="Completada") 
+                estado_completada = Estado.objects.get(nombre="Completada")
             except Estado.DoesNotExist:
                 messages.error(request, "Error: No existe el estado 'Completada'")
                 return redirect('tablero_puntuaciones', pk=pk)
@@ -459,13 +548,9 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
             reserva.fecha_completada = timezone.now()
             reserva.save()
 
-            # El cálculo del ganador se hace en el GET, pero repetimos el mensaje de éxito
-            # para que aparezca al momento de finalizar el último tiro.
-            messages.success(request, f"¡PARTIDA TERMINADA!")
+            messages.success(request, "PARTIDA TERMINADA")
 
         return redirect('tablero_puntuaciones', pk=pk)
-
-
 
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
     template_name = "bowl/cositas_admin/asignar_admin.html"
@@ -480,7 +565,7 @@ class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
 
     def post(self, request):
         if getattr(request.user, 'rol', None) != 'admin':
-            messages.error(request, "No tienes permiso para realizar esta acción.")
+            messages.error(request, "No tienes permiso para realizar esta acciÃ³n.")
             return redirect('inicio')
 
         user_id = request.POST.get('user_id')
@@ -551,7 +636,7 @@ def registro(request):
 
 
 # ---------------------------------------------------------
-# Página de gestión de reserva activa
+# PÃ¡gina de gestiÃ³n de reserva activa
 # ---------------------------------------------------------
 
 class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
@@ -603,7 +688,7 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
         reserva_id = request.POST.get('reserva_id')
         reserva = get_object_or_404(Reserva, id_reserva=pk)
         print("Intentando cancelar reserva:", reserva)    
-        # Regla: solo se puede cancelar con más de 2 horas de antelación
+        # Regla: solo se puede cancelar con mÃ¡s de 2 horas de antelaciÃ³n
         fecha_hora_reserva = timezone.make_aware(
             datetime.combine(reserva.fecha, reserva.hora)
         )
@@ -629,9 +714,9 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
         # Creamos o obtenemos el pedido de la reserva
         pedido, _ = Pedido.objects.get_or_create(reserva=reserva)
 
-        # Añadimos la comida (puedes usar through model si tienes cantidad, aquí simplificado)
+        # AÃ±adimos la comida (puedes usar through model si tienes cantidad, aquÃ­ simplificado)
         pedido.comidas.add(comida)  # Si tienes modelo Pedido tiene ManyToMany directo
-        # Si tienes un modelo intermedio con cantidad, cambia la lógica aquí
+        # Si tienes un modelo intermedio con cantidad, cambia la lÃ³gica aquÃ­
 
-        messages.success(request, f"{comida.nombre} ×{cantidad} añadido al pedido.")
+        messages.success(request, f"{comida.nombre} Ã—{cantidad} aÃ±adido al pedido.")
         return redirect('gestion_reserva')

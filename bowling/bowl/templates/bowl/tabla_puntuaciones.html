@@ -148,15 +148,27 @@
         font-weight: 800;
     }
     .registro-box button[type="submit"] {
-        font-size: 26px !important;
-        padding: 16px 60px !important;
-        background: #fff !important;
-        color: #5c6ac4 !important;
+        font-size: 24px !important;
+        padding: 16px 56px !important;
+        background: linear-gradient(135deg, #00f5a0 0%, #00d9f5 100%) !important;
+        color: #06101f !important;
         border: none;
         border-radius: 14px;
         margin-top: 18px;
         font-weight: 800;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 16px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+    .registro-box button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 36px rgba(0,0,0,0.4);
+        filter: brightness(1.05);
+    }
+    .registro-box button[type="submit"]:active {
+        transform: translateY(1px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
 
     .ganador-box {
@@ -238,6 +250,9 @@
                 <div class="pill-box" style="margin-bottom:20px;">
                     Partida en curso – Frame <strong>{{ frame_actual }}</strong>
                 </div>
+                <div class="pill-box" style="margin-bottom:20px; font-size:14px;">
+                    Tiro {{ tiro_actual|default:1 }} de {% if frame_actual == 10 %}3{% else %}2{% endif %} – Máximo {{ tiro_maximo|default:10 }} pinos
+                </div>
             {% endif %}
 
             <table id="tabla-puntuaciones">
@@ -260,7 +275,7 @@
                         {% for p in j.puntajes %}
                         <td {% if p.frame == frame_actual %}class="frame-actual"{% endif %}
                             {% if p.es_actual %}style="background:#e74c3c; color:white;"{% endif %}>
-                            {% if p.puntaje > 0 %}{{ p.puntaje }}{% else %}-{% endif %}
+                            {{ p.display|default:"-" }}
                         </td>
                         {% endfor %}
                         <td>{{ j.total }}</td>
@@ -298,17 +313,23 @@
                 <div class="registro-box">
                     <h1>TURNO DE: <span style="color:#ffd43b;">{{ jugador_actual.nombre }}</span></h1>
                     <h2>FRAME {{ frame_actual }}</h2>
+                    <div style="opacity:0.9; letter-spacing:0.5px; margin-bottom:4px;">Tiro {{ tiro_actual|default:1 }} de {% if frame_actual == 10 %}3{% else %}2{% endif %}</div>
 
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="registrar_turno" value="1">
-                        <input type="number" name="puntaje_turno" id="puntaje_input" min="0" max="100" autocomplete="off" autofocus placeholder="0">
+                        <input type="number" name="puntaje_turno" id="puntaje_input" min="0" max="{{ tiro_maximo|default:10 }}" autocomplete="off" autofocus placeholder="{{ tiro_maximo|default:10 }}">
 
-                        <div style="margin:15px 0; font-style: italic; font-size: 15px;">
-                            Ingresa los pinos derribados en este tiro (0-10)
+                        <div style="margin:15px 0; font-style: italic; font-size: 15px; line-height:1.4;">
+                            Ingresa los pinos derribados en este tiro (máx {{ tiro_maximo|default:10 }}).
+                            {% if tiro_actual == 1 %}
+                                Strike = <strong>X</strong> y salta directo al siguiente jugador.
+                            {% else %}
+                                Si completas 10 entre los dos tiros se marca <strong>/</strong>.
+                            {% endif %}
                         </div>
                         
-                        <button type="submit">REGISTRAR TIRO</button>
+                        <button type="submit">Sumar puntos</button>
                     </form>
                 </div>
             {% endif %}
