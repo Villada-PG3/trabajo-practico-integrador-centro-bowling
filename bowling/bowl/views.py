@@ -263,141 +263,186 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
 
 
 
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.contrib import messages
+from django.utils import timezone
+from .models import Reserva, Partida, Jugador, Frame, PuntajeJugador, Estado
+from .forms import JugadorForm
+
+
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
     template_name = "bowl/tabla_puntuaciones.html"
 
     def _asegurar_frames(self, partida):
-        """Crea frames y registros de puntaje vacíos si faltan."""
+        """Crea frames vacíos para todos los jugadores si no existen."""
         jugadores = Jugador.objects.filter(partida=partida)
         for jugador in jugadores:
             for numero in range(1, 11):
                 Frame.objects.get_or_create(jugador=jugador, numero=numero)
-                PuntajeJugador.objects.get_or_create(
-                    partida=partida,
-                    jugador=jugador,
-                    set=numero,
-                    defaults={'puntaje': 0}
-                )
 
     def _siguiente_tiro(self, partida):
         """
-        Devuelve el siguiente tiro pendiente en orden por frame y jugador.
-        Respuesta: {'jugador': jugador, 'frame': frame, 'tiro': 1|2|3, 'maximo': n}
+        Devuelve el siguiente tiro pendiente.
+        Retorna dict con: jugador, frame, tiro (1/2/3), maximo permitido.
         """
         jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
         for numero in range(1, 11):
             for jugador in jugadores:
-                frame, _ = Frame.objects.get_or_create(jugador=jugador, numero=numero)
+                frame = Frame.objects.get(jugador=jugador, numero=numero)
+
+                # Tiro 1 siempre pendiente si no está hecho
                 if frame.tiro1 is None:
                     return {'jugador': jugador, 'frame': frame, 'tiro': 1, 'maximo': 10}
+
+                # Frames 1-9
                 if numero < 10:
                     if frame.tiro1 < 10 and frame.tiro2 is None:
-                        restante = max(0, 10 - frame.tiro1)
-                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': restante}
-                else:
-                    # Frame 10: habilita tiro 3 si hay strike o spare
-                    if frame.tiro2 is None:
-                        restante = 10 if frame.tiro1 == 10 else max(0, 10 - frame.tiro1)
-                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': restante}
-                    if (frame.tiro1 == 10 or (frame.tiro1 or 0) + (frame.tiro2 or 0) >= 10) and frame.tiro3 is None:
-                        if frame.tiro1 == 10 and frame.tiro2 == 10:
-                            restante = 10
-                        elif frame.tiro1 == 10:
-                            restante = max(0, 10 - (frame.tiro2 or 0))
-                        else:
-                            restante = 10
-                        return {'jugador': jugador, 'frame': frame, 'tiro': 3, 'maximo': restante}
-        return None
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': 10 - frame.tiro1}
 
-    def _puntaje_frame(self, frame):
-        t1 = frame.tiro1 or 0
-        t2 = frame.tiro2 or 0
-        t3 = frame.tiro3 or 0
-        if frame.numero == 10:
-            if t1 == 10:
-                return 10 + t2 + t3
-            if t1 + t2 >= 10:
-                return 10 + t3
-            return t1 + t2
-        return min(10, t1 + t2)
+                # Frame 10 - lógica especial
+                else:
+                    if frame.tiro2 is None:
+                        max_tiro2 = 10 if frame.tiro1 == 10 else (10 - frame.tiro1)
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 2, 'maximo': max_tiro2}
+
+                    if (frame.tiro1 == 10 or (frame.tiro1 + frame.tiro2) >= 10) and frame.tiro3 is None:
+                        if frame.tiro1 == 10 and frame.tiro2 == 10:
+                            max_tiro3 = 10
+                        elif frame.tiro1 == 10:
+                            max_tiro3 = 10 - frame.tiro2
+                        else:
+                            max_tiro3 = 10
+                        return {'jugador': jugador, 'frame': frame, 'tiro': 3, 'maximo': max_tiro3}
+
+        return None  # Partida terminada
 
     def _formatear_frame(self, frame):
-        """Marca a mostrar en el tablero: X, / o numeros (maneja tercer tiro en frame 10)."""
+        """Devuelve X, /, números o guiones para mostrar en la tabla."""
         t1, t2, t3 = frame.tiro1, frame.tiro2, frame.tiro3
-        if t1 is None and t2 is None and t3 is None:
-            return "-"
+
         if frame.numero < 10:
+            if t1 is None:
+                return "-"
             if t1 == 10:
                 return "X"
             if t2 is None:
                 return f"{t1} -"
-            if (t1 or 0) + (t2 or 0) >= 10:
+            if t1 + t2 >= 10:
                 return f"{t1} /"
             return f"{t1} {t2}"
 
         # Frame 10
         partes = []
-        # tiro1
+
+        # Tiro 1
         if t1 == 10:
             partes.append("X")
         elif t1 is None:
             partes.append("-")
         else:
             partes.append(str(t1))
-        # tiro2
+
+        # Tiro 2
         if t2 is None:
             partes.append("-")
         elif t1 == 10 and t2 == 10:
             partes.append("X")
-        elif t1 != 10 and (t1 or 0) + (t2 or 0) >= 10:
+        elif t1 != 10 and t1 + t2 >= 10:
             partes.append("/")
         else:
             partes.append(str(t2))
-        # tiro3
-        if t3 is None:
-            pass
-        elif t3 == 10:
-            partes.append("X")
-        elif (t1 == 10 or (t1 or 0) + (t2 or 0) >= 10) and (t2 or 0) + (t3 or 0) >= 10 and t2 != 10:
-            partes.append("/")
-        else:
-            partes.append(str(t3))
 
-        return " ".join(partes)
+        # Tiro 3 (solo si existe)
+        if t3 is not None:
+            if t3 == 10:
+                partes.append("X")
+            elif (t1 == 10 or t1 + t2 >= 10) and (t2 + t3 >= 10) and t2 != 10:
+                partes.append("/")
+            else:
+                partes.append(str(t3))
+
+        return " ".join(partes) if partes else "-"
+
+    def _calcular_puntaje_acumulado(self, jugador):
+        """
+        CÁLCULO OFICIAL DE BOWLING.
+        Devuelve lista de 10 frames con puntaje acumulado correcto.
+        """
+        frames = list(Frame.objects.filter(jugador=jugador).order_by('numero'))
+        resultado = []
+        total = 0
+
+        for i, frame in enumerate(frames):
+            t1 = frame.tiro1 or 0
+            t2 = frame.tiro2 or 0
+            t3 = frame.tiro3 or 0 if frame.numero == 10 else 0
+
+            if frame.numero < 10:
+                if t1 == 10:  # Strike
+                    # Próximos 2 tiros
+                    if i + 1 < 10:
+                        next1 = frames[i + 1]
+                        bonus1 = next1.tiro1 or 0
+                        bonus2 = (next1.tiro2 or 0) if next1.tiro1 != 10 or i + 2 >= 10 else (frames[i + 2].tiro1 or 0)
+                    else:  # frame 9 → frame 10
+                        bonus1 = frames[9].tiro2 or 0
+                        bonus2 = frames[9].tiro3 or 0
+                    puntaje_frame = 10 + bonus1 + bonus2
+
+                elif t1 + t2 == 10:  # Spare
+                    bonus = frames[i + 1].tiro1 or 0 if i + 1 < 10 else (frames[9].tiro2 or 0)
+                    puntaje_frame = 10 + bonus
+
+                else:
+                    puntaje_frame = t1 + t2
+
+            else:  # Frame 10 → sin bonus, se suman los 3 tiros tal cual
+                puntaje_frame = t1 + t2 + t3
+
+            total += puntaje_frame
+            resultado.append({
+                'frame_numero': frame.numero,
+                'puntaje_frame': puntaje_frame,
+                'puntaje_acumulado': total,
+                'display': self._formatear_frame(frame),
+                'frame_obj': frame,
+            })
+
+        return resultado, total
 
     def _armar_tabla(self, partida):
         turno = self._siguiente_tiro(partida)
         jugadores = Jugador.objects.filter(partida=partida).order_by('id_jugador')
-        jugadores_puntajes = []
+        tabla = []
 
         for jugador in jugadores:
-            puntajes = []
-            total = 0
-            for numero in range(1, 11):
-                frame, _ = Frame.objects.get_or_create(jugador=jugador, numero=numero)
-                puntaje_frame = self._puntaje_frame(frame)
-                total += puntaje_frame
-                puntajes.append({
-                    'frame': numero,
-                    'puntaje': puntaje_frame,
-                    'display': self._formatear_frame(frame),
-                    'es_actual': turno and turno['frame'].id == frame.id and turno['jugador'].id_jugador == jugador.id_jugador
-                })
+            puntajes_frames, total_final = self._calcular_puntaje_acumulado(jugador)
 
-            jugadores_puntajes.append({
+            # Marcar cuál es el frame/tiro actual del jugador
+            for item in puntajes_frames:
+                es_actual = (
+                    turno and
+                    item['frame_obj'].id == turno['frame'].id and
+                    turno['jugador'].id_jugador == jugador.id_jugador
+                )
+                item['es_actual'] = es_actual
+
+            tabla.append({
                 'id': jugador.id_jugador,
                 'nombre': jugador.nombre,
-                'puntajes': puntajes,
-                'total': total,
+                'puntajes': puntajes_frames,
+                'total': total_final,
                 'es_turno_actual': turno and turno['jugador'].id_jugador == jugador.id_jugador,
             })
 
         frame_actual = turno['frame'].numero if turno else 1
         jugador_actual = turno['jugador'] if turno else None
-        tiro_actual = turno['tiro'] if turno else None
+        tiro_actual = turno['tiro'] if turno else 1
         maximo_tiro = turno['maximo'] if turno else 10
 
-        return jugadores_puntajes, frame_actual, jugador_actual, tiro_actual, maximo_tiro
+        return tabla, frame_actual, jugador_actual, tiro_actual, maximo_tiro
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -406,32 +451,17 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
 
         partida, creada = Partida.objects.get_or_create(
             reserva=reserva,
-            defaults={
-                'cliente': self.request.user.cliente,
-                'pista': reserva.pista
-            }
+            defaults={'cliente': self.request.user.cliente, 'pista': reserva.pista}
         )
 
         if creada:
-            nombre_jugador = self.request.user.get_full_name() or self.request.user.username
-            jugador_cliente, _ = Jugador.objects.get_or_create(
-                partida=partida,
-                nombre=nombre_jugador,
-            )
-
-            for numero in range(1, 11):
-                Frame.objects.get_or_create(jugador=jugador_cliente, numero=numero)
-                PuntajeJugador.objects.get_or_create(
-                    partida=partida,
-                    jugador=jugador_cliente,
-                    set=numero,
-                    defaults={'puntaje': 0}
-                )
+            nombre = self.request.user.get_full_name() or self.request.user.username
+            jugador, _ = Jugador.objects.get_or_create(partida=partida, nombre=nombre)
 
         self._asegurar_frames(partida)
 
-        clave = f'partida_iniciada_{partida.id_partida}'
-        partida_iniciada = self.request.session.get(clave, False)
+        clave_sesion = f'partida_iniciada_{partida.id_partida}'
+        partida_iniciada = self.request.session.get(clave_sesion, False)
 
         jugadores_puntajes, frame_actual, jugador_actual, tiro_actual, maximo_tiro = self._armar_tabla(partida)
         partida_terminada = partida_iniciada and not self._siguiente_tiro(partida)
@@ -468,7 +498,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         pk = self.kwargs.get('pk')
         partida = Partida.objects.get(reserva__pk=pk)
         request.session[f'partida_iniciada_{partida.id_partida}'] = True
-        messages.success(request, "PARTIDA INICIADA - A tirar bolos!")
+        messages.success(request, "PARTIDA INICIADA - ¡A tirar bolos!")
         return redirect('tablero_puntuaciones', pk=pk)
 
     def agregar_jugador(self, request):
@@ -476,8 +506,8 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         reserva = get_object_or_404(Reserva, pk=pk)
         partida = Partida.objects.get(reserva=reserva)
 
-        if request.session.get(f'partida_iniciada_{partida.id_partida}', False):
-            messages.error(request, "No se pueden agregar jugadores una vez empezada la partida")
+        if self.request.session.get(f'partida_iniciada_{partida.id_partida}', False):
+            messages.error(request, "No se pueden agregar jugadores una vez iniciada la partida")
             return redirect('tablero_puntuaciones', pk=pk)
 
         form = JugadorForm(request.POST)
@@ -487,8 +517,7 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
             jugador.save()
             for i in range(1, 11):
                 Frame.objects.get_or_create(jugador=jugador, numero=i)
-                PuntajeJugador.objects.get_or_create(partida=partida, jugador=jugador, set=i, defaults={'puntaje': 0})
-            messages.success(self.request, f"{jugador.nombre} agregado")
+            messages.success(request, f"{jugador.nombre} agregado a la partida")
         return redirect('tablero_puntuaciones', pk=pk)
 
     def registrar_turno_real(self, request):
@@ -498,60 +527,44 @@ class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
         turno = self._siguiente_tiro(partida)
 
         if not turno:
-            messages.info(request, "No quedan tiros pendientes.")
+            messages.info(request, "La partida ya terminó.")
             return redirect('tablero_puntuaciones', pk=pk)
 
         try:
-            puntaje_ingresado = int(request.POST.get('puntaje_turno', 0))
+            pins = int(request.POST.get('puntaje_turno', 0))
         except ValueError:
-            puntaje_ingresado = 0
+            pins = 0
 
-        puntaje = max(0, min(turno['maximo'], puntaje_ingresado))
+        pins = max(0, min(pins, turno['maximo']))
         frame = turno['frame']
-        jugador = turno['jugador']
 
         if turno['tiro'] == 1:
-            frame.tiro1 = puntaje
-            # En frames 1-9 un strike salta el segundo tiro
-            if frame.numero < 10 and puntaje == 10:
-                frame.tiro2 = 0
+            frame.tiro1 = pins
+            if frame.numero < 10 and pins == 10:
+                frame.tiro2 = 0  # Strike en 1-9 → segundo tiro no se juega
         elif turno['tiro'] == 2:
-            frame.tiro2 = puntaje
-        else:
-            frame.tiro3 = puntaje
+            frame.tiro2 = pins
+        else:  # tiro 3 (solo frame 10)
+            frame.tiro3 = pins
 
-        frame.puntaje_frame = self._puntaje_frame(frame)
         frame.save()
 
-        puntaje_record, _ = PuntajeJugador.objects.get_or_create(
-            partida=partida,
-            jugador=jugador,
-            set=frame.numero,
-            defaults={'puntaje': 0}
-        )
-        puntaje_record.puntaje = frame.puntaje_frame
-        puntaje_record.save()
-
         marca = self._formatear_frame(frame)
-        messages.success(request, f"Frame {frame.numero} - {jugador.nombre}: {marca}")
+        messages.success(request, f"{turno['jugador'].nombre} - Frame {frame.numero}: {marca}")
 
-        quedan_tiros = self._siguiente_tiro(partida)
-
-        if not quedan_tiros:
+        # Si no quedan más tiros → partida terminada
+        if not self._siguiente_tiro(partida):
             try:
                 estado_completada = Estado.objects.get(nombre="Completada")
+                reserva.estado = estado_completada
+                reserva.fecha_completada = timezone.now()
+                reserva.save()
             except Estado.DoesNotExist:
-                messages.error(request, "Error: No existe el estado 'Completada'")
-                return redirect('tablero_puntuaciones', pk=pk)
-
-            reserva.estado = estado_completada
-            reserva.fecha_completada = timezone.now()
-            reserva.save()
-
-            messages.success(request, "PARTIDA TERMINADA")
+                pass  # opcional: crear el estado si no existe
+            messages.success(request, "PARTIDA TERMINADA - ¡Felicitaciones a todos!")
 
         return redirect('tablero_puntuaciones', pk=pk)
-
+    
 class AsignarAdminView(LoginRequiredMixin, ThemeMixin, UsuarioContext, View):
     template_name = "bowl/cositas_admin/asignar_admin.html"
 
