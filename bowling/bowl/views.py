@@ -255,21 +255,14 @@ class EditarPistaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, UpdateView
     template_name = "bowl/cositas_admin/editar_pistas.html"
     success_url = reverse_lazy('lista_pistas')
 
-# views.py â†’ TableroPuntuacionesView (versiÃ³n definitiva y probada)
-# bowl/views.py â†’ TableroPuntuacionesView (VERSIÃ“N BOLERA REAL)
 
 
 
 
 
 
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from django.contrib import messages
-from django.utils import timezone
-from .models import Reserva, Partida, Jugador, Frame, PuntajeJugador, Estado
-from .forms import JugadorForm
+
+
 
 
 class TableroPuntuacionesView(LoginRequiredMixin, TemplateView):
