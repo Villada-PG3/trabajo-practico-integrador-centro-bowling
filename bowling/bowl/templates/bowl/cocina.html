@@ -1,0 +1,48 @@
+{% extends 'bowl/navbar.html' %}
+{% block content %}
+<div class="content-shell" style="max-width:1000px;">
+    <h1 style="text-align:center; color:#fff; margin:30px 0;">Pedidos de Hoy {{ hoy|date:"d/m" }}</h1>
+
+    {% if pedidos %}
+        {% for p in pedidos %}
+        <div style="background:rgba(20,24,35,0.9); border-radius:16px; padding:20px; margin-bottom:25px;
+                    border:3px solid {% if p.estado.nombre == 'En preparación' %}orange{% elif p.estado.nombre == 'Listo' %}green{% else %}#3498db{% endif %};">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3>Pista {{ p.reserva.pista.numero }} • {{ p.reserva.hora|time:"H:i" }}</h3>
+                <strong style="color:#fff;">{{ p.estado.nombre }}</strong>
+            </div>
+            <table style="width:100%; color:#e8ecf1;">
+                {% for d in p.detalles.all %}
+                <tr>
+                    <td>{{ d.cantidad }} × {{ d.menu.nombre }}</td>
+                    <td style="text-align:right;">${{ d.subtotal|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+                <tr style="border-top:2px solid #3498db;">
+                    <td><strong>TOTAL</strong></td>
+                    <td style="text-align:right;"><strong>${{ p.precio_total|floatformat:0 }}</strong></td>
+                </tr>
+            </table>
+
+            {% if user.rol == 'admin' %}
+            <div style="margin-top:15px; text-align:center;">
+                <form method="post" style="display:inline-block;">
+                    {% csrf_token %}
+                    <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                    {% if p.estado.nombre == "Pendiente" or not p.estado %}
+                        <button name="accion" value="En preparación" class="btn-main" style="background:orange;">En preparación</button>
+                    {% elif p.estado.nombre == "En preparación" %}
+                        <button name="accion" value="Listo" class="btn-main" style="background:green;">Listo</button>
+                    {% elif p.estado.nombre == "Listo" %}
+                        <button name="accion" value="Entregado" class="btn-main" style="background:gray;">Entregado</button>
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center; color:#aaa; font-size:1.3rem;">¡Todo tranquilo! No hay pedidos todavía.</p>
+    {% endif %}
+</div>
+{% endblock %}

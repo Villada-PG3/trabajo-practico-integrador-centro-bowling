@@ -14,6 +14,7 @@ from datetime import datetime, time, timedelta
 from django.core.serializers import serialize
 from django.db.models import Sum
 from django.db import models    
+from .models import Menu, Pedido, DetallePedido
 import json
 
 from .models import (
@@ -644,7 +645,6 @@ def registro(request):
 # ---------------------------------------------------------
 # PÃ¡gina de gestiÃ³n de reserva activa
 # ---------------------------------------------------------
-
 class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/gestion_reserva.html"
     login_url = reverse_lazy('iniciar_sesion')
@@ -652,77 +652,110 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs.get('pk')
-        context[pk] = pk
+        reserva = get_object_or_404(Reserva, pk=pk, cliente=self.request.user.cliente)
+
+        # Crear o obtener el pedido asociado a la reserva
+        pedido, _ = Pedido.objects.get_or_create(
+            reserva=reserva,
+            defaults={'cliente': self.request.user.cliente}
+        )
+
+        # Detalles del pedido con menú relacionado
+        detalles = DetallePedido.objects.filter(pedido=pedido).select_related('menu')
+
+        # Calcular total del pedido
+        total_pedido = sum(detalle.subtotal or 0 for detalle in detalles)
+
+        # Menú disponible
+        menu_items = Menu.objects.filter(disponible=True)
+
+        # Lógica de "puede entrar" (mantiene tu lógica original + mejora)
         hoy = timezone.now().date()
         ahora = timezone.now().time()
+        hora_permitida = (datetime.combine(hoy, reserva.hora) - timedelta(hours=1)).time()
+        puede_entrar = (reserva.fecha < hoy) or (reserva.fecha == hoy and ahora >= hora_permitida)
 
-        user = self.request.user
-        cliente = getattr(user, "cliente", None)
-        
-
-
-
-        reserva_activa = get_object_or_404(Reserva, pk=pk)
-
-        if not reserva_activa:
-            context['reserva_activa'] = None
-            return context
-
-        # Calculamos si ya puede entrar (15 min antes)
-        hora_inicio = (datetime.combine(hoy, reserva_activa.hora) - timedelta(hours=1)).time()
-        puede_entrar = ahora >= hora_inicio
-        puede_entrar = True
-        # Pedido actual de la reserva (si existe)
-        pedido = getattr(reserva_activa, 'pedido', None)
-        context['puede_entrar'] = puede_entrar
-        print(reserva_activa)
-        context["reserva"] = reserva_activa
-
+        context.update({
+            'reserva': reserva,
+            'pedido': pedido,
+            'detalles_pedido': detalles,
+            'total_pedido': total_pedido,
+            'menu_items': menu_items,
+            'puede_entrar': puede_entrar,
+        })
         return context
-
     def post(self, request, *args, **kwargs):
         accion = request.POST.get('accion')
-        print("Accion recibida:", accion)
+        pk = self.kwargs.get('pk')
+        reserva = get_object_or_404(Reserva, pk=pk, cliente=request.user.cliente)
+
         if accion == "cancelar":
-            return self.cancelar_reserva(request, pk=self.kwargs.get('pk'))
+            return self.cancelar_reserva(request, reserva)
         elif accion == "agregar_comida":
-            return self.agregar_comida_reserva(request)
+            return self.agregar_comida_reserva(request, reserva)
+        elif accion == "enviar_pedido":
+            return self.enviar_pedido(request, reserva)
+
+        return redirect('gestion_reserva', pk=pk)
+
+    def enviar_pedido(self, request, reserva):
+        pedido = Pedido.objects.get(reserva=reserva)
+        if not pedido.detalles.exists():
+            messages.warning(request, "¡Agregá algo antes de enviar el pedido!")
+            return redirect('gestion_reserva', pk=reserva.pk)
+
+        # Usa el estado que YA existe en tu base de datos
+        estado_cocina = Estado.objects.get(nombre="En preparación")
+        pedido.estado = estado_cocina
+        pedido.save()
         
-        return redirect('reserva')
+        messages.success(request, "¡Pedido enviado a cocina! En breve te lo llevan a la pista.")
+        return redirect('gestion_reserva', pk=reserva.pk)
 
-    def cancelar_reserva(self, request, pk):
-        reserva_id = request.POST.get('reserva_id')
-        reserva = get_object_or_404(Reserva, id_reserva=pk)
-        print("Intentando cancelar reserva:", reserva)    
-        # Regla: solo se puede cancelar con mÃ¡s de 2 horas de antelaciÃ³n
-        fecha_hora_reserva = timezone.make_aware(
-            datetime.combine(reserva.fecha, reserva.hora)
-        )
-    
-
-
-        estado_disponible = Estado.objects.get(nombre="Disponible")
+    def cancelar_reserva(self, request, reserva):
+        # Tu lógica original de cancelación (corregida)
+        try:
+            estado_disponible = Estado.objects.get(nombre="Disponible")
+        except Estado.DoesNotExist:
+            estado_disponible = Estado.objects.create(nombre="Disponible")
+        
         reserva.estado = estado_disponible
         reserva.save()
-        print("Reserva cancelada:", reserva)
         messages.success(request, "Reserva cancelada y pista liberada correctamente.")
+        return redirect('reserva')
+
+    def agregar_comida_reserva(self, request, reserva):
+        menu_id = request.POST.get('menu_id')
+        cantidad_str = request.POST.get('cantidad', '1')
         
-        return redirect('reserva')  # va a la lista de reservas activas
+        try:
+            cantidad = int(cantidad_str)
+            if cantidad < 1:
+                raise ValueError
+        except ValueError:
+            messages.error(request, "Cantidad inválida.")
+            return redirect('gestion_reserva', pk=reserva.pk)
 
-    def agregar_comida_reserva(self, request):
-        reserva_id = request.POST.get('reserva_id')
-        comida_id = request.POST.get('comida_id')
-        cantidad = int(request.POST.get('cantidad', 1))
+        if not menu_id:
+            messages.error(request, "Debes seleccionar un producto.")
+            return redirect('gestion_reserva', pk=reserva.pk)
 
-        reserva = get_object_or_404(Reserva, id=reserva_id, cliente=request.user.cliente)
-        comida = get_object_or_404(Comida, id=comida_id)
+        menu = get_object_or_404(Menu, id=menu_id, disponible=True)
+        pedido = Pedido.objects.get(reserva=reserva)
 
-        # Creamos o obtenemos el pedido de la reserva
-        pedido, _ = Pedido.objects.get_or_create(reserva=reserva)
+        # Buscar si ya existe el detalle para sumar cantidad
+        detalle, creado = DetallePedido.objects.get_or_create(
+            pedido=pedido,
+            menu=menu,
+            defaults={'cantidad': cantidad}
+        )
+        if not creado:
+            detalle.cantidad += cantidad
+            detalle.save()  # El save() recalcula el subtotal gracias al método save() del modelo
 
-        # AÃ±adimos la comida (puedes usar through model si tienes cantidad, aquÃ­ simplificado)
-        pedido.comidas.add(comida)  # Si tienes modelo Pedido tiene ManyToMany directo
-        # Si tienes un modelo intermedio con cantidad, cambia la lÃ³gica aquÃ­
+        # Recalcular precio_total del pedido
+        pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
+        pedido.save()
 
-        messages.success(request, f"{comida.nombre} Ã—{cantidad} aÃ±adido al pedido.")
-        return redirect('gestion_reserva')
+        messages.success(request, f"Agregado: {cantidad} × {menu.nombre}")
+        return redirect('gestion_reserva', pk=reserva.pk)

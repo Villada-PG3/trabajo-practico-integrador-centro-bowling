@@ -94,37 +94,121 @@
             </div>
             <div class="pill">
                 <label>Hora</label>
-                <span>{{ reserva.hora }}</span>
+                <span>{{ reserva.hora|time:"H:i" }}</span>
             </div>
             <div class="pill">
                 <label>Estado</label>
                 <span>{{ reserva.estado.nombre }}</span>
             </div>
             <div class="pill">
-                <label>Total</label>
-                <span>${{ reserva.precio_total }}</span>
+                <label>Total pista</label>
+                <span>${{ reserva.precio_total|floatformat:0 }}</span>
             </div>
         </div>
 
         <div class="actions">
-            <form method="post" action="">
+            <form method="post" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" name="accion" value="cancelar" class="btn-main"
-                        onclick="return confirm('Seguro que querés cancelar la reserva?')">
+                <input type="hidden" name="accion" value="cancelar">
+                <button type="submit" class="btn-main"
+                        onclick="return confirm('¿Seguro que querés cancelar la reserva?')">
                     Cancelar reserva
                 </button>
             </form>
 
             {% if puede_entrar %}
-                <a href="{% url 'tablero_puntuaciones' pk %}" class="btn-ghost">Empezar partida</a>
+                <a href="{% url 'tablero_puntuaciones' reserva.pk %}" class="btn-ghost">Empezar partida</a>
             {% else %}
                 <div class="notice">Podés ingresar 1 hora antes del horario reservado.</div>
             {% endif %}
         </div>
+
+        <!-- === SECCIÓN DE PEDIDOS DE COMIDA === -->
+        {% if puede_entrar %}
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.15);">
+            <h2 style="margin-bottom: 20px; font-size: 22px;">🍔 Pedido a la Cafetería</h2>
+
+            <!-- Formulario para agregar -->
+            <form method="post" style="display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: end; margin-bottom: 24px;">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="agregar_comida">
+                <div>
+                    <label style="display: block; margin-bottom: 6px; opacity: 0.9;">Producto</label>
+                    <select name="menu_id" required style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                        <option value="">-- Seleccionar --</option>
+                        {% for item in menu_items %}
+                            <option value="{{ item.id }}">{{ item.nombre }} - ${{ item.precio|floatformat:0 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 6px; opacity: 0.9;">Cant.</label>
+                    <input type="number" name="cantidad" value="1" min="1" max="50" style="width: 80px; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                </div>
+                <div>
+                    <button type="submit" class="btn-ghost">Añadir</button>
+                </div>
+            </form>
+
+            <!-- Pedido actual -->
+            {% if detalles_pedido %}
+                <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 19px;">Tu pedido actual</h3>
+                        <span class="pill" style="background:#2c3e50; font-size:0.9rem;">
+                            {{ pedido.estado.nombre|default:"Borrador" }}
+                        </span>
+                    </div>
+
+                    <table style="width: 100%; border-collapse:collapse;">
+                        <tbody>
+                            {% for d in detalles_pedido %}
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <td style="padding:8px 0;">{{ d.menu.nombre }}</td>
+                                <td style="text-align:center; width:60px;">{{ d.cantidad }}</td>
+                                <td style="text-align:right;">${{ d.subtotal|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr style="border-top:2px solid #3498db;">
+                                <td colspan="2" style="padding-top:12px; font-weight:700; font-size:1.1rem;">TOTAL</td>
+                                <td style="text-align:right; padding-top:12px; font-weight:700; font-size:1.2rem; color:#3498db;">
+                                    ${{ total_pedido|floatformat:0 }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    {% if pedido.estado.nombre != "En preparación" and pedido.estado.nombre != "Listo" and pedido.estado.nombre != "Entregado" %}
+                        <div style="margin-top:20px; text-align:center;">
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="enviar_pedido">
+                                <button type="submit" class="btn-main" style="padding:14px 30px; font-size:1.1rem;"
+                                        onclick="return confirm('¿Confirmás el pedido? Ya no vas a poder cambiarlo.')">
+                                    Enviar pedido a cocina
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div style="margin-top:20px; text-align:center; color:#27ae60; font-size:1.2rem; font-weight:700;">
+                            Pedido enviado ✓ <br>
+                            Estado: {{ pedido.estado.nombre }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p style="opacity:0.7; font-style:italic; margin-top:20px;">Aún no agregaste nada al pedido.</p>
+            {% endif %}
+        </div>
+        {% else %}
+            <div class="notice" style="margin-top: 20px;">
+                La sección de pedidos estará disponible cuando puedas ingresar a la pista (1 hora antes).
+            </div>
+        {% endif %}
     </div>
     {% else %}
     <div class="card-reserva">
-        <p>No tienes reservas activas en este momento.</p>
+        <p>No se encontró la reserva o no tienes permiso.</p>
     </div>
     {% endif %}
 </div>
