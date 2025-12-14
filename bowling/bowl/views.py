@@ -640,50 +640,74 @@ def registro(request):
 
     return render(request, "bowl/registro.html", {"form": form})
 
+# ---------------------------------------------------------
+# FUNCIÓN PARA CREAR ESTADOS AUTOMÁTICAMENTE
+# ---------------------------------------------------------
+def crear_estados_necesarios():
+    estados_necesarios = [
+        "Pendiente", "Disponible", "Completada",
+        "En preparación", "Listo", "Entregado"
+    ]
+    for nombre in estados_necesarios:
+        Estado.objects.get_or_create(nombre=nombre)
 
+# ---------------------------------------------------------
+# GESTIÓN DE RESERVA (cliente) - Cliente ve pedido hasta "Entregado"
+# ---------------------------------------------------------
 class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/gestion_reserva.html"
     login_url = reverse_lazy('iniciar_sesion')
 
     def get_context_data(self, **kwargs):
-        # Crear estados necesarios automáticamente
-        crear_estados_pedido_si_no_existen()
+        crear_estados_necesarios()
 
         context = super().get_context_data(**kwargs)
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk, cliente=self.request.user.cliente)
 
-        # Pedido
-        pedido, _ = Pedido.objects.get_or_create(
-            reserva=reserva,
-            defaults={'cliente': self.request.user.cliente}
-        )
-        detalles = DetallePedido.objects.filter(pedido=pedido).select_related('menu')
-        total_pedido = sum(d.subtotal or 0 for d in detalles)
-        menu_items = Menu.objects.filter(disponible=True)
-
-        # Permiso de entrada
         hoy = timezone.now().date()
         ahora = timezone.now().time()
         hora_permitida = (datetime.combine(hoy, reserva.hora) - timedelta(hours=1)).time()
         puede_entrar = (reserva.fecha < hoy) or (reserva.fecha == hoy and ahora >= hora_permitida)
 
-        # Estado del pedido
-        pedido_enviado = False
+        # Pedido actual: el último no entregado (incluye En preparación y Listo)
+        pedido_actual = Pedido.objects.filter(
+            reserva=reserva
+        ).exclude(estado__nombre="Entregado").order_by('-fecha').first()
+
+        # Si no hay pedido activo (todos entregados), crear uno nuevo
+        if not pedido_actual:
+            pedido_actual = Pedido.objects.create(
+                reserva=reserva,
+                cliente=self.request.user.cliente
+            )
+
+        detalles = DetallePedido.objects.filter(pedido=pedido_actual).select_related('menu')
+        total_pedido = sum(d.subtotal or 0 for d in detalles)
+        menu_items = Menu.objects.filter(disponible=True)
+
+        # Bloqueo solo en preparación
+        pedido_bloqueado = pedido_actual.estado and pedido_actual.estado.nombre == "En preparación"
+
+        # Estado para mostrar
         estado_mostrar = "Listo para enviar"
-        if pedido.estado and pedido.estado.nombre in ["En preparación", "Listo", "Entregado"]:
-            pedido_enviado = True
-            estado_mostrar = pedido.estado.nombre
+        if pedido_actual.estado:
+            if pedido_actual.estado.nombre == "En preparación":
+                estado_mostrar = "En preparación ⏳"
+            elif pedido_actual.estado.nombre == "Listo":
+                estado_mostrar = "Listo ✓ (esperando entrega)"
+            elif pedido_actual.estado.nombre == "Entregado":
+                estado_mostrar = "Entregado ✓"
 
         context.update({
             'reserva': reserva,
-            'pedido': pedido,
+            'pedido': pedido_actual,
             'detalles_pedido': detalles,
             'total_pedido': total_pedido,
             'menu_items': menu_items,
             'puede_entrar': puede_entrar,
             'estado_pedido_mostrar': estado_mostrar,
-            'pedido_enviado': pedido_enviado,
+            'pedido_bloqueado': pedido_bloqueado,
         })
         return context
 
@@ -691,53 +715,51 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
         accion = request.POST.get('accion')
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk, cliente=request.user.cliente)
-        pedido = Pedido.objects.get(reserva=reserva)
 
-        # Determinar si ya está enviado
-        pedido_enviado = pedido.estado and pedido.estado.nombre in ["En preparación", "Listo", "Entregado"]
+        # Pedido activo (el último no entregado)
+        pedido = Pedido.objects.filter(
+            reserva=reserva
+        ).exclude(estado__nombre="Entregado").order_by('-fecha').first()
+
+        if not pedido:
+            pedido = Pedido.objects.create(reserva=reserva, cliente=request.user.cliente)
+
+        pedido_bloqueado = pedido.estado and pedido.estado.nombre == "En preparación"
 
         if accion == "cancelar":
             return self.cancelar_reserva(request, reserva)
 
         elif accion == "agregar_comida":
-            if pedido_enviado:
-                messages.error(request, "El pedido ya fue enviado. No se puede modificar.")
-                return redirect('gestion_reserva', pk=pk)
+            if pedido_bloqueado:
+                messages.error(request, "El pedido está en preparación. Esperá a que lo entreguen.")
+            else:
+                menu_id = request.POST.get('menu_id')
+                cantidad_str = request.POST.get('cantidad', '1')
+                try:
+                    cantidad = int(cantidad_str)
+                    if cantidad < 1:
+                        raise ValueError
+                except ValueError:
+                    messages.error(request, "Cantidad inválida.")
+                    return redirect('gestion_reserva', pk=pk)
 
-            menu_id = request.POST.get('menu_id')
-            cantidad_str = request.POST.get('cantidad', '1')
-            try:
-                cantidad = int(cantidad_str)
-                if cantidad < 1:
-                    raise ValueError
-            except ValueError:
-                messages.error(request, "Cantidad inválida.")
-                return redirect('gestion_reserva', pk=pk)
+                if not menu_id:
+                    messages.error(request, "Selecciona un producto.")
+                    return redirect('gestion_reserva', pk=pk)
 
-            if not menu_id:
-                messages.error(request, "Selecciona un producto.")
-                return redirect('gestion_reserva', pk=pk)
+                menu = get_object_or_404(Menu, id=menu_id, disponible=True)
+                detalle, _ = DetallePedido.objects.get_or_create(
+                    pedido=pedido, menu=menu, defaults={'cantidad': 0}
+                )
+                detalle.cantidad += cantidad
+                detalle.save()
+                pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
+                pedido.save()
+                messages.success(request, f"Agregado: {cantidad} × {menu.nombre}")
 
-            menu = get_object_or_404(Menu, id=menu_id, disponible=True)
-
-            # === CORRECCIÓN CLAVE: get_or_create + solo sumar si YA existía ===
-            detalle, creado = DetallePedido.objects.get_or_create(
-                pedido=pedido,
-                menu=menu,
-                defaults={'cantidad': 0}  # empezamos en 0
-            )
-            detalle.cantidad += cantidad  # siempre sumamos la cantidad pedida
-            detalle.save()
-
-            # Actualizar total del pedido
-            pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
-            pedido.save()
-
-            messages.success(request, f"Agregado: {cantidad} × {menu.nombre}")
-            return redirect('gestion_reserva', pk=pk)
         elif accion == "eliminar_item":
-            if pedido_enviado:
-                messages.error(request, "El pedido ya fue enviado. No se puede modificar.")
+            if pedido_bloqueado:
+                messages.error(request, "El pedido está en preparación. No se puede eliminar.")
             else:
                 detalle_id = request.POST.get('detalle_id')
                 try:
@@ -745,49 +767,69 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
                     detalle.delete()
                     pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
                     pedido.save()
-                    messages.success(request, "Producto eliminado del pedido")
+                    messages.success(request, "Producto eliminado")
                 except DetallePedido.DoesNotExist:
                     pass
 
         elif accion == "enviar_pedido":
-            if not pedido.detalles.exists():
-                messages.warning(request, "¡Agregá algo antes de enviar el pedido!")
+            if pedido_bloqueado:
+                messages.error(request, "Ya hay un pedido en preparación.")
+            elif not pedido.detalles.exists():
+                messages.warning(request, "¡Agregá algo antes de enviar!")
             else:
                 estado_cocina, _ = Estado.objects.get_or_create(nombre="En preparación")
                 pedido.estado = estado_cocina
                 pedido.save()
-                messages.success(request, "¡PEDIDO ENVIADO A COCINA! En breve te lo llevan.")
+                messages.success(request, "¡PEDIDO ENVIADO A COCINA!")
 
         return redirect('gestion_reserva', pk=pk)
 
     def cancelar_reserva(self, request, reserva):
-        try:
-            estado_disponible = Estado.objects.get(nombre="Disponible")
-        except Estado.DoesNotExist:
-            estado_disponible, _ = Estado.objects.get_or_create(nombre="Disponible")
+        estado_disponible, _ = Estado.objects.get_or_create(nombre="Disponible")
         reserva.estado = estado_disponible
         reserva.save()
-        messages.success(request, "Reserva cancelada y pista liberada correctamente.")
+        messages.success(request, "Reserva cancelada correctamente.")
         return redirect('reserva')
 
-def crear_estados_pedido_si_no_existen():
+# ---------------------------------------------------------
+# COCINA - Oculta cuando está "Entregado"
+# ---------------------------------------------------------
+class CocinaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, ListView):
+    template_name = "bowl/cocina.html"
+    context_object_name = "pedidos"
 
-    estados_necesarios = [
-        "Pendiente",       # Para reservas
-        "En preparación",  # Para pedidos en cocina
-        "Listo",           # Pedido listo para entregar
-        "Entregado",       # Pedido entregado
-        "Disponible",      # Para pistas/reservas canceladas
-        "Completada",      # Reserva finalizada (partida terminada)
-    ]
-    
-    creados = 0
-    for nombre in estados_necesarios:
-        _, creado = Estado.objects.get_or_create(nombre=nombre)
-        if creado:
-            creados += 1
-    
-    # Opcional: podés imprimir en consola cuando crees nuevos (solo en desarrollo)
-    if creados > 0:
-        print(f"[INFO] Se crearon {creados} estados nuevos: {', '.join(estados_necesarios)}")
+    def get_queryset(self):
+        crear_estados_necesarios()
+        hoy = timezone.now().date()
+        return Pedido.objects.filter(
+            reserva__fecha=hoy,
+            detalles__isnull=False
+        ).exclude(estado__nombre="Entregado") \
+         .select_related('reserva__pista', 'reserva__cliente', 'estado') \
+         .prefetch_related('detalles__menu') \
+         .distinct() \
+         .order_by('reserva__hora', 'fecha')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['hoy'] = timezone.now().date()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if getattr(request.user, 'rol', '') != 'admin':
+            messages.error(request, "Acceso denegado.")
+            return redirect('cocina')
+
+        pedido_id = request.POST.get('pedido_id')
+        nuevo_estado_nombre = request.POST.get('nuevo_estado')
+
+        try:
+            pedido = Pedido.objects.get(id=pedido_id)
+            nuevo_estado, _ = Estado.objects.get_or_create(nombre=nuevo_estado_nombre)
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f"Pedido #{pedido_id} → {nuevo_estado_nombre}")
+        except Exception:
+            messages.error(request, "Error al actualizar.")
+
+        return redirect('cocina')

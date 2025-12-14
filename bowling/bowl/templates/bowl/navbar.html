@@ -70,6 +70,14 @@
                     </li>
 
                 {% endif %}
+                {% if request.user.rol == "admin" %}
+                    <li class="nav-link">
+                        <a href="{% url 'cocina' %}">
+                            <i class='bx bx-food-menu icon'></i>
+                            <span class="text nav-text">Pedidos Cocina</span>
+                        </a>
+                    </li>
+                {% endif %}
 
                 <!-- Enlace a Contacto -->
                 <li class="nav-link">
@@ -90,11 +98,7 @@
                     <i class='bx bx-user icon'></i>
                     <span class="text nav-text">Perfil</span>
                     <div class="profile-dropdown">
-                        <!-- Interruptor modo oscuro -->
-                        <div class="mode-switch">
-                            <i class='bx bx-moon icon' id="mode-icon"></i>
-                            <div class="toggle-switch"></div>
-                        </div>
+
                         <!-- Formulario para cerrar sesión -->
                         <form method="post" action="{% url 'cerrar_sesion' %}">
                             {% csrf_token %}
@@ -111,13 +115,7 @@
                         <a href="{% url 'iniciar_sesion' %}">
                             <span class="text nav-text">Iniciar Sesión</span>
                         </a>
-                        <div class="profile-dropdown">
-                            <!-- Modo oscuro incluso antes de iniciar sesión -->
-                            <div class="mode-switch">
-                                <i class='bx bx-moon icon' id="mode-icon"></i>
-                                <div class="toggle-switch"></div>
-                            </div>
-                        </div>  
+
                     </div>
                 </div>
             {% endif %}

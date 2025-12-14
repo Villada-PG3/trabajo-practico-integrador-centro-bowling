@@ -5,7 +5,7 @@ from django.urls import path,include
 from bowl.views import (
     InicioView, CafeView, ReservaListView, ListaPistasView, CrearPistaView, EditarPistaView,
     LoginnView, ContactoView, AsignarAdminView, registro, ReservaCreateView, 
-    TableroPuntuacionesView, GestionReservaView
+    TableroPuntuacionesView, GestionReservaView, CocinaView
 )
 from django.contrib.auth.views import LogoutView
 
@@ -41,5 +41,5 @@ urlpatterns = [
     path('contacto/', ContactoView.as_view(), name='contacto'),
 
     path('mi_reserva/<int:pk>/', GestionReservaView.as_view(), name='gestion_reserva'),
-
+    path('cocina/', CocinaView.as_view(), name='cocina'),
 ]
