@@ -641,39 +641,39 @@ def registro(request):
     return render(request, "bowl/registro.html", {"form": form})
 
 
-
-# ---------------------------------------------------------
-# PÃ¡gina de gestiÃ³n de reserva activa
-# ---------------------------------------------------------
 class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, TemplateView):
     template_name = "bowl/gestion_reserva.html"
     login_url = reverse_lazy('iniciar_sesion')
 
     def get_context_data(self, **kwargs):
+        # Crear estados necesarios automáticamente
+        crear_estados_pedido_si_no_existen()
+
         context = super().get_context_data(**kwargs)
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk, cliente=self.request.user.cliente)
 
-        # Crear o obtener el pedido asociado a la reserva
+        # Pedido
         pedido, _ = Pedido.objects.get_or_create(
             reserva=reserva,
             defaults={'cliente': self.request.user.cliente}
         )
-
-        # Detalles del pedido con menú relacionado
         detalles = DetallePedido.objects.filter(pedido=pedido).select_related('menu')
-
-        # Calcular total del pedido
-        total_pedido = sum(detalle.subtotal or 0 for detalle in detalles)
-
-        # Menú disponible
+        total_pedido = sum(d.subtotal or 0 for d in detalles)
         menu_items = Menu.objects.filter(disponible=True)
 
-        # Lógica de "puede entrar" (mantiene tu lógica original + mejora)
+        # Permiso de entrada
         hoy = timezone.now().date()
         ahora = timezone.now().time()
         hora_permitida = (datetime.combine(hoy, reserva.hora) - timedelta(hours=1)).time()
         puede_entrar = (reserva.fecha < hoy) or (reserva.fecha == hoy and ahora >= hora_permitida)
+
+        # Estado del pedido
+        pedido_enviado = False
+        estado_mostrar = "Listo para enviar"
+        if pedido.estado and pedido.estado.nombre in ["En preparación", "Listo", "Entregado"]:
+            pedido_enviado = True
+            estado_mostrar = pedido.estado.nombre
 
         context.update({
             'reserva': reserva,
@@ -682,80 +682,112 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
             'total_pedido': total_pedido,
             'menu_items': menu_items,
             'puede_entrar': puede_entrar,
+            'estado_pedido_mostrar': estado_mostrar,
+            'pedido_enviado': pedido_enviado,
         })
         return context
+
     def post(self, request, *args, **kwargs):
         accion = request.POST.get('accion')
         pk = self.kwargs.get('pk')
         reserva = get_object_or_404(Reserva, pk=pk, cliente=request.user.cliente)
+        pedido = Pedido.objects.get(reserva=reserva)
+
+        # Determinar si ya está enviado
+        pedido_enviado = pedido.estado and pedido.estado.nombre in ["En preparación", "Listo", "Entregado"]
 
         if accion == "cancelar":
             return self.cancelar_reserva(request, reserva)
+
         elif accion == "agregar_comida":
-            return self.agregar_comida_reserva(request, reserva)
+            if pedido_enviado:
+                messages.error(request, "El pedido ya fue enviado. No se puede modificar.")
+                return redirect('gestion_reserva', pk=pk)
+
+            menu_id = request.POST.get('menu_id')
+            cantidad_str = request.POST.get('cantidad', '1')
+            try:
+                cantidad = int(cantidad_str)
+                if cantidad < 1:
+                    raise ValueError
+            except ValueError:
+                messages.error(request, "Cantidad inválida.")
+                return redirect('gestion_reserva', pk=pk)
+
+            if not menu_id:
+                messages.error(request, "Selecciona un producto.")
+                return redirect('gestion_reserva', pk=pk)
+
+            menu = get_object_or_404(Menu, id=menu_id, disponible=True)
+
+            # === CORRECCIÓN CLAVE: get_or_create + solo sumar si YA existía ===
+            detalle, creado = DetallePedido.objects.get_or_create(
+                pedido=pedido,
+                menu=menu,
+                defaults={'cantidad': 0}  # empezamos en 0
+            )
+            detalle.cantidad += cantidad  # siempre sumamos la cantidad pedida
+            detalle.save()
+
+            # Actualizar total del pedido
+            pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
+            pedido.save()
+
+            messages.success(request, f"Agregado: {cantidad} × {menu.nombre}")
+            return redirect('gestion_reserva', pk=pk)
+        elif accion == "eliminar_item":
+            if pedido_enviado:
+                messages.error(request, "El pedido ya fue enviado. No se puede modificar.")
+            else:
+                detalle_id = request.POST.get('detalle_id')
+                try:
+                    detalle = DetallePedido.objects.get(id=detalle_id, pedido=pedido)
+                    detalle.delete()
+                    pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
+                    pedido.save()
+                    messages.success(request, "Producto eliminado del pedido")
+                except DetallePedido.DoesNotExist:
+                    pass
+
         elif accion == "enviar_pedido":
-            return self.enviar_pedido(request, reserva)
+            if not pedido.detalles.exists():
+                messages.warning(request, "¡Agregá algo antes de enviar el pedido!")
+            else:
+                estado_cocina, _ = Estado.objects.get_or_create(nombre="En preparación")
+                pedido.estado = estado_cocina
+                pedido.save()
+                messages.success(request, "¡PEDIDO ENVIADO A COCINA! En breve te lo llevan.")
 
         return redirect('gestion_reserva', pk=pk)
 
-    def enviar_pedido(self, request, reserva):
-        pedido = Pedido.objects.get(reserva=reserva)
-        if not pedido.detalles.exists():
-            messages.warning(request, "¡Agregá algo antes de enviar el pedido!")
-            return redirect('gestion_reserva', pk=reserva.pk)
-
-        # Usa el estado que YA existe en tu base de datos
-        estado_cocina = Estado.objects.get(nombre="En preparación")
-        pedido.estado = estado_cocina
-        pedido.save()
-        
-        messages.success(request, "¡Pedido enviado a cocina! En breve te lo llevan a la pista.")
-        return redirect('gestion_reserva', pk=reserva.pk)
-
     def cancelar_reserva(self, request, reserva):
-        # Tu lógica original de cancelación (corregida)
         try:
             estado_disponible = Estado.objects.get(nombre="Disponible")
         except Estado.DoesNotExist:
-            estado_disponible = Estado.objects.create(nombre="Disponible")
-        
+            estado_disponible, _ = Estado.objects.get_or_create(nombre="Disponible")
         reserva.estado = estado_disponible
         reserva.save()
         messages.success(request, "Reserva cancelada y pista liberada correctamente.")
         return redirect('reserva')
 
-    def agregar_comida_reserva(self, request, reserva):
-        menu_id = request.POST.get('menu_id')
-        cantidad_str = request.POST.get('cantidad', '1')
-        
-        try:
-            cantidad = int(cantidad_str)
-            if cantidad < 1:
-                raise ValueError
-        except ValueError:
-            messages.error(request, "Cantidad inválida.")
-            return redirect('gestion_reserva', pk=reserva.pk)
+def crear_estados_pedido_si_no_existen():
 
-        if not menu_id:
-            messages.error(request, "Debes seleccionar un producto.")
-            return redirect('gestion_reserva', pk=reserva.pk)
+    estados_necesarios = [
+        "Pendiente",       # Para reservas
+        "En preparación",  # Para pedidos en cocina
+        "Listo",           # Pedido listo para entregar
+        "Entregado",       # Pedido entregado
+        "Disponible",      # Para pistas/reservas canceladas
+        "Completada",      # Reserva finalizada (partida terminada)
+    ]
+    
+    creados = 0
+    for nombre in estados_necesarios:
+        _, creado = Estado.objects.get_or_create(nombre=nombre)
+        if creado:
+            creados += 1
+    
+    # Opcional: podés imprimir en consola cuando crees nuevos (solo en desarrollo)
+    if creados > 0:
+        print(f"[INFO] Se crearon {creados} estados nuevos: {', '.join(estados_necesarios)}")
 
-        menu = get_object_or_404(Menu, id=menu_id, disponible=True)
-        pedido = Pedido.objects.get(reserva=reserva)
-
-        # Buscar si ya existe el detalle para sumar cantidad
-        detalle, creado = DetallePedido.objects.get_or_create(
-            pedido=pedido,
-            menu=menu,
-            defaults={'cantidad': cantidad}
-        )
-        if not creado:
-            detalle.cantidad += cantidad
-            detalle.save()  # El save() recalcula el subtotal gracias al método save() del modelo
-
-        # Recalcular precio_total del pedido
-        pedido.precio_total = sum(d.subtotal or 0 for d in pedido.detalles.all())
-        pedido.save()
-
-        messages.success(request, f"Agregado: {cantidad} × {menu.nombre}")
-        return redirect('gestion_reserva', pk=reserva.pk)
