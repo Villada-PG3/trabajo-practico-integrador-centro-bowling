@@ -40,6 +40,7 @@
         border-radius: 12px;
         text-align: center;
         width: 100%;
+        font-size: 1.1rem;
     }
     .calendar-card input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
     .pill {
@@ -156,9 +157,11 @@
                     <form method="get" class="mb-3">
                         <input type="date" 
                                name="fecha" 
+                               id="fecha-input"
                                value="{{ fecha_seleccionada|date:'Y-m-d' }}" 
-                               min="{{ today|date:'Y-m-d' }}"
-                               onchange="this.form.submit()">
+
+                               onchange="this.form.submit()"
+                               required>
                     </form>
                     <div class="pill text-center">
                         Horario disponible: <strong>14:00 - 23:00 hs</strong><br>
@@ -254,6 +257,8 @@
         </div>
     </div>
 </div>
+
+
 
 <script>
 document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {

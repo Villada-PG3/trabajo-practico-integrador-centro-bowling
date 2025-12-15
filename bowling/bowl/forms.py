@@ -4,7 +4,7 @@ from .models import Pista, Cafeteria,Menu, Reserva, Mensaje, Usuario, Jugador
 from django.utils import timezone
 from datetime import time, datetime
 from django.contrib.auth.forms import UserCreationForm
-
+from datetime import date
 # --------------------------- REGISTRO DE USUARIO ---------------------------
 class RegistroUsuarioForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Se requiere un email válido")
@@ -57,7 +57,7 @@ class ReservaForm(forms.ModelForm):
             cleaned_data["hora"] = hora
 
         # Fecha no puede ser anterior a hoy
-        if fecha < timezone.now().date():
+        if fecha < date.today():
             raise forms.ValidationError("No se puede reservar en fechas pasadas.")
 
         # No puede haber reservas duplicadas

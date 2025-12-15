@@ -72,6 +72,30 @@
         border-radius: 12px;
         text-align: center;
     }
+    select {
+        background: rgba(0, 0, 0, 0.6) !important; /* Fondo negro semi-transparente más oscuro y elegante */
+        color: #ffffff !important; /* Texto blanco para buen contraste */
+        border: 2px solid #3498db !important; /* Borde azul neón bonito */
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        appearance: none; /* Quita el estilo por defecto del navegador */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%233498db' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px !important;
+    }
+
+    select:focus {
+        outline: none !important;
+        border-color: #5abde8 !important; /* Azul más claro al foco */
+        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3) !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+
+
 </style>
 {% endblock %}
 

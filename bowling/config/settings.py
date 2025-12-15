@@ -108,10 +108,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # -------------------------
 # Internacionalización
 # -------------------------
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-ar'
 USE_I18N = True
 USE_TZ = True
+TIME_ZONE = 'America/Argentina/Cordoba'  # O tu zona real
 
 
 # -------------------------
