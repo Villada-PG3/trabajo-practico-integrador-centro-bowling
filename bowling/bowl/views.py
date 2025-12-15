@@ -708,7 +708,7 @@ class GestionReservaView(LoginRequiredMixin, ThemeMixin, UsuarioContext, Templat
         menu_items = Menu.objects.filter(disponible=True)
 
         # Bloqueo solo en preparación
-        pedido_bloqueado = pedido_actual.estado and pedido_actual.estado.nombre == "En preparación"
+        pedido_bloqueado = pedido_actual.estado and pedido_actual.estado.nombre == "En preparación" or pedido_actual.estado and pedido_actual.estado.nombre == "Listo"
 
         # Estado para mostrar
         estado_mostrar = "Listo para enviar"

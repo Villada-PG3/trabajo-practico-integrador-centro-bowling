@@ -122,14 +122,12 @@
                 </button>
             </form>
 
-            {% if puede_entrar %}
-                <a href="{% url 'tablero_puntuaciones' reserva.pk %}" class="btn-ghost">Empezar partida</a>
-            {% else %}
-                <div class="notice">Podés ingresar 1 hora antes del horario reservado.</div>
-            {% endif %}
+
+    <a href="{% url 'tablero_puntuaciones' reserva.pk %}" class="btn-ghost">Empezar partida</a>
+
         </div>
 
-        {% if puede_entrar %}
+  
                 <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.15);">
             <h2 style="margin-bottom: 20px; font-size: 22px;">🍔 Pedido a la Cafetería</h2>
 
@@ -154,7 +152,7 @@
                     <button type="submit" class="btn-ghost">Añadir</button>
                 </div>
             </form>
-            {% endif %}
+            
 
             {% if detalles_pedido %}
                 <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px;">

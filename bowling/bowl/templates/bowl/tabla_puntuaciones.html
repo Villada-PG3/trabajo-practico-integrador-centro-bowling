@@ -225,13 +225,7 @@
         </div>
         <div class="score-body">
 
-            {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            {% endif %}
+
 
             {% if not partida_iniciada %}
                 <div style="text-align:center; margin:40px 0;">

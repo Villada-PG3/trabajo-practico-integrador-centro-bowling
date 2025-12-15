@@ -136,13 +136,9 @@
 
         // Función para cambiar tema
         const setTheme = (theme) => {
-            if (theme === 'dark') {
-                body.classList.add('dark');
+            body.classList.add('dark');
                 modeIcon.classList.replace('bx-moon', 'bx-sun');
-            } else {
-                body.classList.remove('dark');
-                modeIcon.classList.replace('bx-sun', 'bx-moon');
-            }
+
         };
 
         // Aplicar tema guardado o por defecto
