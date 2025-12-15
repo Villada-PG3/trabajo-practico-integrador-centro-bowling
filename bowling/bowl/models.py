@@ -241,10 +241,9 @@ class PuntajeJugador(models.Model):
     id_puntaje = models.AutoField(primary_key=True)
     partida = models.ForeignKey(Partida, on_delete=models.CASCADE)
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    set = models.PositiveSmallIntegerField()        # 1 al 10
+    set = models.PositiveSmallIntegerField()        
     puntaje = models.PositiveSmallIntegerField(default=0)
 
-    # 0–300
 
     class Meta:
         unique_together = ('partida', 'jugador', 'set')
